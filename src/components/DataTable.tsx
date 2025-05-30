@@ -16,17 +16,26 @@ interface DataTableProps {
   columns: { key: string; label: string }[]
   onEdit?: (item: TableData) => void
   onDelete?: (id: string) => void
+  showActions?: boolean
 }
 
-export function DataTable({ title, data, columns, onEdit, onDelete }: DataTableProps) {
+export function DataTable({ 
+  title, 
+  data, 
+  columns, 
+  onEdit, 
+  onDelete, 
+  showActions = true 
+}: DataTableProps) {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
 
   const filteredData = data.filter(item =>
-    Object.values(item).some(value =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
+    Object.values(item).some(value => {
+      if (React.isValidElement(value)) return false
+      return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    })
   )
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage)
@@ -59,7 +68,9 @@ export function DataTable({ title, data, columns, onEdit, onDelete }: DataTableP
                     {column.label}
                   </th>
                 ))}
-                <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                {showActions && (onEdit || onDelete) && (
+                  <th className="text-left p-4 font-medium text-muted-foreground">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -70,30 +81,32 @@ export function DataTable({ title, data, columns, onEdit, onDelete }: DataTableP
                       {item[column.key]}
                     </td>
                   ))}
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      {onEdit && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onEdit(item)}
-                          className="h-8 px-3"
-                        >
-                          Modifier
-                        </Button>
-                      )}
-                      {onDelete && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onDelete(item.id)}
-                          className="h-8 px-3 text-red-600 hover:text-red-700"
-                        >
-                          Supprimer
-                        </Button>
-                      )}
-                    </div>
-                  </td>
+                  {showActions && (onEdit || onDelete) && (
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        {onEdit && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onEdit(item)}
+                            className="h-8 px-3"
+                          >
+                            Modifier
+                          </Button>
+                        )}
+                        {onDelete && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => onDelete(item.id)}
+                            className="h-8 px-3 text-red-600 hover:text-red-700"
+                          >
+                            Supprimer
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

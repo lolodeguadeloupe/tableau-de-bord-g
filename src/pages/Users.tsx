@@ -1,13 +1,25 @@
 
 import { useState, useEffect } from "react"
-import { Plus, UserPlus } from "lucide-react"
+import { Plus, UserPlus, Edit, Trash2, Eye } from "lucide-react"
 import { DataTable } from "@/components/DataTable"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/hooks/useAuth"
+import { UserEditModal } from "@/components/UserEditModal"
+import { UserDetailsModal } from "@/components/UserDetailsModal"
 
 interface User {
   id: string
@@ -19,17 +31,13 @@ interface User {
   updated_at: string
 }
 
-const columns = [
-  { key: "first_name", label: "Prénom" },
-  { key: "last_name", label: "Nom" },
-  { key: "email", label: "Email" },
-  { key: "role", label: "Rôle" },
-  { key: "created_at", label: "Date d'inscription" }
-]
-
 export default function Users() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false)
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [stats, setStats] = useState({
     total: 0,
     admins: 0,
@@ -79,15 +87,22 @@ export default function Users() {
   }, [])
 
   const handleEdit = (user: User) => {
-    console.log("Modifier utilisateur:", user)
-    toast({
-      title: "Fonctionnalité à venir",
-      description: "L'édition des utilisateurs sera bientôt disponible.",
-    })
+    setSelectedUser(user)
+    setEditModalOpen(true)
   }
 
-  const handleDelete = async (userId: string) => {
-    if (!isAdmin) {
+  const handleViewDetails = (user: User) => {
+    setSelectedUser(user)
+    setDetailsModalOpen(true)
+  }
+
+  const handleDeleteClick = (user: User) => {
+    setSelectedUser(user)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedUser || !isAdmin) {
       toast({
         title: "Accès refusé",
         description: "Seuls les administrateurs peuvent supprimer des utilisateurs.",
@@ -100,7 +115,7 @@ export default function Users() {
       const { error } = await supabase
         .from('profiles')
         .delete()
-        .eq('id', userId)
+        .eq('id', selectedUser.id)
 
       if (error) throw error
 
@@ -109,7 +124,6 @@ export default function Users() {
         description: "L'utilisateur a été supprimé avec succès.",
       })
 
-      // Recharger la liste
       fetchUsers()
     } catch (error: any) {
       console.error('Erreur lors de la suppression:', error)
@@ -118,10 +132,22 @@ export default function Users() {
         description: "Impossible de supprimer l'utilisateur.",
         variant: "destructive",
       })
+    } finally {
+      setDeleteDialogOpen(false)
+      setSelectedUser(null)
     }
   }
 
-  // Transformer les données pour l'affichage avec badges
+  // Configuration des colonnes avec actions personnalisées
+  const columns = [
+    { key: "first_name", label: "Prénom" },
+    { key: "last_name", label: "Nom" },
+    { key: "email", label: "Email" },
+    { key: "role", label: "Rôle" },
+    { key: "created_at", label: "Date d'inscription" }
+  ]
+
+  // Transformer les données pour l'affichage avec badges et actions personnalisées
   const displayUsers = users.map(user => ({
     ...user,
     first_name: user.first_name || "-",
@@ -136,7 +162,40 @@ export default function Users() {
          user.role === "editor" ? "Éditeur" : "Utilisateur"}
       </Badge>
     ),
-    created_at: new Date(user.created_at).toLocaleDateString('fr-FR')
+    created_at: new Date(user.created_at).toLocaleDateString('fr-FR'),
+    actions: (
+      <div className="flex gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleViewDetails(user)}
+          className="h-8 px-3"
+        >
+          <Eye className="h-4 w-4 mr-1" />
+          Voir
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => handleEdit(user)}
+          className="h-8 px-3"
+        >
+          <Edit className="h-4 w-4 mr-1" />
+          Modifier
+        </Button>
+        {isAdmin && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleDeleteClick(user)}
+            className="h-8 px-3 text-red-600 hover:text-red-700"
+          >
+            <Trash2 className="h-4 w-4 mr-1" />
+            Supprimer
+          </Button>
+        )}
+      </div>
+    )
   }))
 
   const statsCards = [
@@ -191,10 +250,53 @@ export default function Users() {
       <DataTable
         title="Liste des Utilisateurs"
         data={displayUsers}
-        columns={columns}
-        onEdit={handleEdit}
-        onDelete={isAdmin ? handleDelete : undefined}
+        columns={[...columns, { key: "actions", label: "Actions" }]}
+        showActions={false}
       />
+
+      {/* Modals */}
+      <UserEditModal
+        user={selectedUser}
+        isOpen={editModalOpen}
+        onClose={() => {
+          setEditModalOpen(false)
+          setSelectedUser(null)
+        }}
+        onSuccess={fetchUsers}
+      />
+
+      <UserDetailsModal
+        user={selectedUser}
+        isOpen={detailsModalOpen}
+        onClose={() => {
+          setDetailsModalOpen(false)
+          setSelectedUser(null)
+        }}
+      />
+
+      {/* Dialog de confirmation de suppression */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer l'utilisateur "{selectedUser?.email}" ? 
+              Cette action est irréversible et supprimera également tous les données associées à cet utilisateur.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setSelectedUser(null)}>
+              Annuler
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

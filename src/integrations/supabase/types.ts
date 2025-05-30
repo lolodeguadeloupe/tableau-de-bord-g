@@ -1075,6 +1075,100 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          auto_renew: boolean
+          created_at: string
+          currency: string
+          end_date: string | null
+          id: string
+          plan_name: string
+          price: number
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          id?: string
+          plan_name: string
+          price: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean
+          created_at?: string
+          currency?: string
+          end_date?: string | null
+          id?: string
+          plan_name?: string
+          price?: number
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_consumption: {
+        Row: {
+          amount_consumed: number
+          consumption_date: string
+          created_at: string
+          currency: string
+          id: string
+          service_name: string
+          service_type: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount_consumed: number
+          consumption_date?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          service_name: string
+          service_type: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount_consumed?: number
+          consumption_date?: string
+          created_at?: string
+          currency?: string
+          id?: string
+          service_name?: string
+          service_type?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_consumption_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
