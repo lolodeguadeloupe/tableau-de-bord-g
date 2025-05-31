@@ -41,11 +41,11 @@ export default function LeisureActivities() {
         console.error('❌ Erreur lors de la récupération des loisirs:', error)
         throw error
       }
-
-      console.log('✅ Loisirs récupérés:', data)
-      setLoisirs(data as Loisir[])
+      
+      console.log('✅ Nombre de loisirs récupérés:', data?.length || 0)
+      setLoisirs(data || [])
     } catch (error: unknown) {
-      console.error('💥 Erreur inattendue:', error)
+      console.error('💥 Erreur lors du chargement des loisirs:', error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les activités de loisirs.",
@@ -61,6 +61,7 @@ export default function LeisureActivities() {
   }, [])
 
   const handleEdit = (loisir: Loisir) => {
+    console.log('✏️ Édition du loisir:', loisir)
     setSelectedLoisir(loisir)
     setModalOpen(true)
   }
@@ -85,7 +86,7 @@ export default function LeisureActivities() {
 
       fetchLoisirs()
     } catch (error: unknown) {
-      console.error('Erreur lors de la suppression:', error)
+      console.error('❌ Erreur lors de la suppression:', error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer l'activité.",
@@ -149,88 +150,52 @@ export default function LeisureActivities() {
             </div>
           </CardContent>
         </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {loisirs.map((loisir) => (
-            <Card key={loisir.id} className="border border-border/40 hover:shadow-lg transition-shadow">
-              {loisir.image && (
-                <div className="aspect-video relative overflow-hidden rounded-t-lg">
-                  <img
-                    src={loisir.image}
-                    alt={loisir.title}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              )}
-              <CardHeader className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-lg font-semibold text-foreground line-clamp-2">
-                    {loisir.title}
-                  </CardTitle>
-                  {isEditor && (
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(loisir)}
-                        className="h-8 w-8 p-0"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(loisir.id)}
-                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground line-clamp-3">
-                  {loisir.description}
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    <span>{loisir.location}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    <span>{loisir.start_date} - {loisir.end_date}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Users className="h-4 w-4" />
-                    <span>{loisir.current_participants || 0} / {loisir.max_participants} participants</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between pt-2">
-                  <Badge variant={
-                    (loisir.current_participants || 0) >= loisir.max_participants 
-                      ? "destructive" 
-                      : "default"
-                  }>
-                    {(loisir.current_participants || 0) >= loisir.max_participants 
-                      ? "Complet" 
-                      : "Places disponibles"
-                    }
-                  </Badge>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground">
-                      {Math.round(((loisir.current_participants || 0) / loisir.max_participants) * 100)}% rempli
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Places Disponibles</CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loisirs.reduce((sum, loisir) => sum + (loisir.max_participants - loisir.current_participants), 0)}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Taux de Remplissage</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {loisirs.length > 0 
+                ? `${Math.round((loisirs.reduce((sum, loisir) => sum + loisir.current_participants, 0) / loisirs.reduce((sum, loisir) => sum + loisir.max_participants, 0)) * 100)}%`
+                : "0%"
+              }
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Table des loisirs */}
+      {loisirs.length > 0 && (
+        <DataTable
+          title="Liste des loisirs"
+          data={tableData}
+          columns={columns}
+          onEdit={(item) => {
+            const originalLoisir = loisirs.find(l => l.id.toString() === item.id);
+            if (originalLoisir) {
+              handleEdit(originalLoisir);
+            }
+          }}
+          onDelete={(id) => setDeleteLoisirId(parseInt(id))}
+        />
       )}
 
+      {/* Modal de création/édition */}
       <LoisirsModal
         loisir={selectedLoisir}
         isOpen={modalOpen}
