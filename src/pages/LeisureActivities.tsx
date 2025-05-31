@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,16 +42,25 @@ export default function LeisureActivities() {
   const { toast } = useToast()
 
   const fetchLoisirs = async () => {
+    console.log('🔄 Début de la récupération des loisirs...')
     try {
       const { data, error } = await supabase
         .from('loisirs')
         .select('*')
         .order('title')
 
-      if (error) throw error
+      console.log('📊 Données récupérées:', data)
+      console.log('❌ Erreur éventuelle:', error)
+
+      if (error) {
+        console.error('❌ Erreur Supabase:', error)
+        throw error
+      }
+      
+      console.log('✅ Nombre de loisirs récupérés:', data?.length || 0)
       setLoisirs(data || [])
     } catch (error: any) {
-      console.error('Erreur lors du chargement des loisirs:', error)
+      console.error('💥 Erreur lors du chargement des loisirs:', error)
       toast({
         title: "Erreur",
         description: "Impossible de charger les loisirs.",
@@ -58,6 +68,7 @@ export default function LeisureActivities() {
       })
     } finally {
       setLoading(false)
+      console.log('🏁 Fin de la récupération des loisirs')
     }
   }
 
@@ -66,12 +77,15 @@ export default function LeisureActivities() {
   }, [])
 
   const handleEdit = (loisir: any) => {
+    console.log('✏️ Édition du loisir:', loisir)
     setSelectedLoisir(loisir)
     setIsModalOpen(true)
   }
 
   const handleDelete = async (id: string) => {
     const loisirId = parseInt(id)
+    console.log('🗑️ Suppression du loisir ID:', loisirId)
+    
     try {
       const { error } = await supabase
         .from('loisirs')
@@ -87,7 +101,7 @@ export default function LeisureActivities() {
 
       fetchLoisirs()
     } catch (error: any) {
-      console.error('Erreur lors de la suppression:', error)
+      console.error('❌ Erreur lors de la suppression:', error)
       toast({
         title: "Erreur",
         description: "Impossible de supprimer le loisir.",
@@ -143,6 +157,8 @@ export default function LeisureActivities() {
     { key: 'availability', label: 'Disponibilité' }
   ]
 
+  console.log('🎯 État actuel:', { loading, loisirs: loisirs.length, isModalOpen })
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -163,6 +179,16 @@ export default function LeisureActivities() {
           Nouveau loisir
         </Button>
       </div>
+
+      {/* Message de débogage */}
+      {loisirs.length === 0 && !loading && (
+        <div className="text-center p-8 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-lg font-medium text-yellow-800">Aucun loisir trouvé</p>
+          <p className="text-yellow-600 mt-2">
+            La table 'loisirs' semble être vide. Créez votre premier loisir en cliquant sur "Nouveau loisir".
+          </p>
+        </div>
+      )}
 
       {/* Statistiques */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -217,13 +243,15 @@ export default function LeisureActivities() {
       </div>
 
       {/* Table des loisirs */}
-      <DataTable
-        title="Liste des loisirs"
-        data={tableData}
-        columns={columns}
-        onEdit={handleEdit}
-        onDelete={(id) => setDeleteLoisirId(parseInt(id))}
-      />
+      {loisirs.length > 0 && (
+        <DataTable
+          title="Liste des loisirs"
+          data={tableData}
+          columns={columns}
+          onEdit={handleEdit}
+          onDelete={(id) => setDeleteLoisirId(parseInt(id))}
+        />
+      )}
 
       {/* Modal de création/édition */}
       <LoisirsModal
