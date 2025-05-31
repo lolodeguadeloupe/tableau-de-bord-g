@@ -6,56 +6,61 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { AuthProvider } from "@/hooks/useAuth";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { UserMenu } from "@/components/UserMenu";
+import { ThemeProvider } from "next-themes";
+import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
-import Content from "./pages/Content";
 import Analytics from "./pages/Analytics";
-import Database from "./pages/Database";
+import Users from "./pages/Users";
+import Content from "./pages/Content";
 import Settings from "./pages/Settings";
+import Database from "./pages/Database";
 import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
 import LeisureActivities from "./pages/LeisureActivities";
+import Accommodations from "./pages/Accommodations";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <TooltipProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/*" element={
-              <ProtectedRoute>
-                <SidebarProvider>
-                  <div className="min-h-screen flex w-full bg-background">
-                    <AppSidebar />
-                    <main className="flex-1 p-6 overflow-auto">
-                      <div className="flex justify-end mb-4">
-                        <UserMenu />
-                      </div>
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/content" element={<Content />} />
-                        <Route path="/leisure-activities" element={<LeisureActivities />} />
-                        <Route path="/analytics" element={<Analytics />} />
-                        <Route path="/database" element={<Database />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </main>
-                  </div>
-                </SidebarProvider>
-              </ProtectedRoute>
-            } />
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <SidebarProvider>
+                    <div className="min-h-screen flex w-full">
+                      <AppSidebar />
+                      <main className="flex-1 p-6">
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/analytics" element={<Analytics />} />
+                          <Route path="/users" element={<Users />} />
+                          <Route path="/content" element={<Content />} />
+                          <Route path="/leisure-activities" element={<LeisureActivities />} />
+                          <Route path="/accommodations" element={<Accommodations />} />
+                          <Route path="/database" element={<Database />} />
+                          <Route path="/settings" element={<Settings />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </main>
+                    </div>
+                  </SidebarProvider>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
-    </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
