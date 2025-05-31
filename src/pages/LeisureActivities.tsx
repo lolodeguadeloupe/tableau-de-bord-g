@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -59,7 +58,7 @@ export default function LeisureActivities() {
       
       console.log('✅ Nombre de loisirs récupérés:', data?.length || 0)
       setLoisirs(data || [])
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('💥 Erreur lors du chargement des loisirs:', error)
       toast({
         title: "Erreur",
@@ -100,7 +99,7 @@ export default function LeisureActivities() {
       })
 
       fetchLoisirs()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erreur lors de la suppression:', error)
       toast({
         title: "Erreur",
