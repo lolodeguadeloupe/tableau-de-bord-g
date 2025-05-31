@@ -21,6 +21,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   isAdmin: boolean
   isEditor: boolean
+  refreshProfile: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -33,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      console.log('🔄 Récupération du profil pour:', userId)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -40,29 +42,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .single()
 
       if (error) {
-        console.error('Erreur lors de la récupération du profil:', error)
+        console.error('❌ Erreur lors de la récupération du profil:', error)
+        // Si le profil n'existe pas, on peut créer un profil par défaut
+        if (error.code === 'PGRST116') {
+          console.log('📝 Création d\'un profil par défaut...')
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user?.email || '',
+              role: 'user'
+            })
+            .select()
+            .single()
+
+          if (createError) {
+            console.error('❌ Erreur lors de la création du profil:', createError)
+            return
+          }
+          setProfile(newProfile)
+        }
         return
       }
 
+      console.log('✅ Profil récupéré:', data)
       setProfile(data)
     } catch (error) {
-      console.error('Erreur lors de la récupération du profil:', error)
+      console.error('💥 Erreur inattendue lors de la récupération du profil:', error)
+    }
+  }
+
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id)
     }
   }
 
   useEffect(() => {
+    console.log('🎯 Initialisation de l\'authentification...')
+    
     // Configurer l'écoute des changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.id)
+        console.log('🔄 Changement d\'état d\'authentification:', event, session?.user?.id)
         setSession(session)
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          // Récupérer le profil utilisateur avec un délai pour éviter les blocages
+          // Différer la récupération du profil pour éviter les blocages
           setTimeout(() => {
             fetchProfile(session.user.id)
-          }, 0)
+          }, 100)
         } else {
           setProfile(null)
         }
@@ -73,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Vérifier la session existante
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('📋 Session existante:', session?.user?.id)
       setSession(session)
       setUser(session?.user ?? null)
       
@@ -87,13 +118,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) {
-      console.error('Erreur lors de la déconnexion:', error)
+    try {
+      console.log('👋 Déconnexion...')
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('❌ Erreur lors de la déconnexion:', error)
+      }
+      setUser(null)
+      setSession(null)
+      setProfile(null)
+      console.log('✅ Déconnexion réussie')
+    } catch (error) {
+      console.error('💥 Erreur inattendue lors de la déconnexion:', error)
     }
-    setUser(null)
-    setSession(null)
-    setProfile(null)
   }
 
   const isAdmin = profile?.role === 'admin'
@@ -107,7 +144,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       signOut,
       isAdmin,
-      isEditor
+      isEditor,
+      refreshProfile
     }}>
       {children}
     </AuthContext.Provider>
