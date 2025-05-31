@@ -1,5 +1,5 @@
 
-import { Calendar, Home, Users, FileText, Settings, BarChart3, Database } from "lucide-react"
+import { Calendar, Home, Users, FileText, Settings, BarChart3, Database, Activity } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 import {
   Sidebar,
@@ -29,6 +29,11 @@ const menuItems = [
     title: "Contenu",
     url: "/content",
     icon: FileText,
+  },
+  {
+    title: "Activités Loisirs",
+    url: "/leisure-activities",
+    icon: Activity,
   },
   {
     title: "Statistiques",

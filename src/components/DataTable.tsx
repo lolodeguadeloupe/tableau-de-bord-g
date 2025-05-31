@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import React, { useState } from "react"
 import { ChevronLeft, ChevronRight, Search } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"

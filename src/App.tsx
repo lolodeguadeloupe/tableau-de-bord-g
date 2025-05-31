@@ -17,6 +17,7 @@ import Database from "./pages/Database";
 import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import LeisureActivities from "./pages/LeisureActivities";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,11 @@ const App = () => (
                         <Route path="/content" element={
                           <ProtectedRoute requireEditor>
                             <Content />
+                          </ProtectedRoute>
+                        } />
+                        <Route path="/leisure-activities" element={
+                          <ProtectedRoute requireEditor>
+                            <LeisureActivities />
                           </ProtectedRoute>
                         } />
                         <Route path="/analytics" element={<Analytics />} />
