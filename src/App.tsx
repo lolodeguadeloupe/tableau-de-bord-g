@@ -18,6 +18,7 @@ import Database from "./pages/Database";
 import Auth from "./pages/Auth";
 import LeisureActivities from "./pages/LeisureActivities";
 import Accommodations from "./pages/Accommodations";
+import Restaurants from "./pages/Restaurants";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
@@ -49,6 +50,7 @@ const App = () => (
                             <Route path="/content" element={<Content />} />
                             <Route path="/leisure-activities" element={<LeisureActivities />} />
                             <Route path="/accommodations" element={<Accommodations />} />
+                            <Route path="/restaurants" element={<Restaurants />} />
                             <Route path="/database" element={<Database />} />
                             <Route path="/settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />

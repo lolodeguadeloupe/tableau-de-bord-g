@@ -2,7 +2,7 @@
 import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Users, Calendar, Settings } from "lucide-react"
+import { BarChart3, Users, Calendar, Settings, Utensils } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -81,14 +81,14 @@ const Index = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Réservations
+              Restaurants
             </CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+            <Utensils className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">156</div>
+            <div className="text-2xl font-bold">15</div>
             <p className="text-xs text-muted-foreground">
-              +12% par rapport au mois dernier
+              +3 nouveaux partenaires
             </p>
           </CardContent>
         </Card>
@@ -110,7 +110,7 @@ const Index = () => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle>Gestion des Loisirs</CardTitle>
@@ -141,6 +141,23 @@ const Index = () => {
               className="w-full"
             >
               Gérer les Hébergements
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Restaurants</CardTitle>
+            <CardDescription>
+              Gérer vos restaurants partenaires
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={() => navigate('/restaurants')}
+              className="w-full"
+            >
+              Gérer les Restaurants
             </Button>
           </CardContent>
         </Card>
