@@ -20,7 +20,7 @@ import Accommodations from "./pages/Accommodations";
 import Restaurants from "./pages/Restaurants";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { AuthProvider } from "@/hooks/useAuth";
+
 
 const queryClient = new QueryClient();
 
