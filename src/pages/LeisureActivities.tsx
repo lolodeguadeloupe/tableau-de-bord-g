@@ -1,24 +1,13 @@
 
 import { useState, useEffect } from "react"
-import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Plus, Users, MapPin, Calendar, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { DataTable } from "@/components/DataTable"
-import { LoisirsModal } from "@/components/LoisirsModal"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import type { Json } from "@/integrations/supabase/types"
+import { LoisirsModal } from "@/components/LoisirsModal"
+import { useAuth } from "@/hooks/useAuth"
 
 interface Loisir {
   id: number
@@ -30,45 +19,41 @@ interface Loisir {
   max_participants: number
   current_participants: number
   image: string
-  gallery_images?: Json
+  gallery_images?: any
 }
 
 export default function LeisureActivities() {
   const [loisirs, setLoisirs] = useState<Loisir[]>([])
   const [loading, setLoading] = useState(true)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
   const [selectedLoisir, setSelectedLoisir] = useState<Loisir | null>(null)
-  const [deleteLoisirId, setDeleteLoisirId] = useState<number | null>(null)
   const { toast } = useToast()
+  const { isEditor } = useAuth()
 
   const fetchLoisirs = async () => {
-    console.log('🔄 Début de la récupération des loisirs...')
     try {
+      console.log('🔄 Récupération des loisirs...')
       const { data, error } = await supabase
         .from('loisirs')
         .select('*')
-        .order('title')
-
-      console.log('📊 Données récupérées:', data)
-      console.log('❌ Erreur éventuelle:', error)
+        .order('id', { ascending: false })
 
       if (error) {
-        console.error('❌ Erreur Supabase:', error)
+        console.error('❌ Erreur lors de la récupération des loisirs:', error)
         throw error
       }
-      
-      console.log('✅ Nombre de loisirs récupérés:', data?.length || 0)
+
+      console.log('✅ Loisirs récupérés:', data)
       setLoisirs(data || [])
     } catch (error: any) {
-      console.error('💥 Erreur lors du chargement des loisirs:', error)
+      console.error('💥 Erreur inattendue:', error)
       toast({
         title: "Erreur",
-        description: "Impossible de charger les loisirs.",
+        description: "Impossible de charger les activités de loisirs.",
         variant: "destructive",
       })
     } finally {
       setLoading(false)
-      console.log('🏁 Fin de la récupération des loisirs')
     }
   }
 
@@ -76,93 +61,56 @@ export default function LeisureActivities() {
     fetchLoisirs()
   }, [])
 
-  const handleEdit = (loisir: any) => {
-    console.log('✏️ Édition du loisir:', loisir)
+  const handleEdit = (loisir: Loisir) => {
     setSelectedLoisir(loisir)
-    setIsModalOpen(true)
+    setModalOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    const loisirId = parseInt(id)
-    console.log('🗑️ Suppression du loisir ID:', loisirId)
-    
+  const handleDelete = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette activité ?')) {
+      return
+    }
+
     try {
       const { error } = await supabase
         .from('loisirs')
         .delete()
-        .eq('id', loisirId)
+        .eq('id', id)
 
       if (error) throw error
 
       toast({
-        title: "Loisir supprimé",
-        description: "Le loisir a été supprimé avec succès.",
+        title: "Activité supprimée",
+        description: "L'activité de loisir a été supprimée avec succès.",
       })
 
       fetchLoisirs()
     } catch (error: any) {
-      console.error('❌ Erreur lors de la suppression:', error)
+      console.error('Erreur lors de la suppression:', error)
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer le loisir.",
+        description: "Impossible de supprimer l'activité.",
         variant: "destructive",
       })
     }
-    setDeleteLoisirId(null)
   }
 
-  const handleModalClose = () => {
-    setIsModalOpen(false)
+  const handleCreateNew = () => {
     setSelectedLoisir(null)
+    setModalOpen(true)
   }
 
-  const getAvailabilityColor = (current: number, max: number) => {
-    const ratio = current / max
-    if (ratio >= 1) return "bg-red-100 text-red-800"
-    if (ratio >= 0.8) return "bg-orange-100 text-orange-800"
-    return "bg-green-100 text-green-800"
+  const handleModalSuccess = () => {
+    fetchLoisirs()
   }
-
-  const getAvailabilityText = (current: number, max: number) => {
-    const available = max - current
-    if (available <= 0) return "Complet"
-    return `${available} places`
-  }
-
-  const tableData = loisirs.map(loisir => ({
-    ...loisir,
-    id: loisir.id.toString(),
-    availability: (
-      <Badge className={getAvailabilityColor(loisir.current_participants, loisir.max_participants)}>
-        {getAvailabilityText(loisir.current_participants, loisir.max_participants)}
-      </Badge>
-    ),
-    participants: `${loisir.current_participants}/${loisir.max_participants}`,
-    dates: `${loisir.start_date} - ${loisir.end_date}`,
-    image_preview: loisir.image ? (
-      <img src={loisir.image} alt={loisir.title} className="w-12 h-12 object-cover rounded" />
-    ) : (
-      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
-        <Eye className="h-4 w-4 text-gray-400" />
-      </div>
-    )
-  }))
-
-  const columns = [
-    { key: 'image_preview', label: 'Image' },
-    { key: 'title', label: 'Titre' },
-    { key: 'location', label: 'Lieu' },
-    { key: 'dates', label: 'Période' },
-    { key: 'participants', label: 'Participants' },
-    { key: 'availability', label: 'Disponibilité' }
-  ]
-
-  console.log('🎯 État actuel:', { loading, loisirs: loisirs.length, isModalOpen })
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Chargement des loisirs...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+          <p className="mt-4 text-muted-foreground">Chargement des activités...</p>
+        </div>
       </div>
     )
   }
@@ -171,116 +119,125 @@ export default function LeisureActivities() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Loisirs</h1>
-          <p className="text-muted-foreground">Gérez vos activités de loisirs</p>
+          <h1 className="text-3xl font-bold text-foreground">Activités Loisirs</h1>
+          <p className="text-muted-foreground mt-1">Gérez les activités de loisirs disponibles</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nouveau loisir
-        </Button>
+        {isEditor && (
+          <Button onClick={handleCreateNew} className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800">
+            <Plus className="h-4 w-4 mr-2" />
+            Nouvelle Activité
+          </Button>
+        )}
       </div>
 
-      {/* Message de débogage */}
-      {loisirs.length === 0 && !loading && (
-        <div className="text-center p-8 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-lg font-medium text-yellow-800">Aucun loisir trouvé</p>
-          <p className="text-yellow-600 mt-2">
-            La table 'loisirs' semble être vide. Créez votre premier loisir en cliquant sur "Nouveau loisir".
-          </p>
+      {loisirs.length === 0 ? (
+        <Card className="border border-border/40">
+          <CardContent className="p-8 text-center">
+            <div className="space-y-4">
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto">
+                <Users className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <div>
+                <h3 className="text-lg font-medium text-foreground">Aucune activité trouvée</h3>
+                <p className="text-muted-foreground">Commencez par créer votre première activité de loisir.</p>
+              </div>
+              {isEditor && (
+                <Button onClick={handleCreateNew} variant="outline">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Créer une activité
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loisirs.map((loisir) => (
+            <Card key={loisir.id} className="border border-border/40 hover:shadow-lg transition-shadow">
+              {loisir.image && (
+                <div className="aspect-video relative overflow-hidden rounded-t-lg">
+                  <img
+                    src={loisir.image}
+                    alt={loisir.title}
+                    className="object-cover w-full h-full"
+                  />
+                </div>
+              )}
+              <CardHeader className="space-y-3">
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg font-semibold text-foreground line-clamp-2">
+                    {loisir.title}
+                  </CardTitle>
+                  {isEditor && (
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(loisir)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(loisir.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {loisir.description}
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="h-4 w-4" />
+                    <span>{loisir.location}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    <span>{loisir.start_date} - {loisir.end_date}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    <span>{loisir.current_participants || 0} / {loisir.max_participants} participants</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between pt-2">
+                  <Badge variant={
+                    (loisir.current_participants || 0) >= loisir.max_participants 
+                      ? "destructive" 
+                      : "default"
+                  }>
+                    {(loisir.current_participants || 0) >= loisir.max_participants 
+                      ? "Complet" 
+                      : "Places disponibles"
+                    }
+                  </Badge>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {Math.round(((loisir.current_participants || 0) / loisir.max_participants) * 100)}% rempli
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
 
-      {/* Statistiques */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Loisirs</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{loisirs.length}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Participants Totaux</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loisirs.reduce((sum, loisir) => sum + loisir.current_participants, 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Places Disponibles</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loisirs.reduce((sum, loisir) => sum + (loisir.max_participants - loisir.current_participants), 0)}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Taux de Remplissage</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {loisirs.length > 0 
-                ? `${Math.round((loisirs.reduce((sum, loisir) => sum + loisir.current_participants, 0) / loisirs.reduce((sum, loisir) => sum + loisir.max_participants, 0)) * 100)}%`
-                : "0%"
-              }
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Table des loisirs */}
-      {loisirs.length > 0 && (
-        <DataTable
-          title="Liste des loisirs"
-          data={tableData}
-          columns={columns}
-          onEdit={handleEdit}
-          onDelete={(id) => setDeleteLoisirId(parseInt(id))}
-        />
-      )}
-
-      {/* Modal de création/édition */}
       <LoisirsModal
         loisir={selectedLoisir}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSuccess={fetchLoisirs}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSuccess={handleModalSuccess}
       />
-
-      {/* Dialog de confirmation de suppression */}
-      <AlertDialog open={deleteLoisirId !== null} onOpenChange={() => setDeleteLoisirId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce loisir ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => deleteLoisirId && handleDelete(deleteLoisirId.toString())}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
