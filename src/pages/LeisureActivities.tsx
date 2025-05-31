@@ -75,7 +75,7 @@ export default function LeisureActivities() {
     fetchLoisirs()
   }, [])
 
-  const handleEdit = (loisir: any) => {
+  const handleEdit = (loisir: Loisir) => {
     console.log('✏️ Édition du loisir:', loisir)
     setSelectedLoisir(loisir)
     setIsModalOpen(true)
@@ -247,7 +247,12 @@ export default function LeisureActivities() {
           title="Liste des loisirs"
           data={tableData}
           columns={columns}
-          onEdit={handleEdit}
+          onEdit={(item) => {
+            const originalLoisir = loisirs.find(l => l.id.toString() === item.id);
+            if (originalLoisir) {
+              handleEdit(originalLoisir);
+            }
+          }}
           onDelete={(id) => setDeleteLoisirId(parseInt(id))}
         />
       )}
