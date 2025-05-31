@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -159,6 +158,7 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
         amenities: data.amenities ? data.amenities.split(",").map(item => item.trim()).filter(Boolean) : [],
         features: data.features ? data.features.split(",").map(item => item.trim()).filter(Boolean) : [],
         rules: data.rules ? data.rules.split(",").map(item => item.trim()).filter(Boolean) : [],
+        gallery_images: [] // Add the required gallery_images field
       }
 
       console.log('📝 Données préparées:', accommodationData)
@@ -171,10 +171,10 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
           .update(accommodationData)
           .eq('id', accommodation.id)
       } else {
-        // Création
+        // Création - pass single object, not array
         result = await supabase
           .from('accommodations')
-          .insert([accommodationData])
+          .insert(accommodationData)
       }
 
       console.log('📊 Résultat Supabase:', result)

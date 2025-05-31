@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,14 @@ interface Loisir {
   current_participants: number
   image: string
   gallery_images?: Json
+}
+
+interface LoisirTableData extends Loisir {
+  id: string
+  availability: JSX.Element
+  participants: string
+  dates: string
+  image_preview: JSX.Element
 }
 
 export default function LeisureActivities() {
@@ -75,7 +84,20 @@ export default function LeisureActivities() {
     fetchLoisirs()
   }, [])
 
-  const handleEdit = (loisir: Loisir) => {
+  const handleEdit = (loisirData: LoisirTableData) => {
+    // Convert back to original Loisir type
+    const loisir: Loisir = {
+      id: parseInt(loisirData.id),
+      title: loisirData.title,
+      description: loisirData.description,
+      location: loisirData.location,
+      start_date: loisirData.start_date,
+      end_date: loisirData.end_date,
+      max_participants: loisirData.max_participants,
+      current_participants: loisirData.current_participants,
+      image: loisirData.image,
+      gallery_images: loisirData.gallery_images,
+    }
     console.log('✏️ Édition du loisir:', loisir)
     setSelectedLoisir(loisir)
     setIsModalOpen(true)
@@ -128,7 +150,7 @@ export default function LeisureActivities() {
     return `${available} places`
   }
 
-  const tableData = loisirs.map(loisir => ({
+  const tableData: LoisirTableData[] = loisirs.map(loisir => ({
     ...loisir,
     id: loisir.id.toString(),
     availability: (

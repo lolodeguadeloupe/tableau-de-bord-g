@@ -18,7 +18,7 @@ import Auth from "./pages/Auth";
 import LeisureActivities from "./pages/LeisureActivities";
 import Accommodations from "./pages/Accommodations";
 import NotFound from "./pages/NotFound";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 

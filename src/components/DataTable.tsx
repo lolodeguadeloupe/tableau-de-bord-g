@@ -10,23 +10,23 @@ interface TableData {
   [key: string]: any
 }
 
-interface DataTableProps {
+interface DataTableProps<T = TableData> {
   title: string
-  data: TableData[]
+  data: T[]
   columns: { key: string; label: string }[]
-  onEdit?: (item: TableData) => void
+  onEdit?: (item: T) => void
   onDelete?: (id: string) => void
   showActions?: boolean
 }
 
-export function DataTable({ 
+export function DataTable<T extends TableData>({ 
   title, 
   data, 
   columns, 
   onEdit, 
   onDelete, 
   showActions = true 
-}: DataTableProps) {
+}: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10

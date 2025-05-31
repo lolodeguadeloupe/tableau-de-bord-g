@@ -39,6 +39,16 @@ interface Accommodation {
   discount?: number
 }
 
+interface AccommodationTableData extends Accommodation {
+  id: string
+  rating_badge: JSX.Element
+  type_badge: JSX.Element
+  capacity: string
+  rooms_info: string
+  price_display: string
+  image_preview: JSX.Element
+}
+
 export default function Accommodations() {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([])
   const [loading, setLoading] = useState(true)
@@ -82,7 +92,26 @@ export default function Accommodations() {
     fetchAccommodations()
   }, [])
 
-  const handleEdit = (accommodation: Accommodation) => {
+  const handleEdit = (accommodationData: AccommodationTableData) => {
+    // Convert back to original Accommodation type
+    const accommodation: Accommodation = {
+      id: parseInt(accommodationData.id),
+      name: accommodationData.name,
+      type: accommodationData.type,
+      location: accommodationData.location,
+      description: accommodationData.description,
+      price: accommodationData.price,
+      rating: accommodationData.rating,
+      rooms: accommodationData.rooms,
+      bathrooms: accommodationData.bathrooms,
+      max_guests: accommodationData.max_guests,
+      image: accommodationData.image,
+      gallery_images: accommodationData.gallery_images,
+      amenities: accommodationData.amenities,
+      features: accommodationData.features,
+      rules: accommodationData.rules,
+      discount: accommodationData.discount,
+    }
     console.log('✏️ Édition de l\'hébergement:', accommodation)
     setSelectedAccommodation(accommodation)
     setIsModalOpen(true)
@@ -140,7 +169,7 @@ export default function Accommodations() {
     return colors[type.toLowerCase()] || "bg-gray-100 text-gray-800"
   }
 
-  const tableData = accommodations.map(accommodation => ({
+  const tableData: AccommodationTableData[] = accommodations.map(accommodation => ({
     ...accommodation,
     id: accommodation.id.toString(),
     rating_badge: (
