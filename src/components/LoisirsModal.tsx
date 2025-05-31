@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Activity, Plus, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,6 +13,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import type { Json } from "@/integrations/supabase/types"
 
 interface Loisir {
   id?: number
@@ -25,7 +25,7 @@ interface Loisir {
   max_participants: number
   current_participants?: number
   image: string
-  gallery_images?: any[]
+  gallery_images?: Json
 }
 
 interface LoisirsModalProps {

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -18,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import type { Json } from "@/integrations/supabase/types"
 
 interface Loisir {
   id: number
@@ -29,7 +29,7 @@ interface Loisir {
   max_participants: number
   current_participants: number
   image: string
-  gallery_images?: any[]
+  gallery_images?: Json
 }
 
 export default function LeisureActivities() {
