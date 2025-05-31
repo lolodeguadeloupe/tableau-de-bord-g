@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -33,7 +32,7 @@ interface Loisir {
   gallery_images?: Json
 }
 
-interface LoisirTableData extends Loisir {
+interface LoisirTableData extends Omit<Loisir, 'id'> {
   id: string
   availability: JSX.Element
   participants: string

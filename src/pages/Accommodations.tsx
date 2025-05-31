@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Plus, Edit, Trash2, Eye, Home, Users, Euro, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -39,7 +38,7 @@ interface Accommodation {
   discount?: number
 }
 
-interface AccommodationTableData extends Accommodation {
+interface AccommodationTableData extends Omit<Accommodation, 'id'> {
   id: string
   rating_badge: JSX.Element
   type_badge: JSX.Element
