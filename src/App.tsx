@@ -10,7 +10,6 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { UserMenu } from "@/components/UserMenu";
 import Dashboard from "./pages/Dashboard";
-import Users from "./pages/Users";
 import Content from "./pages/Content";
 import Analytics from "./pages/Analytics";
 import Database from "./pages/Database";
@@ -41,27 +40,10 @@ const App = () => (
                       </div>
                       <Routes>
                         <Route path="/" element={<Dashboard />} />
-                        <Route path="/users" element={
-                          <ProtectedRoute requireAdmin>
-                            <Users />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/content" element={
-                          <ProtectedRoute requireEditor>
-                            <Content />
-                          </ProtectedRoute>
-                        } />
-                        <Route path="/leisure-activities" element={
-                          <ProtectedRoute requireEditor>
-                            <LeisureActivities />
-                          </ProtectedRoute>
-                        } />
+                        <Route path="/content" element={<Content />} />
+                        <Route path="/leisure-activities" element={<LeisureActivities />} />
                         <Route path="/analytics" element={<Analytics />} />
-                        <Route path="/database" element={
-                          <ProtectedRoute requireAdmin>
-                            <Database />
-                          </ProtectedRoute>
-                        } />
+                        <Route path="/database" element={<Database />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>

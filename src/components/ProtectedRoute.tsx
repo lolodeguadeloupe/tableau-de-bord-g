@@ -5,25 +5,16 @@ import { useAuth } from "@/hooks/useAuth"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  requireAdmin?: boolean
-  requireEditor?: boolean
 }
 
-export function ProtectedRoute({ 
-  children, 
-  requireAdmin = false, 
-  requireEditor = false 
-}: ProtectedRouteProps) {
-  const { user, profile, loading } = useAuth()
+export function ProtectedRoute({ children }: ProtectedRouteProps) {
+  const { user, loading } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
-    console.log('🛡️ Vérification des permissions:', { 
+    console.log('🛡️ Vérification simple de l\'authentification:', { 
       user: user?.id, 
-      profile: profile?.role, 
-      loading,
-      requireAdmin,
-      requireEditor 
+      loading
     })
 
     if (!loading) {
@@ -33,35 +24,22 @@ export function ProtectedRoute({
         return
       }
 
-      if (requireAdmin && profile?.role !== 'admin') {
-        console.log('🚫 Accès admin requis, redirection vers /')
-        navigate('/')
-        return
-      }
-
-      if (requireEditor && !['admin', 'editor'].includes(profile?.role || '')) {
-        console.log('🚫 Accès éditeur requis, redirection vers /')
-        navigate('/')
-        return
-      }
-
-      console.log('✅ Permissions validées')
+      console.log('✅ Utilisateur authentifié, accès autorisé')
     }
-  }, [user, profile, loading, navigate, requireAdmin, requireEditor])
+  }, [user, loading, navigate])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-muted-foreground">Vérification des permissions...</p>
+          <p className="mt-4 text-muted-foreground">Chargement...</p>
         </div>
       </div>
     )
   }
 
-  if (!user || (requireAdmin && profile?.role !== 'admin') || 
-      (requireEditor && !['admin', 'editor'].includes(profile?.role || ''))) {
+  if (!user) {
     return null
   }
 
