@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Plus, Users, MapPin, Calendar, Edit, Trash2 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -19,7 +18,7 @@ interface Loisir {
   max_participants: number
   current_participants: number
   image: string
-  gallery_images?: any
+  gallery_images?: string[]
 }
 
 export default function LeisureActivities() {
@@ -44,8 +43,8 @@ export default function LeisureActivities() {
       }
 
       console.log('✅ Loisirs récupérés:', data)
-      setLoisirs(data || [])
-    } catch (error: any) {
+      setLoisirs(data as Loisir[])
+    } catch (error: unknown) {
       console.error('💥 Erreur inattendue:', error)
       toast({
         title: "Erreur",
@@ -85,7 +84,7 @@ export default function LeisureActivities() {
       })
 
       fetchLoisirs()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Erreur lors de la suppression:', error)
       toast({
         title: "Erreur",
