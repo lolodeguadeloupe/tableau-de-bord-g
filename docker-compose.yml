@@ -1,0 +1,33 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:80"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Si votre application est également gérée par Docker Compose,
+    # vous pouvez la lier ici et la référencer dans la configuration Nginx.
+    # Exemple:
+    # depends_on:
+    #   - app
+    # networks:
+    #   - app-network
+
+  # Décommentez et configurez votre service d'application ici
+  # app:
+  #   build:
+  #     context: ./votre-app # ou l'emplacement de votre Dockerfile d'application
+  #     dockerfile: Dockerfile # ou le nom de votre Dockerfile d'application
+  #   ports:
+  #     - "3000:3000" # Exposez le port de votre application
+  #   environment:
+  #     - NODE_ENV=production
+  #   networks:
+  #     - app-network
+
+# networks:
+#  app-network:
+#    driver: bridge
+
