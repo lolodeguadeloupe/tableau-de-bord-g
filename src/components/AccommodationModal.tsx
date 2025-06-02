@@ -63,13 +63,13 @@ const accommodationSchema = z.object({
   type: z.string().min(1, "Le type est requis"),
   location: z.string().min(1, "Le lieu est requis"),
   description: z.string().min(1, "La description est requise"),
-  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Le prix doit être un nombre positif"),
-  rating: z.string().refine((val) => !isNaN(Number(val)) && Number(val) >= 0 && Number(val) <= 5, "La note doit être entre 0 et 5"),
-  rooms: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Le nombre de chambres doit être positif"),
-  bathrooms: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Le nombre de salles de bain doit être positif"),
-  max_guests: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, "Le nombre d'invités doit être positif"),
-  image: z.string().url("L'URL de l'image doit être valide").or(z.literal("")),
-  discount: z.string().optional(),
+  price: z.number().min(0.01, "Le prix doit être supérieur à 0"),
+  rating: z.number().min(0, "La note doit être positive").max(5, "La note ne peut pas dépasser 5"),
+  rooms: z.number().int().min(1, "Au moins 1 chambre requise"),
+  bathrooms: z.number().int().min(1, "Au moins 1 salle de bain requise"),
+  max_guests: z.number().int().min(1, "Au moins 1 invité autorisé"),
+  image: z.string().optional(),
+  discount: z.number().int().min(0).max(100).optional(),
   amenities: z.string().optional(),
   features: z.string().optional(),
   rules: z.string().optional(),
@@ -88,13 +88,13 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
       type: "",
       location: "",
       description: "",
-      price: "",
-      rating: "",
-      rooms: "",
-      bathrooms: "",
-      max_guests: "",
+      price: 0,
+      rating: 0,
+      rooms: 1,
+      bathrooms: 1,
+      max_guests: 1,
       image: "",
-      discount: "",
+      discount: undefined,
       amenities: "",
       features: "",
       rules: "",
@@ -104,21 +104,33 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
   useEffect(() => {
     if (accommodation) {
       console.log('🔄 Chargement des données de l\'hébergement:', accommodation)
+      
+      // Convertir les tableaux JSON en strings pour l'affichage
+      const amenitiesStr = Array.isArray(accommodation.amenities) 
+        ? (accommodation.amenities as string[]).join(", ") 
+        : ""
+      const featuresStr = Array.isArray(accommodation.features) 
+        ? (accommodation.features as string[]).join(", ") 
+        : ""
+      const rulesStr = Array.isArray(accommodation.rules) 
+        ? (accommodation.rules as string[]).join(", ") 
+        : ""
+
       form.reset({
         name: accommodation.name,
         type: accommodation.type,
         location: accommodation.location,
         description: accommodation.description,
-        price: accommodation.price.toString(),
-        rating: accommodation.rating.toString(),
-        rooms: accommodation.rooms.toString(),
-        bathrooms: accommodation.bathrooms.toString(),
-        max_guests: accommodation.max_guests.toString(),
+        price: Number(accommodation.price),
+        rating: Number(accommodation.rating),
+        rooms: Number(accommodation.rooms),
+        bathrooms: Number(accommodation.bathrooms),
+        max_guests: Number(accommodation.max_guests),
         image: accommodation.image || "",
-        discount: accommodation.discount?.toString() || "",
-        amenities: Array.isArray(accommodation.amenities) ? (accommodation.amenities as string[]).join(", ") : "",
-        features: Array.isArray(accommodation.features) ? (accommodation.features as string[]).join(", ") : "",
-        rules: Array.isArray(accommodation.rules) ? (accommodation.rules as string[]).join(", ") : "",
+        discount: accommodation.discount ? Number(accommodation.discount) : undefined,
+        amenities: amenitiesStr,
+        features: featuresStr,
+        rules: rulesStr,
       })
     } else {
       console.log('🆕 Création d\'un nouvel hébergement')
@@ -127,13 +139,13 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
         type: "",
         location: "",
         description: "",
-        price: "",
-        rating: "",
-        rooms: "",
-        bathrooms: "",
-        max_guests: "",
+        price: 0,
+        rating: 0,
+        rooms: 1,
+        bathrooms: 1,
+        max_guests: 1,
         image: "",
-        discount: "",
+        discount: undefined,
         amenities: "",
         features: "",
         rules: "",
@@ -143,73 +155,70 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
 
   const onSubmit = async (data: AccommodationFormData) => {
     setLoading(true)
-    console.log('💾 Début de la sauvegarde:', data)
+    console.log('💾 Début de la sauvegarde avec les données:', data)
 
     try {
-      // Validation et conversion des données
-      const price = parseFloat(data.price)
-      const rating = parseFloat(data.rating)
-      const rooms = parseInt(data.rooms)
-      const bathrooms = parseInt(data.bathrooms)
-      const max_guests = parseInt(data.max_guests)
-      const discount = data.discount ? parseInt(data.discount) : null
-
-      // Vérification des conversions
-      if (isNaN(price) || isNaN(rating) || isNaN(rooms) || isNaN(bathrooms) || isNaN(max_guests)) {
-        throw new Error('Données numériques invalides')
-      }
-
-      if (rating < 0 || rating > 5) {
-        throw new Error('La note doit être entre 0 et 5')
-      }
-
-      // Préparation des données pour la base
+      // Préparation des données pour la base de données
       const accommodationData = {
         name: data.name.trim(),
         type: data.type,
         location: data.location.trim(),
         description: data.description.trim(),
-        price,
-        rating,
-        rooms,
-        bathrooms,
-        max_guests,
-        image: data.image.trim() || "",
-        discount,
-        amenities: data.amenities ? data.amenities.split(",").map(item => item.trim()).filter(Boolean) : [],
-        features: data.features ? data.features.split(",").map(item => item.trim()).filter(Boolean) : [],
-        rules: data.rules ? data.rules.split(",").map(item => item.trim()).filter(Boolean) : [],
+        price: data.price,
+        rating: data.rating,
+        rooms: data.rooms,
+        bathrooms: data.bathrooms,
+        max_guests: data.max_guests,
+        image: data.image?.trim() || "",
+        discount: data.discount || null,
+        amenities: data.amenities ? 
+          data.amenities.split(",").map(item => item.trim()).filter(Boolean) : 
+          [],
+        features: data.features ? 
+          data.features.split(",").map(item => item.trim()).filter(Boolean) : 
+          [],
+        rules: data.rules ? 
+          data.rules.split(",").map(item => item.trim()).filter(Boolean) : 
+          [],
         gallery_images: []
       }
 
-      console.log('📝 Données préparées pour la sauvegarde:', accommodationData)
+      console.log('📝 Données préparées pour Supabase:', accommodationData)
 
       let result
-      if (accommodation) {
-        // Mise à jour
+      if (accommodation?.id) {
+        // Mise à jour d'un hébergement existant
         console.log('🔄 Mise à jour de l\'hébergement ID:', accommodation.id)
         result = await supabase
           .from('accommodations')
           .update(accommodationData)
           .eq('id', accommodation.id)
           .select()
+          
+        console.log('📊 Résultat de la mise à jour:', result)
       } else {
-        // Création
+        // Création d'un nouvel hébergement
         console.log('➕ Création d\'un nouvel hébergement')
         result = await supabase
           .from('accommodations')
-          .insert(accommodationData)
+          .insert([accommodationData])
           .select()
+          
+        console.log('📊 Résultat de la création:', result)
       }
-
-      console.log('📊 Résultat de la base de données:', result)
 
       if (result.error) {
-        console.error('❌ Erreur de la base de données:', result.error)
-        throw result.error
+        console.error('❌ Erreur Supabase:', result.error)
+        throw new Error(`Erreur de base de données: ${result.error.message}`)
       }
 
-      console.log('✅ Sauvegarde réussie')
+      if (!result.data || result.data.length === 0) {
+        console.error('❌ Aucune donnée retournée par Supabase')
+        throw new Error('Aucune donnée retournée après la sauvegarde')
+      }
+
+      console.log('✅ Sauvegarde réussie, données retournées:', result.data)
+      
       toast({
         title: accommodation ? "Hébergement modifié" : "Hébergement créé",
         description: accommodation 
@@ -326,7 +335,14 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                   <FormItem>
                     <FormLabel>Prix (€) *</FormLabel>
                     <FormControl>
-                      <Input type="number" step="0.01" min="0" placeholder="150" {...field} />
+                      <Input 
+                        type="number" 
+                        step="0.01" 
+                        min="0" 
+                        placeholder="150" 
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -346,7 +362,8 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                         max="5" 
                         step="0.1" 
                         placeholder="4.5" 
-                        {...field} 
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -361,7 +378,14 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                   <FormItem>
                     <FormLabel>Remise (%)</FormLabel>
                     <FormControl>
-                      <Input type="number" min="0" max="100" placeholder="10" {...field} />
+                      <Input 
+                        type="number" 
+                        min="0" 
+                        max="100" 
+                        placeholder="10" 
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -377,7 +401,13 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                   <FormItem>
                     <FormLabel>Chambres *</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" placeholder="2" {...field} />
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        placeholder="2" 
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -391,7 +421,13 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                   <FormItem>
                     <FormLabel>Salles de bain *</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" placeholder="1" {...field} />
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        placeholder="1" 
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -405,7 +441,13 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
                   <FormItem>
                     <FormLabel>Invités max *</FormLabel>
                     <FormControl>
-                      <Input type="number" min="1" placeholder="4" {...field} />
+                      <Input 
+                        type="number" 
+                        min="1" 
+                        placeholder="4" 
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
