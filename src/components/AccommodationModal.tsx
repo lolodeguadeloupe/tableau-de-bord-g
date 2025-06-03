@@ -158,6 +158,14 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
     console.log('💾 Début de la sauvegarde avec les données:', data)
 
     try {
+      // Vérifier l'authentification
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('👤 Utilisateur authentifié:', user?.id)
+      
+      if (!user) {
+        throw new Error('Vous devez être connecté pour effectuer cette action')
+      }
+
       // Préparation des données pour la base de données
       const accommodationData = {
         name: data.name.trim(),
@@ -233,9 +241,19 @@ export function AccommodationModal({ accommodation, isOpen, onClose, onSuccess }
       const errorMessage = error instanceof Error ? error.message : "Erreur inconnue"
       console.error('📋 Détail de l\'erreur:', errorMessage)
       
+      // Messages d'erreur spécifiques
+      let userMessage = errorMessage
+      if (errorMessage.includes('row-level security')) {
+        userMessage = 'Accès refusé. Veuillez vous connecter et réessayer.'
+      } else if (errorMessage.includes('permission denied')) {
+        userMessage = 'Permissions insuffisantes pour cette opération.'
+      } else if (errorMessage.includes('connecté')) {
+        userMessage = 'Vous devez être connecté pour effectuer cette action.'
+      }
+      
       toast({
         title: "Erreur de sauvegarde",
-        description: `Impossible de ${accommodation ? 'modifier' : 'créer'} l'hébergement: ${errorMessage}`,
+        description: `Impossible de ${accommodation ? 'modifier' : 'créer'} l'hébergement: ${userMessage}`,
         variant: "destructive",
       })
     } finally {
