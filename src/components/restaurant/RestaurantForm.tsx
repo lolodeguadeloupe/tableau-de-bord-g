@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { BasicInfoFields } from "./BasicInfoFields"
 import { MediaFields } from "./MediaFields"
-import { Restaurant, RestaurantFormData } from "./restaurantSchema"
+import { Restaurant, RestaurantFormData, restaurantSchema } from "./restaurantSchema"
 
 interface RestaurantFormProps {
   restaurant: Restaurant | null
@@ -75,17 +75,20 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
       return
     }
 
-    setLoading(true)
-
+    // Validate form data using Zod schema
     try {
-      console.log('💾 Sauvegarde du restaurant:', formData)
+      const validatedData = restaurantSchema.parse(formData)
+      
+      setLoading(true)
+
+      console.log('💾 Sauvegarde du restaurant:', validatedData)
       console.log('👤 Utilisateur connecté:', user.id)
 
       if (restaurant) {
         // Modification
         const { error } = await supabase
           .from('restaurants')
-          .update(formData)
+          .update(validatedData)
           .eq('id', restaurant.id)
 
         if (error) {
@@ -101,7 +104,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         // Création
         const { error } = await supabase
           .from('restaurants')
-          .insert(formData)
+          .insert(validatedData)
 
         if (error) {
           console.error('❌ Erreur lors de la création:', error)
@@ -115,29 +118,39 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
       }
 
       onSuccess()
-    } catch (error: unknown) {
-      console.error('💥 Erreur lors de la sauvegarde:', error)
-      
-      if (error && typeof error === 'object' && 'code' in error) {
-        if (error.code === 'PGRST301') {
-          toast({
-            title: "Erreur d'authentification",
-            description: "Votre session a expiré. Veuillez vous reconnecter.",
-            variant: "destructive",
-          })
+    } catch (validationError: any) {
+      if (validationError.errors) {
+        // Zod validation errors
+        const errorMessages = validationError.errors.map((err: any) => err.message).join(', ')
+        toast({
+          title: "Erreur de validation",
+          description: errorMessages,
+          variant: "destructive",
+        })
+      } else {
+        console.error('💥 Erreur lors de la sauvegarde:', validationError)
+        
+        if (validationError && typeof validationError === 'object' && 'code' in validationError) {
+          if (validationError.code === 'PGRST301') {
+            toast({
+              title: "Erreur d'authentification",
+              description: "Votre session a expiré. Veuillez vous reconnecter.",
+              variant: "destructive",
+            })
+          } else {
+            toast({
+              title: "Erreur",
+              description: `Impossible de sauvegarder le restaurant: ${validationError.code}`,
+              variant: "destructive",
+            })
+          }
         } else {
           toast({
             title: "Erreur",
-            description: `Impossible de sauvegarder le restaurant: ${error.code}`,
+            description: "Impossible de sauvegarder le restaurant.",
             variant: "destructive",
           })
         }
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible de sauvegarder le restaurant.",
-          variant: "destructive",
-        })
       }
     } finally {
       setLoading(false)
