@@ -1,6 +1,5 @@
-
 import { useState, useEffect } from "react"
-import { Plus, Edit, Trash2, Star, MapPin, Utensils } from "lucide-react"
+import { Plus, Edit, Trash2, Star, MapPin, Utensils, LogIn } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +7,8 @@ import { DataTable } from "@/components/DataTable"
 import { RestaurantModal } from "@/components/RestaurantModal"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { useAuth } from "@/hooks/useAuth"
+import { useNavigate } from "react-router-dom"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -45,6 +46,8 @@ export default function Restaurants() {
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null)
   const [deleteRestaurantId, setDeleteRestaurantId] = useState<number | null>(null)
   const { toast } = useToast()
+  const { user, loading: authLoading } = useAuth()
+  const navigate = useNavigate()
 
   const fetchRestaurants = async () => {
     console.log('🔄 Début de la récupération des restaurants...')
@@ -59,6 +62,16 @@ export default function Restaurants() {
 
       if (error) {
         console.error('❌ Erreur Supabase:', error)
+        
+        if (error.code === 'PGRST301') {
+          toast({
+            title: "Authentification requise",
+            description: "Veuillez vous connecter pour voir les restaurants.",
+            variant: "destructive",
+          })
+          return
+        }
+        
         throw error
       }
       
@@ -78,10 +91,21 @@ export default function Restaurants() {
   }
 
   useEffect(() => {
-    fetchRestaurants()
-  }, [])
+    if (!authLoading) {
+      fetchRestaurants()
+    }
+  }, [authLoading])
 
   const handleEdit = (restaurantData: RestaurantTableData) => {
+    if (!user) {
+      toast({
+        title: "Authentification requise",
+        description: "Vous devez être connecté pour modifier les restaurants.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const restaurant: Restaurant = {
       id: parseInt(restaurantData.id),
       name: restaurantData.name,
@@ -99,6 +123,15 @@ export default function Restaurants() {
   }
 
   const handleDelete = async (id: string) => {
+    if (!user) {
+      toast({
+        title: "Authentification requise",
+        description: "Vous devez être connecté pour supprimer les restaurants.",
+        variant: "destructive",
+      })
+      return
+    }
+
     const restaurantId = parseInt(id)
     console.log('🗑️ Suppression du restaurant ID:', restaurantId)
     
@@ -108,7 +141,10 @@ export default function Restaurants() {
         .delete()
         .eq('id', restaurantId)
 
-      if (error) throw error
+      if (error) {
+        console.error('❌ Erreur lors de la suppression:', error)
+        throw error
+      }
 
       toast({
         title: "Restaurant supprimé",
@@ -130,6 +166,18 @@ export default function Restaurants() {
   const handleModalClose = () => {
     setIsModalOpen(false)
     setSelectedRestaurant(null)
+  }
+
+  const handleCreateNew = () => {
+    if (!user) {
+      toast({
+        title: "Authentification requise",
+        description: "Vous devez être connecté pour créer des restaurants.",
+        variant: "destructive",
+      })
+      return
+    }
+    setIsModalOpen(true)
   }
 
   const getRatingStars = (rating: number) => {
@@ -187,12 +235,37 @@ export default function Restaurants() {
     { key: 'offer', label: 'Offre' }
   ]
 
-  console.log('🎯 État actuel:', { loading, restaurants: restaurants.length, isModalOpen })
+  console.log('🎯 État actuel:', { loading, restaurants: restaurants.length, isModalOpen, user: user?.id })
 
-  if (loading) {
+  if (authLoading || loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg">Chargement des restaurants...</div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Restaurants</h1>
+            <p className="text-muted-foreground">Gérez vos restaurants partenaires</p>
+          </div>
+        </div>
+
+        <div className="text-center p-8 bg-blue-50 border border-blue-200 rounded-lg">
+          <LogIn className="mx-auto h-12 w-12 text-blue-600 mb-4" />
+          <p className="text-lg font-medium text-blue-800 mb-2">Authentification requise</p>
+          <p className="text-blue-600 mb-4">
+            Vous devez être connecté pour gérer les restaurants.
+          </p>
+          <Button onClick={() => navigate('/auth')} className="gap-2">
+            <LogIn className="h-4 w-4" />
+            Se connecter
+          </Button>
+        </div>
       </div>
     )
   }
@@ -204,7 +277,7 @@ export default function Restaurants() {
           <h1 className="text-3xl font-bold text-foreground">Restaurants</h1>
           <p className="text-muted-foreground">Gérez vos restaurants partenaires</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={handleCreateNew} className="gap-2">
           <Plus className="h-4 w-4" />
           Nouveau restaurant
         </Button>
