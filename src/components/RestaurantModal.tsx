@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import {
   Dialog,
@@ -20,6 +19,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { Loader2 } from "lucide-react"
+import { useAuth } from "@/hooks/useAuth"
 
 interface Restaurant {
   id: number
@@ -53,6 +53,7 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
     rating: 5
   })
   const { toast } = useToast()
+  const { user, loading: authLoading } = useAuth()
 
   const restaurantTypes = [
     'Italien',
@@ -104,10 +105,21 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    if (!user) {
+      toast({
+        title: "Authentification requise",
+        description: "Vous devez être connecté pour gérer les restaurants.",
+        variant: "destructive",
+      })
+      return
+    }
+
     setLoading(true)
 
     try {
       console.log('💾 Sauvegarde du restaurant:', formData)
+      console.log('👤 Utilisateur connecté:', user.id)
 
       if (restaurant) {
         // Modification
@@ -116,7 +128,10 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
           .update(formData)
           .eq('id', restaurant.id)
 
-        if (error) throw error
+        if (error) {
+          console.error('❌ Erreur lors de la modification:', error)
+          throw error
+        }
 
         toast({
           title: "Restaurant modifié",
@@ -128,7 +143,10 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
           .from('restaurants')
           .insert(formData)
 
-        if (error) throw error
+        if (error) {
+          console.error('❌ Erreur lors de la création:', error)
+          throw error
+        }
 
         toast({
           title: "Restaurant créé",
@@ -139,12 +157,29 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
       onSuccess()
       onClose()
     } catch (error: unknown) {
-      console.error('❌ Erreur lors de la sauvegarde:', error)
-      toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder le restaurant.",
-        variant: "destructive",
-      })
+      console.error('💥 Erreur lors de la sauvegarde:', error)
+      
+      if (error && typeof error === 'object' && 'code' in error) {
+        if (error.code === 'PGRST301') {
+          toast({
+            title: "Erreur d'authentification",
+            description: "Votre session a expiré. Veuillez vous reconnecter.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "Erreur",
+            description: `Impossible de sauvegarder le restaurant: ${error.code}`,
+            variant: "destructive",
+          })
+        }
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Impossible de sauvegarder le restaurant.",
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
     }
@@ -155,6 +190,37 @@ export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: Rest
       ...prev,
       [field]: value
     }))
+  }
+
+  if (authLoading) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <div className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <span className="ml-2">Vérification de l'authentification...</span>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
+  if (!user) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Authentification requise</DialogTitle>
+          </DialogHeader>
+          <div className="p-4 text-center">
+            <p className="text-muted-foreground mb-4">
+              Vous devez être connecté pour gérer les restaurants.
+            </p>
+            <Button onClick={onClose}>Fermer</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   return (
