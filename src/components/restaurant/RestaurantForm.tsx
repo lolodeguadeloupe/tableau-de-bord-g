@@ -79,16 +79,28 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     try {
       const validatedData = restaurantSchema.parse(formData)
       
+      // Prepare data for database insertion/update - ensure all required fields are strings
+      const dbData = {
+        name: validatedData.name,
+        type: validatedData.type,
+        location: validatedData.location,
+        description: validatedData.description,
+        offer: validatedData.offer || '',
+        icon: validatedData.icon,
+        image: validatedData.image || '',
+        rating: validatedData.rating
+      }
+      
       setLoading(true)
 
-      console.log('💾 Sauvegarde du restaurant:', validatedData)
+      console.log('💾 Sauvegarde du restaurant:', dbData)
       console.log('👤 Utilisateur connecté:', user.id)
 
       if (restaurant) {
         // Modification
         const { error } = await supabase
           .from('restaurants')
-          .update(validatedData)
+          .update(dbData)
           .eq('id', restaurant.id)
 
         if (error) {
@@ -104,7 +116,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         // Création
         const { error } = await supabase
           .from('restaurants')
-          .insert(validatedData)
+          .insert(dbData)
 
         if (error) {
           console.error('❌ Erreur lors de la création:', error)
