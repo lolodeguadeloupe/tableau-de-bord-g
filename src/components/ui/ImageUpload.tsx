@@ -16,6 +16,9 @@ export function ImageUpload({ value, onImageChange, bucketName, className = "" }
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
 
+  // Image placeholder par défaut
+  const defaultPlaceholder = "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=center"
+
   const uploadImage = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setUploading(true)
@@ -89,15 +92,18 @@ export function ImageUpload({ value, onImageChange, bucketName, className = "" }
     onImageChange('')
   }
 
+  // Afficher l'image existante, ou le placeholder par défaut si pas d'image
+  const displayImage = value || defaultPlaceholder
+
   return (
     <div className={`space-y-2 ${className}`}>
-      {value ? (
-        <div className="relative inline-block">
-          <img
-            src={value}
-            alt="Image uploadée"
-            className="w-32 h-32 object-cover rounded-lg border"
-          />
+      <div className="relative inline-block">
+        <img
+          src={displayImage}
+          alt={value ? "Image uploadée" : "Image placeholder"}
+          className="w-32 h-32 object-cover rounded-lg border"
+        />
+        {value && (
           <Button
             type="button"
             variant="destructive"
@@ -107,13 +113,16 @@ export function ImageUpload({ value, onImageChange, bucketName, className = "" }
           >
             <X className="h-3 w-3" />
           </Button>
-        </div>
-      ) : (
-        <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center bg-gray-50">
-          <ImageIcon className="h-8 w-8 text-gray-400 mb-2" />
-          <span className="text-sm text-gray-500">Aucune image</span>
-        </div>
-      )}
+        )}
+        {!value && (
+          <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg flex items-center justify-center">
+            <div className="text-white text-center">
+              <ImageIcon className="h-6 w-6 mx-auto mb-1" />
+              <span className="text-xs">Placeholder</span>
+            </div>
+          </div>
+        )}
+      </div>
       
       <div>
         <input
