@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { ImageUpload } from "@/components/ui/ImageUpload"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 
@@ -35,6 +36,7 @@ interface LeisureActivity {
   equipment_provided?: boolean
   professional_guide?: boolean
   icon_name: string
+  image?: string
 }
 
 interface LeisureActivityModalProps {
@@ -55,7 +57,8 @@ export function LeisureActivityModal({ activity, isOpen, onClose, onSuccess }: L
     max_participants: 10,
     equipment_provided: true,
     professional_guide: true,
-    icon_name: "waves"
+    icon_name: "waves",
+    image: ""
   })
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -74,31 +77,41 @@ export function LeisureActivityModal({ activity, isOpen, onClose, onSuccess }: L
         max_participants: 10,
         equipment_provided: true,
         professional_guide: true,
-        icon_name: "waves"
+        icon_name: "waves",
+        image: ""
       })
     }
   }, [activity])
+
+  const handleImageChange = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
     try {
+      const dataToSave = {
+        name: formData.name,
+        category: formData.category,
+        description: formData.description,
+        price_per_person: formData.price_per_person,
+        duration_hours: formData.duration_hours,
+        min_level: formData.min_level,
+        max_participants: formData.max_participants,
+        equipment_provided: formData.equipment_provided,
+        professional_guide: formData.professional_guide,
+        icon_name: formData.icon_name,
+        image: formData.image || ''
+      }
+
       if (activity?.id) {
         // Mise à jour
         const { error } = await supabase
           .from('leisure_activities')
           .update({
-            name: formData.name,
-            category: formData.category,
-            description: formData.description,
-            price_per_person: formData.price_per_person,
-            duration_hours: formData.duration_hours,
-            min_level: formData.min_level,
-            max_participants: formData.max_participants,
-            equipment_provided: formData.equipment_provided,
-            professional_guide: formData.professional_guide,
-            icon_name: formData.icon_name,
+            ...dataToSave,
             updated_at: new Date().toISOString()
           })
           .eq('id', activity.id)
@@ -113,18 +126,7 @@ export function LeisureActivityModal({ activity, isOpen, onClose, onSuccess }: L
         // Création
         const { error } = await supabase
           .from('leisure_activities')
-          .insert([{
-            name: formData.name,
-            category: formData.category,
-            description: formData.description,
-            price_per_person: formData.price_per_person,
-            duration_hours: formData.duration_hours,
-            min_level: formData.min_level,
-            max_participants: formData.max_participants,
-            equipment_provided: formData.equipment_provided,
-            professional_guide: formData.professional_guide,
-            icon_name: formData.icon_name
-          }])
+          .insert([dataToSave])
 
         if (error) throw error
 
@@ -196,6 +198,15 @@ export function LeisureActivityModal({ activity, isOpen, onClose, onSuccess }: L
                 placeholder="Description de l'activité"
                 rows={3}
                 required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Image de l'activité</Label>
+              <ImageUpload
+                value={formData.image || ''}
+                onImageChange={handleImageChange}
+                bucketName="loisir-images"
               />
             </div>
 

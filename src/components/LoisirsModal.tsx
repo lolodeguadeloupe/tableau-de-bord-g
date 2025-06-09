@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { Activity, Plus, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { ImageUpload } from "@/components/ui/ImageUpload"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import type { Json } from "@/integrations/supabase/types"
@@ -67,6 +69,10 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
       })
     }
   }, [loisir])
+
+  const handleImageChange = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -227,12 +233,11 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="image">URL de l'image</Label>
-              <Input
-                id="image"
+              <Label>Image du loisir</Label>
+              <ImageUpload
                 value={formData.image}
-                onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-                placeholder="https://exemple.com/image.jpg"
+                onImageChange={handleImageChange}
+                bucketName="loisir-images"
               />
             </div>
           </div>
