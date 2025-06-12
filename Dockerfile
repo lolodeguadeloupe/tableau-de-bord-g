@@ -1,14 +1,28 @@
-# Utiliser l'image Nginx officielle depuis Docker Hub
-FROM nginx:alpine
+# Étape 1 : Build
+FROM node:20-alpine AS builder
 
-# Supprimer la configuration par défaut de Nginx
-RUN rm /etc/nginx/conf.d/default.conf
+WORKDIR /app
 
-# Copier notre fichier de configuration Nginx personnalisé
-COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY package*.json pnpm-lock.yaml* bun.lockb* ./
+RUN \
+  if [ -f pnpm-lock.yaml ]; then npm install -g pnpm && pnpm install; \
+  elif [ -f bun.lockb ]; then npm install -g bun && bun install; \
+  else npm install; fi
 
-# Exposer le port 80 (HTTP)
-EXPOSE 80
+COPY . .
 
-# La commande par défaut pour démarrer Nginx
-CMD ["nginx", "-g", "daemon off;"] 
+RUN npm run build
+
+# Étape 2 : Image finale pour servir le build
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Installe un serveur statique léger
+RUN npm install -g serve
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["serve", "-s", "dist", "-l", "3000"] 
