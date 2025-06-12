@@ -268,12 +268,7 @@ export default function LeisureActivities() {
           title="Liste des loisirs"
           data={tableData}
           columns={columns}
-          onEdit={(item) => {
-            const originalLoisir = loisirs.find(l => l.id.toString() === item.id);
-            if (originalLoisir) {
-              handleEdit(originalLoisir);
-            }
-          }}
+          onEdit={handleEdit}
           onDelete={(id) => setDeleteLoisirId(parseInt(id))}
         />
       )}
