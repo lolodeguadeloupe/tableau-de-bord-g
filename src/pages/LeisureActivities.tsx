@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -48,7 +48,7 @@ export default function LeisureActivities() {
   const [deleteLoisirId, setDeleteLoisirId] = useState<number | null>(null)
   const { toast } = useToast()
 
-  const fetchLoisirs = async () => {
+  const fetchLoisirs = useCallback(async () => {
     console.log('🔄 Début de la récupération des loisirs...')
     try {
       const { data, error } = await supabase
@@ -77,11 +77,11 @@ export default function LeisureActivities() {
       setLoading(false)
       console.log('🏁 Fin de la récupération des loisirs')
     }
-  }
+  }, [toast])
 
   useEffect(() => {
     fetchLoisirs()
-  }, [])
+  }, [fetchLoisirs])
 
   const handleEdit = (loisirData: LoisirTableData) => {
     // Convert back to original Loisir type
@@ -268,7 +268,12 @@ export default function LeisureActivities() {
           title="Liste des loisirs"
           data={tableData}
           columns={columns}
-          onEdit={handleEdit}
+          onEdit={(item) => {
+            const originalLoisir = loisirs.find(l => l.id.toString() === item.id);
+            if (originalLoisir) {
+              handleEdit(originalLoisir);
+            }
+          }}
           onDelete={(id) => setDeleteLoisirId(parseInt(id))}
         />
       )}

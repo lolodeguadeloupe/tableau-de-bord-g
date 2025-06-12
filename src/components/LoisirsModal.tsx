@@ -190,9 +190,10 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
                 <Label htmlFor="start_date">Date de début *</Label>
                 <Input
                   id="start_date"
+                  type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  placeholder="ex: 15 juin 2024"
+                  placeholder="AAAA-MM-JJ"
                   required
                 />
               </div>
@@ -200,9 +201,10 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
                 <Label htmlFor="end_date">Date de fin *</Label>
                 <Input
                   id="end_date"
+                  type="date"
                   value={formData.end_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                  placeholder="ex: 20 juin 2024"
+                  placeholder="AAAA-MM-JJ"
                   required
                 />
               </div>
