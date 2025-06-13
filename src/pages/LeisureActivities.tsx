@@ -116,7 +116,7 @@ export default function LeisureActivities() {
 
       toast({
         title: "Loisir supprimé",
-        description: "Le loisir a été supprimé avec succès.",
+        description: "Le loisir a été supprimé avec succès, tout relatif",
       })
 
       fetchLoisirs()
