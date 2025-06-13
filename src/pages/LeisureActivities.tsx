@@ -287,7 +287,7 @@ export default function LeisureActivities() {
           <AlertDialogHeader>
             <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce loisir ? Cette action est irréversible.
+              Êtes-vous sûr de vouloir supprimer ce loisir ? Cette action est irréversible. Vous êtes sur le point de supprimer le loisir : {selectedLoisir?.title}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
