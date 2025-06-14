@@ -1,5 +1,4 @@
-
-import { Home, BarChart3, Users, FileText, Settings, Database, Activity, Building2, Utensils } from "lucide-react"
+import { Home, BarChart3, Users, Settings, Database, Activity, Building2, Utensils } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -30,11 +29,6 @@ const items = [
     title: "Utilisateurs",
     url: "/users",
     icon: Users,
-  },
-  {
-    title: "Contenu",
-    url: "/content",
-    icon: FileText,
   },
   {
     title: "Loisirs",
