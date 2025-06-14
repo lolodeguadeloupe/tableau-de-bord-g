@@ -18,7 +18,7 @@ import { Link, useLocation } from "react-router-dom"
 const items = [
   {
     title: "Tableau de bord",
-    url: "/dashboard",
+    url: "/",
     icon: Home,
   },
   {

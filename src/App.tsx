@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,7 +8,6 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/hooks/useAuth";
-import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Analytics from "./pages/Analytics";
 import Users from "./pages/Users";
@@ -43,8 +43,7 @@ const App = () => (
                         <AppSidebar />
                         <main className="flex-1 p-6">
                           <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/" element={<Dashboard />} />
                             <Route path="/analytics" element={<Analytics />} />
                             <Route path="/users" element={<Users />} />
                             <Route path="/content" element={<Content />} />
