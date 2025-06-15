@@ -12,24 +12,24 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar"
 import { UserMenu } from "./UserMenu"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
 
 const items = [
-  {
-    title: "Tableau de bord",
-    url: "/dashboard",
-    icon: Home,
-  },
+  // {
+  //   title: "Tableau de bord",
+  //   url: "/dashboard",
+  //   icon: Home,
+  // },
   {
     title: "Analytiques",
     url: "/analytics",
     icon: BarChart3,
   },
-  {
-    title: "Utilisateurs",
-    url: "/users",
-    icon: Users,
-  },
+  // {
+  //   title: "Utilisateurs",
+  //   url: "/users",
+  //   icon: Users,
+  // },
   {
     title: "Loisirs",
     url: "/leisure-activities",
@@ -45,20 +45,29 @@ const items = [
     url: "/restaurants",
     icon: Utensils,
   },
-  {
-    title: "Base de données",
-    url: "/database",
-    icon: Database,
-  },
-  {
-    title: "Paramètres",
-    url: "/settings",
-    icon: Settings,
-  },
+
+  // {
+  //   title: "Base de données",
+  //   url: "/database",
+  //   icon: Database,
+  // },
+  // {
+  //   title: "Paramètres",
+  //   url: "/settings",
+  //   icon: Settings,
+  // },
 ]
 
 export function AppSidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  function handleLogout() {
+    // Ici, ajoute la logique de déconnexion (ex: suppression du token, appel API, etc.)
+    // Exemple basique :
+    localStorage.removeItem("authToken")
+    navigate("/login")
+  }
 
   return (
     <Sidebar>
@@ -89,6 +98,12 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-4">
         <UserMenu />
+        <button
+          onClick={handleLogout}
+          className="mt-4 w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition"
+        >
+          Déconnexion
+        </button>
       </SidebarFooter>
     </Sidebar>
   )
