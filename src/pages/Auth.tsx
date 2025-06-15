@@ -6,14 +6,14 @@ import { useAuth } from "@/hooks/useAuth"
 
 export default function Auth() {
   const navigate = useNavigate()
-  const { user, loading } = useAuth()
+  const { user, loading, isAdmin } = useAuth()
 
   useEffect(() => {
-    // Rediriger vers le dashboard si l'utilisateur est déjà connecté
-    if (user && !loading) {
+    // Rediriger vers le dashboard si l'utilisateur est un admin connecté
+    if (user && !loading && isAdmin) {
       navigate('/')
     }
-  }, [user, loading, navigate])
+  }, [user, loading, isAdmin, navigate])
 
   if (loading) {
     return (
@@ -26,8 +26,8 @@ export default function Auth() {
     )
   }
 
-  if (user) {
-    return null // L'utilisateur va être redirigé
+  if (user && isAdmin) {
+    return null // L'administrateur va être redirigé
   }
 
   return <AuthForm onSuccess={() => navigate('/')} />

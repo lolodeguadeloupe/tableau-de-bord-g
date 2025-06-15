@@ -2,19 +2,23 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { useToast } from "@/hooks/use-toast"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth()
+  const { user, profile, loading, isAdmin } = useAuth()
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   useEffect(() => {
-    console.log('🛡️ Vérification simple de l\'authentification:', { 
+    console.log('🛡️ Vérification de l\'authentification et des droits:', { 
       user: user?.id, 
-      loading
+      loading,
+      isAdmin,
+      role: profile?.role,
     })
 
     if (!loading) {
@@ -24,9 +28,20 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         return
       }
 
-      console.log('✅ Utilisateur authentifié, accès autorisé')
+      if (!isAdmin) {
+        console.log('🚫 Accès refusé. L\'utilisateur n\'est pas administrateur.')
+        toast({
+          title: "Accès refusé",
+          description: "Vous devez être administrateur pour accéder à cette page.",
+          variant: "destructive",
+        })
+        navigate('/auth')
+        return
+      }
+
+      console.log('✅ Utilisateur admin authentifié, accès autorisé')
     }
-  }, [user, loading, navigate])
+  }, [user, profile, loading, isAdmin, navigate, toast])
 
   if (loading) {
     return (
@@ -39,7 +54,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     )
   }
 
-  if (!user) {
+  if (!user || !isAdmin) {
     return null
   }
 

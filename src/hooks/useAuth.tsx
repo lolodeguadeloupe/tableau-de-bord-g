@@ -79,9 +79,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    setLoading(true)
     console.log('🎯 Initialisation de l\'authentification...')
     
-    // Configurer l'écoute des changements d'état d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔄 Changement d\'état d\'authentification:', event, session?.user?.id)
@@ -89,10 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          // Différer la récupération du profil pour éviter les blocages
-          setTimeout(() => {
-            fetchProfile(session.user.id)
-          }, 100)
+          await fetchProfile(session.user.id)
         } else {
           setProfile(null)
         }
@@ -100,19 +97,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false)
       }
     )
-
-    // Vérifier la session existante
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('📋 Session existante:', session?.user?.id)
-      setSession(session)
-      setUser(session?.user ?? null)
-      
-      if (session?.user) {
-        fetchProfile(session.user.id)
-      }
-      
-      setLoading(false)
-    })
 
     return () => subscription.unsubscribe()
   }, [])
