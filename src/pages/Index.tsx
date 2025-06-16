@@ -11,14 +11,10 @@ const Index = () => {
   const { user, profile, loading } = useAuth()
 
   useEffect(() => {
-    console.log('🏠 Page d\'accueil - Rendu du composant Index de Laurent')
-    console.log('👤 Utilisateur:', user?.id)
-    console.log('📋 Profil:', profile?.role)
-    console.log('⏳ Chargement:', loading)
   }, [user, profile, loading])
 
   if (loading) {
-    console.log('⏳ Affichage du spinner de chargement')
+
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -28,8 +24,6 @@ const Index = () => {
       </div>
     )
   }
-
-  console.log('✅ Rendu de la page d\'accueil normale')
 
   return (
     <div className="space-y-6">
