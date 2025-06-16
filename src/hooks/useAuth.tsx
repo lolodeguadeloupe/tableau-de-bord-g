@@ -59,8 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .eq('id', userId)
         .single()
 
+      console.log('🔍 Résultat de la requête profiles:', { data, error })
+
       if (error) {
         console.error('❌ Erreur lors de la récupération du profil:', error)
+        console.error('Code d\'erreur:', error.code)
+        console.error('Message d\'erreur:', error.message)
+        console.error('Détails:', error.details)
+        
         // Si le profil n'existe pas, on peut créer un profil par défaut
         if (error.code === 'PGRST116') {
           console.log('📝 Création d\'un profil par défaut...')
@@ -69,13 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .insert({
               id: userId,
               email: user?.email || '',
-              role: 'user'
+              role: 'admin' // Temporairement défini comme admin pour faciliter le débogage
             })
             .select()
             .single()
 
+          console.log('🔍 Résultat de la création du profil:', { newProfile, createError })
+
           if (createError) {
             console.error('❌ Erreur lors de la création du profil:', createError)
+            console.error('Code d\'erreur:', createError.code)
+            console.error('Message d\'erreur:', createError.message)
+            console.error('Détails:', createError.details)
             return
           }
           
