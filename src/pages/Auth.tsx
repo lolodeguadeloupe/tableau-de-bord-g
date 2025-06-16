@@ -10,6 +10,9 @@ export default function Auth() {
 
   useEffect(() => {
     // Rediriger vers le dashboard si l'utilisateur est un admin connecté
+    console.log("user", user)
+    console.log("loading", loading)
+    console.log("isAdmin", isAdmin)
     if (user && !loading && isAdmin) {
       navigate('/')
     }

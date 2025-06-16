@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 const ADMIN_EMAIL = "admin@exemple.com"
 const ADMIN_PASSWORD = "admin123"
@@ -7,8 +7,9 @@ const ADMIN_PASSWORD = "admin123"
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
   const navigate = useNavigate()
+  const location = useLocation()
+  const [error, setError] = useState(location.state?.error || "")
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

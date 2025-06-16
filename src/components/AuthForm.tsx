@@ -46,6 +46,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
 
     try {
       if (isLogin) {
+        console.log("Connexion")
         // Connexion
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -91,11 +92,12 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
           setLastName("")
         }
       }
-    } catch (error: any) {
-      console.error("Erreur d'authentification:", error)
+    } catch (error) {
+      const err = error as { message?: string }
+      console.error("Erreur d'authentification:", err)
       toast({
         title: "Erreur",
-        description: error.message || "Une erreur est survenue lors de l'authentification.",
+        description: err.message || "Une erreur est survenue lors de l'authentification.",
         variant: "destructive",
       })
     } finally {

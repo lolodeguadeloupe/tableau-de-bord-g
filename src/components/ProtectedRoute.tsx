@@ -10,6 +10,12 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { user, profile, loading, isAdmin } = useAuth()
+ 
+  console.log("user", user)
+  console.log("profile", profile)
+  console.log("loading", loading)
+  console.log("isAdmin", isAdmin)
+
   const navigate = useNavigate()
   const { toast } = useToast()
 
