@@ -1,12 +1,13 @@
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, EyeOff, LogIn, UserPlus } from "lucide-react"
+import { Eye, EyeOff, LogIn, UserPlus, AlertCircle } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 interface AuthFormProps {
   onSuccess: () => void
@@ -20,11 +21,28 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
   const [lastName, setLastName] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showAccessDeniedMessage, setShowAccessDeniedMessage] = useState(false)
   const { toast } = useToast()
+
+  // Afficher le message d'accès refusé si l'utilisateur a été déconnecté
+  useEffect(() => {
+    const checkForAccessDenied = () => {
+      // Vérifier si l'utilisateur a été redirigé à cause d'un accès refusé
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get('access_denied') === 'true') {
+        setShowAccessDeniedMessage(true)
+        // Nettoyer l'URL
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+    }
+    
+    checkForAccessDenied()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setShowAccessDeniedMessage(false)
 
     try {
       if (isLogin) {
@@ -39,9 +57,10 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (data.user) {
           toast({
             title: "Connexion réussie",
-            description: "Vous êtes maintenant connecté.",
+            description: "Vérification de vos permissions...",
           })
-          onSuccess()
+          // La vérification du rôle se fera dans useAuth
+          // onSuccess sera appelé seulement si l'utilisateur est admin
         }
       } else {
         // Inscription
@@ -63,7 +82,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (data.user) {
           toast({
             title: "Inscription réussie",
-            description: "Votre compte a été créé avec succès.",
+            description: "Votre compte a été créé. Veuillez noter que seuls les administrateurs peuvent accéder à cette application.",
           })
           
           // Basculer vers le mode connexion après inscription
@@ -89,15 +108,24 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold text-center">
-            {isLogin ? "Connexion" : "Inscription"}
+            {isLogin ? "Connexion Administrateur" : "Inscription"}
           </CardTitle>
           <p className="text-sm text-muted-foreground text-center">
             {isLogin 
-              ? "Connectez-vous à votre compte administrateur" 
-              : "Créez votre compte utilisateur"}
+              ? "Accès réservé aux administrateurs uniquement" 
+              : "Créez votre compte (accès admin requis)"}
           </p>
         </CardHeader>
         <CardContent>
+          {showAccessDeniedMessage && (
+            <Alert className="mb-4 border-red-200 bg-red-50">
+              <AlertCircle className="h-4 w-4 text-red-600" />
+              <AlertDescription className="text-red-800">
+                Accès refusé. Seuls les administrateurs peuvent accéder à cette application.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
@@ -134,7 +162,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="votre@email.com"
+                placeholder="admin@exemple.com"
               />
             </div>
             
@@ -195,6 +223,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
                 setPassword("")
                 setFirstName("")
                 setLastName("")
+                setShowAccessDeniedMessage(false)
               }}
               className="text-sm"
             >
