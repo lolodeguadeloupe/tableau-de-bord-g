@@ -11,7 +11,7 @@ const Index = () => {
   const { user, profile, loading } = useAuth()
 
   useEffect(() => {
-    console.log('🏠 Page d\'accueil - Rendu du composant Index')
+    console.log('🏠 Page d\'accueil - Rendu du composant Index de Laurent')
     console.log('👤 Utilisateur:', user?.id)
     console.log('📋 Profil:', profile?.role)
     console.log('⏳ Chargement:', loading)
