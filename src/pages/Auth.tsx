@@ -19,7 +19,7 @@ export default function Auth() {
     // Only redirect if we have a user AND they are admin AND not loading
     if (user && isAdmin && !loading) {
       console.log('✅ Admin user detected, redirecting to dashboard')
-      navigate('/')
+      navigate('/', { replace: true })
     }
   }, [user, loading, isAdmin, navigate])
 
@@ -39,5 +39,8 @@ export default function Auth() {
     return null
   }
 
-  return <AuthForm onSuccess={() => navigate('/')} />
+  return <AuthForm onSuccess={() => {
+    console.log('🎉 Authentication successful, waiting for profile validation...')
+    // Don't navigate immediately, let the useEffect handle it after profile is loaded
+  }} />
 }

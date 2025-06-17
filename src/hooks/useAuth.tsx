@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.log('📝 Création d\'un profil par défaut...')
           
           // Déterminer le rôle en fonction de l'email
-          let role = 'user'
+          let role = 'client'
           if (userEmail === 'admin@clubcreole.com') {
             role = 'admin'
             console.log('🎯 Email admin détecté, attribution du rôle admin')

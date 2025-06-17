@@ -46,25 +46,29 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
 
     try {
       if (isLogin) {
-        console.log("Connexion")
-        // Connexion - on laisse le hook useAuth gérer la vérification des permissions
+        console.log("🔐 Tentative de connexion pour:", email)
+        
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         })
 
-        if (error) throw error
+        if (error) {
+          console.error("❌ Erreur de connexion:", error)
+          throw error
+        }
 
         if (data.user) {
+          console.log("✅ Connexion réussie pour:", data.user.email)
           toast({
             title: "Connexion réussie",
             description: "Bienvenue dans l'interface d'administration.",
           })
-          // On appelle onSuccess immédiatement - le hook useAuth se chargera de la redirection si nécessaire
-          onSuccess();
+          onSuccess()
         }
       } else {
-        // Inscription
+        console.log("📝 Tentative d'inscription pour:", email)
+        
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -72,15 +76,19 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             data: {
               first_name: firstName,
               last_name: lastName,
-              role: 'user'
+              role: 'client'
             },
             emailRedirectTo: `${window.location.origin}/`
           }
         })
 
-        if (error) throw error
+        if (error) {
+          console.error("❌ Erreur d'inscription:", error)
+          throw error
+        }
 
         if (data.user) {
+          console.log("✅ Inscription réussie pour:", data.user.email)
           toast({
             title: "Inscription réussie",
             description: "Votre compte a été créé. Veuillez noter que seuls les administrateurs peuvent accéder à cette application.",
@@ -94,7 +102,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       }
     } catch (error) {
       const err = error as { message?: string }
-      console.error("Erreur d'authentification:", err)
+      console.error("❌ Erreur d'authentification:", err)
       toast({
         title: "Erreur",
         description: err.message || "Une erreur est survenue lors de l'authentification.",
