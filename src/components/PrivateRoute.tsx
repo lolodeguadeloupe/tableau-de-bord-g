@@ -1,14 +1,19 @@
 import { Navigate, useLocation } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 
 interface PrivateRouteProps {
   children: React.ReactNode
 }
 
 export default function PrivateRoute({ children }: PrivateRouteProps) {
-  const isAuthenticated = localStorage.getItem("authToken") === "admin-token"
+  const { isAdmin, loading, profile } = useAuth()
   const location = useLocation()
-  if (!isAuthenticated) {
-    localStorage.removeItem("authToken")
+
+  if (loading) {
+    return <div>Chargement...</div>
+  }
+
+  if (!profile || !isAdmin) {
     return (
       <Navigate 
         to="/login" 

@@ -56,12 +56,26 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (error) throw error
 
         if (data.user) {
+          // Vérifier immédiatement le profil de l'utilisateur
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profileError) {
+            throw new Error('Erreur lors de la vérification des permissions');
+          }
+
+          if (profileData.role !== 'admin') {
+            throw new Error('Accès refusé. Seuls les administrateurs peuvent accéder à cette application.');
+          }
+
           toast({
             title: "Connexion réussie",
-            description: "Vérification de vos permissions...",
+            description: "Bienvenue dans l'interface d'administration.",
           })
-          // La vérification du rôle se fera dans useAuth
-          // onSuccess sera appelé seulement si l'utilisateur est admin
+          onSuccess();
         }
       } else {
         // Inscription
