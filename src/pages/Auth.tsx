@@ -9,11 +9,16 @@ export default function Auth() {
   const { user, loading, isAdmin } = useAuth()
 
   useEffect(() => {
-    // Rediriger vers le dashboard si l'utilisateur est un admin connecté
-    console.log("user", user)
-    console.log("loading", loading)
-    console.log("isAdmin", isAdmin)
-    if (user && !loading && isAdmin) {
+    console.log('🔑 Auth page - Current state:', { 
+      hasUser: !!user, 
+      loading, 
+      isAdmin,
+      userEmail: user?.email 
+    })
+
+    // Only redirect if we have a user AND they are admin AND not loading
+    if (user && isAdmin && !loading) {
+      console.log('✅ Admin user detected, redirecting to dashboard')
       navigate('/')
     }
   }, [user, loading, isAdmin, navigate])
@@ -29,8 +34,9 @@ export default function Auth() {
     )
   }
 
+  // If user is authenticated and admin, they'll be redirected by the useEffect
   if (user && isAdmin) {
-    return null // L'administrateur va être redirigé
+    return null
   }
 
   return <AuthForm onSuccess={() => navigate('/')} />

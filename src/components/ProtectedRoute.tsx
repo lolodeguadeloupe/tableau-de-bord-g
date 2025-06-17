@@ -2,59 +2,46 @@
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
-import { useToast } from "@/hooks/use-toast"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, profile, loading, isAdmin } = useAuth()
- 
-  console.log("user", user)
-  console.log("profile", profile)
-  console.log("loading", loading)
-  console.log("isAdmin", isAdmin)
-
+  const { user, loading, isAdmin } = useAuth()
   const navigate = useNavigate()
-  const { toast } = useToast()
 
   useEffect(() => {
-    console.log('🛡️ Vérification de l\'authentification et des droits:', { 
-      user: user?.id, 
+    console.log('🛡️ ProtectedRoute - Auth state:', { 
+      hasUser: !!user, 
       loading,
       isAdmin,
-      role: profile?.role,
+      userEmail: user?.email
     })
 
     if (!loading) {
       if (!user) {
-        console.log('🚫 Utilisateur non authentifié, redirection vers /auth')
+        console.log('🚫 No user found, redirecting to /auth')
         navigate('/auth')
         return
       }
 
       if (!isAdmin) {
-        console.log('🚫 Accès refusé. L\'utilisateur n\'est pas administrateur.')
-        toast({
-          title: "Accès refusé",
-          description: "Vous devez être administrateur pour accéder à cette page.",
-          variant: "destructive",
-        })
+        console.log('🚫 User is not admin, redirecting to /auth')
         navigate('/auth')
         return
       }
 
-      console.log('✅ Utilisateur admin authentifié, accès autorisé')
+      console.log('✅ Admin user authenticated, access granted')
     }
-  }, [user, profile, loading, isAdmin, navigate, toast])
+  }, [user, loading, isAdmin, navigate])
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-muted-foreground">Chargement...</p>
+          <p className="mt-4 text-muted-foreground">Vérification des permissions...</p>
         </div>
       </div>
     )

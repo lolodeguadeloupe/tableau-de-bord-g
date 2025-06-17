@@ -138,7 +138,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    setLoading(true)
     console.log('🎯 Initialisation de l\'authentification...')
     
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -162,16 +161,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe()
   }, [])
-
-  useEffect(() => {
-    if (user) {
-      console.log('🔄 Récupération du profil utilisateur...')
-      fetchProfile(user.id, user.email)
-    } else {
-      setProfile(null)
-    }
-    setLoading(false)
-  }, [user])  
 
   const isAdmin = profile?.role === 'admin'
   const isEditor = profile?.role === 'editor' || isAdmin

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +21,6 @@ import Accommodations from "./pages/Accommodations";
 import Restaurants from "./pages/Restaurants";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-
 
 const queryClient = new QueryClient();
 
