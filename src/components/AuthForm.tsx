@@ -60,12 +60,16 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
 
         if (data.user) {
           // Vérifier le profil de l'utilisateur
+          // SQL equivalent:
+          // SELECT role FROM profiles WHERE id = {data.user.id} LIMIT 1;
+          console.log("🔍 ID de l'utilisateur:", data.user.id)
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('role')
-            .eq('id', data.user.id)
+            .eq('id', data.user.id as string)
             .single();
 
+          console.log("🔍 Données du profil:", profileData)
           if (profileError) {
             throw new Error('Erreur lors de la vérification des permissions');
           }
