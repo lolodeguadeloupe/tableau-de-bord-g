@@ -59,12 +59,30 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         }
 
         if (data.user) {
-          console.log("✅ Connexion réussie pour:", data.user.email)
+          // Vérifier le profil de l'utilisateur
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profileError) {
+            throw new Error('Erreur lors de la vérification des permissions');
+          }
+
+          if (profileData.role !== 'admin') {
+            throw new Error('Accès refusé. Seuls les administrateurs peuvent accéder à cette application.');
+          }
+
           toast({
             title: "Connexion réussie",
             description: "Bienvenue dans l'interface d'administration.",
           })
-          onSuccess()
+
+          // Petit délai pour laisser le temps au hook useAuth de se mettre à jour
+          setTimeout(() => {
+            onSuccess();
+          }, 100);
         }
       } else {
         console.log("📝 Tentative d'inscription pour:", email)
