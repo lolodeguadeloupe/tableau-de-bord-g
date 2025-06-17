@@ -50,9 +50,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, userEmail?: string) => {
     try {
-      console.log('🔄 Récupération du profil pour:', userId)
+      console.log('🔄 Récupération du profil pour:', userId, userEmail)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -63,19 +63,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (error) {
         console.error('❌ Erreur lors de la récupération du profil:', error)
-        console.error('Code d\'erreur:', error.code)
-        console.error('Message d\'erreur:', error.message)
-        console.error('Détails:', error.details)
         
         // Si le profil n'existe pas, on peut créer un profil par défaut
         if (error.code === 'PGRST116') {
           console.log('📝 Création d\'un profil par défaut...')
+          
+          // Déterminer le rôle en fonction de l'email
+          let role = 'user'
+          if (userEmail === 'admin@clubcreole.com') {
+            role = 'admin'
+            console.log('🎯 Email admin détecté, attribution du rôle admin')
+          }
+          
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
             .insert({
               id: userId,
-              email: user?.email || '',
-              role: 'admin' // Temporairement défini comme admin pour faciliter le débogage
+              email: userEmail || '',
+              role: role
             })
             .select()
             .single()
@@ -84,9 +89,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
           if (createError) {
             console.error('❌ Erreur lors de la création du profil:', createError)
-            console.error('Code d\'erreur:', createError.code)
-            console.error('Message d\'erreur:', createError.message)
-            console.error('Détails:', createError.details)
             return
           }
           
@@ -103,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
           
           setProfile(newProfile)
+          console.log('✅ Profil admin créé avec succès:', newProfile)
         }
         return
       }
@@ -122,6 +125,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setProfile(data)
+      console.log('✅ Utilisateur admin validé')
     } catch (error) {
       console.error('💥 Erreur inattendue lors de la récupération du profil:', error)
     }
@@ -129,7 +133,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = async () => {
     if (user?.id) {
-      await fetchProfile(user.id)
+      await fetchProfile(user.id, user.email)
     }
   }
 
@@ -146,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           // Utiliser setTimeout pour éviter les conflits avec onAuthStateChange
           setTimeout(() => {
-            fetchProfile(session.user.id)
+            fetchProfile(session.user.id, session.user.email)
           }, 0)
         } else {
           setProfile(null)

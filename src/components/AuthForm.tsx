@@ -47,7 +47,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     try {
       if (isLogin) {
         console.log("Connexion")
-        // Connexion
+        // Connexion - on laisse le hook useAuth gérer la vérification des permissions
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -56,25 +56,11 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         if (error) throw error
 
         if (data.user) {
-          // Vérifier immédiatement le profil de l'utilisateur
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-
-          if (profileError) {
-            throw new Error('Erreur lors de la vérification des permissions');
-          }
-
-          if (profileData.role !== 'admin') {
-            throw new Error('Accès refusé. Seuls les administrateurs peuvent accéder à cette application.');
-          }
-
           toast({
             title: "Connexion réussie",
             description: "Bienvenue dans l'interface d'administration.",
           })
+          // On appelle onSuccess immédiatement - le hook useAuth se chargera de la redirection si nécessaire
           onSuccess();
         }
       } else {
