@@ -39,10 +39,33 @@ interface AccommodationFormProps {
   onClose: () => void
 }
 
+// Fonction utilitaire pour convertir JSON en chaîne de caractères
+const convertJsonToString = (value: Json | undefined | null): string => {
+  if (!value) return ""
+  
+  if (typeof value === "string") {
+    return value
+  }
+  
+  if (Array.isArray(value)) {
+    return value.filter(item => typeof item === "string").join(", ")
+  }
+  
+  if (typeof value === "object" && value !== null) {
+    // Si c'est un objet, extraire les valeurs qui sont des chaînes
+    const values = Object.values(value).filter(v => typeof v === "string")
+    return values.join(", ")
+  }
+  
+  return ""
+}
+
 export function AccommodationForm({ accommodation, onSuccess, onClose }: AccommodationFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
+  console.log('🔧 Données d\'hébergement reçues:', accommodation)
+  
   const form = useForm<AccommodationFormData>({
     resolver: zodResolver(accommodationSchema),
     defaultValues: {
@@ -57,16 +80,15 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
       max_guests: accommodation ? Number(accommodation.max_guests) : 1,
       image: accommodation?.image || "",
       discount: accommodation?.discount ? Number(accommodation.discount) : undefined,
-      amenities: accommodation?.amenities ? 
-        (Array.isArray(accommodation.amenities) ? (accommodation.amenities as string[]).join(", ") : "") : "",
-      features: accommodation?.features ? 
-        (Array.isArray(accommodation.features) ? (accommodation.features as string[]).join(", ") : "") : "",
-      rules: accommodation?.rules ? 
-        (Array.isArray(accommodation.rules) ? (accommodation.rules as string[]).join(", ") : "") : "",
+      amenities: convertJsonToString(accommodation?.amenities),
+      features: convertJsonToString(accommodation?.features),
+      rules: convertJsonToString(accommodation?.rules),
       gallery_images: accommodation?.gallery_images ? 
         (Array.isArray(accommodation.gallery_images) ? (accommodation.gallery_images as string[]) : []) : [],
     },
   })
+
+  console.log('📝 Valeurs par défaut du formulaire:', form.getValues())
 
   const onSubmit = async (data: AccommodationFormData) => {
     setLoading(true)
