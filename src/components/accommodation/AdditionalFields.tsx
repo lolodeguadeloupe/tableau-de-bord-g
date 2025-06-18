@@ -1,7 +1,7 @@
 
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Control } from "react-hook-form"
+import { Control, useFormContext } from "react-hook-form"
 import { AccommodationFormData } from "./accommodationSchema"
 import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
 
@@ -10,6 +10,8 @@ interface AdditionalFieldsProps {
 }
 
 export function AdditionalFields({ control }: AdditionalFieldsProps) {
+  const { setValue, getValues } = useFormContext<AccommodationFormData>()
+
   return (
     <>
       <FormField
@@ -38,9 +40,9 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
                 onImagesChange={(images) => {
                   field.onChange(images)
                   // Mettre à jour automatiquement l'image principale si elle n'est pas définie
-                  if (images.length > 0 && !control._formValues.image) {
-                    control._formState.dirtyFields.image = true
-                    control._formValues.image = images[0]
+                  const currentImage = getValues("image")
+                  if (images.length > 0 && !currentImage) {
+                    setValue("image", images[0])
                   }
                 }}
                 bucketName="accommodation-images"
