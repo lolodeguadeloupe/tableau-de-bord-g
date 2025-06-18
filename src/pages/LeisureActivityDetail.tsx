@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { ArrowLeft, Users, Calendar, MapPin, Camera } from "lucide-react"
@@ -39,7 +38,7 @@ export default function LeisureActivityDetail() {
   const fetchLoisir = async (loisirId: number) => {
     console.log('🔄 Récupération du loisir ID:', loisirId)
     try {
-      const { data, error } = await suiabase
+      const { data, error } = await supabase
         .from('loisirs')
         .select('*')
         .eq('id', loisirId)
