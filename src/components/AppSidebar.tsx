@@ -102,7 +102,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      {/* <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4">
         <UserMenu />
         <button
           onClick={handleLogout}
@@ -110,7 +110,7 @@ export function AppSidebar() {
         >
           Déconnexion
         </button>
-      </SidebarFooter> */}
+      </SidebarFooter>
     </Sidebar>
   )
 }
