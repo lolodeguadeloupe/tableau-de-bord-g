@@ -37,6 +37,27 @@ interface LoisirsModalProps {
   onSuccess: () => void
 }
 
+// Fonction utilitaire pour formater une date au format YYYY-MM-DD
+const formatDateForInput = (dateString: string): string => {
+  if (!dateString) return ""
+  
+  // Si la date est déjà au bon format (YYYY-MM-DD), la retourner telle quelle
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+    return dateString
+  }
+  
+  // Sinon, essayer de parser et formater la date
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return ""
+    
+    return date.toISOString().split('T')[0]
+  } catch (error) {
+    console.error('Erreur lors du formatage de la date:', error)
+    return ""
+  }
+}
+
 export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModalProps) {
   const [formData, setFormData] = useState<Loisir>({
     title: "",
@@ -53,8 +74,23 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
   const { toast } = useToast()
 
   useEffect(() => {
+    console.log('🔄 Mise à jour du formulaire avec le loisir:', loisir)
+    
     if (loisir) {
-      setFormData(loisir)
+      const updatedFormData = {
+        ...loisir,
+        start_date: formatDateForInput(loisir.start_date),
+        end_date: formatDateForInput(loisir.end_date),
+      }
+      
+      console.log('📅 Dates formatées:', {
+        original_start: loisir.start_date,
+        formatted_start: updatedFormData.start_date,
+        original_end: loisir.end_date,
+        formatted_end: updatedFormData.end_date
+      })
+      
+      setFormData(updatedFormData)
     } else {
       setFormData({
         title: "",
@@ -77,6 +113,8 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+
+    console.log('💾 Soumission du formulaire avec les données:', formData)
 
     try {
       if (loisir?.id) {
@@ -193,7 +231,6 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
                   type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  placeholder="AAAA-MM-JJ"
                   required
                 />
               </div>
@@ -204,7 +241,6 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
                   type="date"
                   value={formData.end_date}
                   onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                  placeholder="AAAA-MM-JJ"
                   required
                 />
               </div>
