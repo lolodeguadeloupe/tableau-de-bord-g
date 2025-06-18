@@ -185,14 +185,24 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
 
   // Convertir gallery_images en tableau d'URLs pour le composant MultiImageUpload
   const getImagesArray = (): string[] => {
-    if (Array.isArray(formData.gallery_images)) {
-      return formData.gallery_images as string[]
+    const galleryImages = Array.isArray(formData.gallery_images) 
+      ? formData.gallery_images as string[] 
+      : []
+    
+    // Si on a une image principale et qu'elle n'est pas déjà dans la galerie
+    if (formData.image && !galleryImages.includes(formData.image)) {
+      // Mettre l'image principale en premier
+      return [formData.image, ...galleryImages]
     }
-    // Si on a juste une image principale, la retourner dans un tableau
-    if (formData.image) {
-      return [formData.image]
+    
+    // Si l'image principale est déjà dans la galerie, s'assurer qu'elle soit en premier
+    if (formData.image && galleryImages.includes(formData.image)) {
+      const filteredGallery = galleryImages.filter(img => img !== formData.image)
+      return [formData.image, ...filteredGallery]
     }
-    return []
+    
+    // Si pas d'image principale, retourner juste la galerie
+    return galleryImages
   }
 
   return (
