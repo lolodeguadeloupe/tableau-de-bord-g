@@ -38,6 +38,21 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
     }
   }
 
+  // Fonction pour convertir les données JSON en chaîne de caractères
+  const convertJsonToString = (value: any): string => {
+    if (typeof value === "string") {
+      return value
+    }
+    if (Array.isArray(value)) {
+      return value.join(", ")
+    }
+    if (value && typeof value === "object") {
+      // Si c'est un objet, extraire les valeurs
+      return Object.values(value).join(", ")
+    }
+    return ""
+  }
+
   return (
     <>
       <FormField
@@ -80,7 +95,12 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
           <FormItem>
             <FormLabel>Équipements (séparés par des virgules)</FormLabel>
             <FormControl>
-              <Input placeholder="WiFi, Climatisation, Piscine..." {...field} />
+              <Input 
+                placeholder="WiFi, Climatisation, Piscine..." 
+                {...field}
+                value={convertJsonToString(field.value)}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -94,7 +114,12 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
           <FormItem>
             <FormLabel>Caractéristiques (séparées par des virgules)</FormLabel>
             <FormControl>
-              <Input placeholder="Vue mer, Balcon, Jardin..." {...field} />
+              <Input 
+                placeholder="Vue mer, Balcon, Jardin..." 
+                {...field}
+                value={convertJsonToString(field.value)}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -108,7 +133,12 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
           <FormItem>
             <FormLabel>Règles (séparées par des virgules)</FormLabel>
             <FormControl>
-              <Input placeholder="Non-fumeur, Animaux interdits..." {...field} />
+              <Input 
+                placeholder="Non-fumeur, Animaux interdits..." 
+                {...field}
+                value={convertJsonToString(field.value)}
+                onChange={(e) => field.onChange(e.target.value)}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
