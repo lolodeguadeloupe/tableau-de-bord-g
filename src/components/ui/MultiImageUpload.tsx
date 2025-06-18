@@ -1,5 +1,5 @@
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Upload, X, Image as ImageIcon, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
@@ -22,6 +22,7 @@ export function MultiImageUpload({
 }: MultiImageUploadProps) {
   const [uploading, setUploading] = useState(false)
   const { toast } = useToast()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   // Image placeholder par défaut
   const defaultPlaceholder = "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=center"
@@ -94,6 +95,11 @@ export function MultiImageUpload({
         title: "Image uploadée",
         description: "L'image a été uploadée avec succès.",
       })
+
+      // Réinitialiser l'input file
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     } catch (error) {
       console.error('💥 Erreur lors de l\'upload:', error)
       toast({
@@ -116,6 +122,12 @@ export function MultiImageUpload({
     const [movedImage] = newImages.splice(fromIndex, 1)
     newImages.splice(toIndex, 0, movedImage)
     onImagesChange(newImages)
+  }
+
+  const handleAddImageClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click()
+    }
   }
 
   return (
@@ -198,30 +210,31 @@ export function MultiImageUpload({
         {images.length < maxImages && (
           <div className="relative aspect-square">
             <input
+              ref={fileInputRef}
               type="file"
               accept="image/*"
               onChange={uploadImage}
               disabled={uploading}
               className="hidden"
-              id={`image-upload-${Math.random()}`}
             />
-            <label htmlFor={`image-upload-${Math.random()}`}>
-              <div className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors">
-                <div className="text-center">
-                  {uploading ? (
-                    <div className="text-gray-500">
-                      <Upload className="h-6 w-6 mx-auto mb-2 animate-spin" />
-                      <span className="text-sm">Upload...</span>
-                    </div>
-                  ) : (
-                    <div className="text-gray-500">
-                      <Plus className="h-6 w-6 mx-auto mb-2" />
-                      <span className="text-sm">Ajouter une image</span>
-                    </div>
-                  )}
-                </div>
+            <div 
+              onClick={handleAddImageClick}
+              className="w-full h-full border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-gray-400 transition-colors"
+            >
+              <div className="text-center">
+                {uploading ? (
+                  <div className="text-gray-500">
+                    <Upload className="h-6 w-6 mx-auto mb-2 animate-spin" />
+                    <span className="text-sm">Upload...</span>
+                  </div>
+                ) : (
+                  <div className="text-gray-500">
+                    <Plus className="h-6 w-6 mx-auto mb-2" />
+                    <span className="text-sm">Ajouter une image</span>
+                  </div>
+                )}
               </div>
-            </label>
+            </div>
           </div>
         )}
       </div>
