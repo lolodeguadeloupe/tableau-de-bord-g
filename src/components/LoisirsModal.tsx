@@ -12,7 +12,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { ImageUpload } from "@/components/ui/ImageUpload"
+import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import type { Json } from "@/integrations/supabase/types"
@@ -106,8 +106,13 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
     }
   }, [loisir])
 
-  const handleImageChange = (url: string) => {
-    setFormData(prev => ({ ...prev, image: url }))
+  const handleImagesChange = (images: string[]) => {
+    console.log('📸 Mise à jour des images:', images)
+    setFormData(prev => ({
+      ...prev,
+      image: images[0] || "", // La première image devient l'image principale
+      gallery_images: images
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -176,6 +181,18 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
     } finally {
       setLoading(false)
     }
+  }
+
+  // Convertir gallery_images en tableau d'URLs pour le composant MultiImageUpload
+  const getImagesArray = (): string[] => {
+    if (Array.isArray(formData.gallery_images)) {
+      return formData.gallery_images as string[]
+    }
+    // Si on a juste une image principale, la retourner dans un tableau
+    if (formData.image) {
+      return [formData.image]
+    }
+    return []
   }
 
   return (
@@ -271,12 +288,16 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
             </div>
 
             <div className="grid gap-2">
-              <Label>Image du loisir</Label>
-              <ImageUpload
-                value={formData.image}
-                onImageChange={handleImageChange}
+              <Label>Images du loisir</Label>
+              <MultiImageUpload
+                images={getImagesArray()}
+                onImagesChange={handleImagesChange}
                 bucketName="loisir-images"
+                maxImages={5}
               />
+              <p className="text-sm text-gray-500">
+                La première image sera utilisée comme photo principale du loisir.
+              </p>
             </div>
           </div>
           <DialogFooter>
