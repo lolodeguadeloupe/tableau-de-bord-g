@@ -152,7 +152,8 @@ export default function LeisureActivities() {
 
   const handleImageClick = (loisirId: number) => {
     console.log('🖼️ Clic sur l\'image du loisir ID:', loisirId)
-    navigate(`/leisure-activities/${loisirId}`)
+    const externalUrl = `https://demonstration.clubcreole.fr/loisirs/${loisirId}`
+    window.open(externalUrl, '_blank', 'noopener,noreferrer')
   }
 
   const tableData: LoisirTableData[] = loisirs.map(loisir => ({
