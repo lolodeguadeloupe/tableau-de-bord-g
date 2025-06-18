@@ -39,19 +39,30 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
   }
 
   // Fonction pour convertir les données JSON en chaîne de caractères
-  const convertJsonToString = (value: any): string => {
+ const convertJsonToString = (value: any): string => {
+  console.log("🔄 Conversion des données JSON en chaîne:", value) ;
     if (typeof value === "string") {
-      return value
+      return value;
     }
     if (Array.isArray(value)) {
-      return value.join(", ")
+      // Si c'est un tableau, mapper chaque élément en chaîne de caractères
+      return value.map(item => {
+        if (typeof item === "string") {
+          return item;
+        } else if (item && typeof item === "object") {
+          // Si l'élément est un objet, extraire les valeurs et les joindre
+          return Object.values(item).join(", ");
+        } else {
+          return String(item); // Convertir d'autres types en chaîne
+        }
+      }).join(", ");
     }
     if (value && typeof value === "object") {
       // Si c'est un objet, extraire les valeurs
-      return Object.values(value).join(", ")
+      return Object.values(value).join(", ");
     }
-    return ""
-  }
+    return "";
+  };
 
   return (
     <>
