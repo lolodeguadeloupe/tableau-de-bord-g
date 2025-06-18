@@ -10,7 +10,33 @@ interface AdditionalFieldsProps {
 }
 
 export function AdditionalFields({ control }: AdditionalFieldsProps) {
-  const { setValue, getValues } = useFormContext<AccommodationFormData>()
+  const { setValue, getValues, watch } = useFormContext<AccommodationFormData>()
+  
+  // Surveiller les changements dans les champs image et gallery_images
+  const currentImage = watch("image")
+  const currentGalleryImages = watch("gallery_images")
+
+  const handleGalleryImagesChange = (images: string[]) => {
+    // Mettre à jour les images de la galerie
+    setValue("gallery_images", images)
+    
+    // Si le champ photo principale est vide et qu'il y a des images dans la galerie,
+    // utiliser la première image de la galerie comme photo principale
+    if (!currentImage && images.length > 0) {
+      setValue("image", images[0])
+    }
+    
+    // Si la photo principale actuelle n'est plus dans la galerie et qu'il y a d'autres images,
+    // utiliser la première image disponible
+    if (currentImage && !images.includes(currentImage) && images.length > 0) {
+      setValue("image", images[0])
+    }
+    
+    // Si la galerie est vide, vider aussi le champ photo principale
+    if (images.length === 0) {
+      setValue("image", "")
+    }
+  }
 
   return (
     <>
@@ -37,14 +63,7 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
             <FormControl>
               <MultiImageUpload
                 images={field.value || []}
-                onImagesChange={(images) => {
-                  field.onChange(images)
-                  // Mettre à jour automatiquement l'image principale si elle n'est pas définie
-                  const currentImage = getValues("image")
-                  if (images.length > 0 && !currentImage) {
-                    setValue("image", images[0])
-                  }
-                }}
+                onImagesChange={handleGalleryImagesChange}
                 bucketName="accommodation-images"
                 maxImages={8}
               />
