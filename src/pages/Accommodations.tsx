@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { Plus, Edit, Trash2, Eye, Home, Users, Euro, MapPin } from "lucide-react"
+import { Plus, Edit, Trash2, Eye, Home, Users, Euro, MapPin, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/DataTable"
 import { AccommodationModal } from "@/components/AccommodationModal"
 import { useToast } from "@/hooks/use-toast"
@@ -54,6 +55,7 @@ export default function Accommodations() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedAccommodation, setSelectedAccommodation] = useState<Accommodation | null>(null)
   const [deleteAccommodationId, setDeleteAccommodationId] = useState<number | null>(null)
+  const [globalSearchTerm, setGlobalSearchTerm] = useState("")
   const { toast } = useToast()
 
   const fetchAccommodations = async () => {
@@ -168,7 +170,16 @@ export default function Accommodations() {
     return colors[type.toLowerCase()] || "bg-gray-100 text-gray-800"
   }
 
-  const tableData: AccommodationTableData[] = accommodations.map(accommodation => ({
+  // Filtrer les données selon le terme de recherche global
+  const filteredAccommodations = accommodations.filter(accommodation =>
+    globalSearchTerm === "" || 
+    accommodation.name.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+    accommodation.type.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+    accommodation.location.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
+    accommodation.description.toLowerCase().includes(globalSearchTerm.toLowerCase())
+  )
+
+  const tableData: AccommodationTableData[] = filteredAccommodations.map(accommodation => ({
     ...accommodation,
     id: accommodation.id.toString(),
     rating_badge: (
@@ -227,6 +238,39 @@ export default function Accommodations() {
         </Button>
       </div>
 
+      {/* Barre de recherche principale */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-semibold text-blue-900 flex items-center gap-2">
+            <Search className="h-5 w-5" />
+            Rechercher un hébergement
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Recherchez par nom, type, lieu ou description..."
+              value={globalSearchTerm}
+              onChange={(e) => setGlobalSearchTerm(e.target.value)}
+              className="pl-10 text-lg h-12 bg-white shadow-sm"
+            />
+          </div>
+          {globalSearchTerm && (
+            <div className="mt-3 text-sm text-blue-700">
+              {filteredAccommodations.length} hébergement{filteredAccommodations.length > 1 ? 's' : ''} trouvé{filteredAccommodations.length > 1 ? 's' : ''} pour "{globalSearchTerm}"
+              <Button 
+                variant="link" 
+                className="p-0 ml-2 h-auto text-blue-600"
+                onClick={() => setGlobalSearchTerm("")}
+              >
+                Effacer
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Message de débogage */}
       {accommodations.length === 0 && !loading && (
         <div className="text-center p-8 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -246,6 +290,11 @@ export default function Accommodations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{accommodations.length}</div>
+            {globalSearchTerm && (
+              <p className="text-xs text-muted-foreground">
+                {filteredAccommodations.length} affiché{filteredAccommodations.length > 1 ? 's' : ''}
+              </p>
+            )}
           </CardContent>
         </Card>
         
@@ -256,7 +305,7 @@ export default function Accommodations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accommodations.reduce((sum, acc) => sum + acc.max_guests, 0)}
+              {filteredAccommodations.reduce((sum, acc) => sum + acc.max_guests, 0)}
             </div>
           </CardContent>
         </Card>
@@ -268,8 +317,8 @@ export default function Accommodations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accommodations.length > 0 
-                ? `${Math.round(accommodations.reduce((sum, acc) => sum + acc.price, 0) / accommodations.length)}€`
+              {filteredAccommodations.length > 0 
+                ? `${Math.round(filteredAccommodations.reduce((sum, acc) => sum + acc.price, 0) / filteredAccommodations.length)}€`
                 : "0€"
               }
             </div>
@@ -283,8 +332,8 @@ export default function Accommodations() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {accommodations.length > 0 
-                ? `${(accommodations.reduce((sum, acc) => sum + acc.rating, 0) / accommodations.length).toFixed(1)}/5`
+              {filteredAccommodations.length > 0 
+                ? `${(filteredAccommodations.reduce((sum, acc) => sum + acc.rating, 0) / filteredAccommodations.length).toFixed(1)}/5`
                 : "0/5"
               }
             </div>
@@ -295,12 +344,30 @@ export default function Accommodations() {
       {/* Table des hébergements */}
       {accommodations.length > 0 && (
         <DataTable
-          title="Liste des hébergements"
+          title={`Liste des hébergements${globalSearchTerm ? ` (${filteredAccommodations.length} résultat${filteredAccommodations.length > 1 ? 's' : ''})` : ''}`}
           data={tableData}
           columns={columns}
           onEdit={handleEdit}
           onDelete={(id) => setDeleteAccommodationId(parseInt(id))}
         />
+      )}
+
+      {/* Message si aucun résultat */}
+      {globalSearchTerm && filteredAccommodations.length === 0 && accommodations.length > 0 && (
+        <Card className="p-8 text-center">
+          <div className="text-muted-foreground">
+            <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <h3 className="text-lg font-medium mb-2">Aucun résultat trouvé</h3>
+            <p>Aucun hébergement ne correspond à votre recherche "{globalSearchTerm}"</p>
+            <Button 
+              variant="outline" 
+              className="mt-4"
+              onClick={() => setGlobalSearchTerm("")}
+            >
+              Effacer la recherche
+            </Button>
+          </div>
+        </Card>
       )}
 
       {/* Modal de création/édition */}

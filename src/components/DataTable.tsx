@@ -17,6 +17,7 @@ interface DataTableProps<T = TableData> {
   onEdit?: (item: T) => void
   onDelete?: (id: string) => void
   showActions?: boolean
+  hideSearch?: boolean
 }
 
 export function DataTable<T extends TableData>({ 
@@ -25,7 +26,8 @@ export function DataTable<T extends TableData>({
   columns, 
   onEdit, 
   onDelete, 
-  showActions = true 
+  showActions = true,
+  hideSearch = false
 }: DataTableProps<T>) {
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
@@ -47,15 +49,17 @@ export function DataTable<T extends TableData>({
       <CardHeader className="border-b border-border/40 bg-muted/20">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">{title}</CardTitle>
-          <div className="relative w-64">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          {!hideSearch && (
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Recherche rapide..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          )}
         </div>
       </CardHeader>
       <CardContent className="p-0">
