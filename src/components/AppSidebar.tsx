@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sidebar"
 import { UserMenu } from "./UserMenu"
 import { Link, useLocation, useNavigate } from "react-router-dom"
+import { supabase } from "@/integrations/supabase/client"
 
 const items = [
   // {
@@ -20,11 +21,11 @@ const items = [
   //   url: "/dashboard",
   //   icon: Home,
   // },
-  {
-    title: "Analytiques",
-    url: "/analytics",
-    icon: BarChart3,
-  },
+  // {
+  //   title: "Analytiques",
+  //   url: "/analytics",
+  //   icon: BarChart3,
+  // },
   // {
   //   title: "Utilisateurs",
   //   url: "/users",
@@ -62,11 +63,16 @@ export function AppSidebar() {
   const location = useLocation()
   const navigate = useNavigate()
 
-  function handleLogout() {
-    // Ici, ajoute la logique de déconnexion (ex: suppression du token, appel API, etc.)
-    // Exemple basique :
+  async function handleLogout() {
+    console.log("👋 Déconnexion...")
+    // Assumes you have a supabase client instance imported as 'supabase'
+    try {
+      await supabase.auth.signOut()
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error)
+    }
     localStorage.removeItem("authToken")
-    navigate("/login")
+    navigate("/auth")
   }
 
   return (
@@ -96,7 +102,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4">
+      {/* <SidebarFooter className="p-4">
         <UserMenu />
         <button
           onClick={handleLogout}
@@ -104,7 +110,7 @@ export function AppSidebar() {
         >
           Déconnexion
         </button>
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   )
 }
