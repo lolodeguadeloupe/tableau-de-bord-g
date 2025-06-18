@@ -44,37 +44,36 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
     if (typeof value === "string") {
       return value;
     }
+    if (!value) return "";
+   
     if (Array.isArray(value)) {
       // Si c'est un tableau, mapper chaque élément en chaîne de caractères
-      return value.map(item => {
-        if (typeof item === "string") {
-          return item;
-        } else if (item && typeof item === "object") {
-          // Si l'élément est un objet, extraire les valeurs et les joindre
-          return Object.values(item).join(", ");
-        } else {
-          return String(item); // Convertir d'autres types en chaîne
-        }
-      }).join(", ");
+      return value
+        .map((item) => {
+          if (typeof item === "string") {
+            return item
+          }
+
+          if (item && typeof item === "object") {
+            if ("name" in item) {
+              // Gestion des objets du type { name: string, available: boolean }
+              return String(item.name)
+            }
+            return Object.values(item).join(", ")
+          }
+
+          return String(item)
+        })
+        .join(", ")
     }
-    if (value && typeof value === "object") {
-      // Si c'est un objet, extraire les valeurs
-      console.log("🔄 Conversion des données JSON en chaîne:", value) ;
-      return Object.values(value).join(", ");
+     if (typeof value === "object") {
+      if ("name" in value) {
+        return String(value.name)
+      }
+      return Object.values(value).join(", ")
     }
     return "";
   };
-  const convertJsonToString2 = (value: any): string => {
-    console.log("🔄 Conversion des données JSON en chaîne:", value) ;
-      if (typeof value === "string") {
-        return value;
-      }
-      if (Array.isArray(value)) {
-        // Si c'est un tableau, mapper chaque élément en chaîne de caractères
-        return value.filter(item => item.available).map(item => item.name).join(", ");
-      }
-      return "";
-    };
 
   return (
     <>
@@ -121,7 +120,7 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
               <Input 
                 placeholder="WiFi, Climatisation, Piscine..." 
                 {...field}
-                value={convertJsonToString2(field.value)}
+                value={convertJsonToString(field.value)}
                 onChange={(e) => field.onChange(e.target.value)}
               />
             </FormControl>
