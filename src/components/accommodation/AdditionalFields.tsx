@@ -3,6 +3,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/comp
 import { Input } from "@/components/ui/input"
 import { Control } from "react-hook-form"
 import { AccommodationFormData } from "./accommodationSchema"
+import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
 
 interface AdditionalFieldsProps {
   control: Control<AccommodationFormData>
@@ -16,9 +17,35 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
         name="image"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>URL de l'image</FormLabel>
+            <FormLabel>Photo principale</FormLabel>
             <FormControl>
               <Input placeholder="https://example.com/image.jpg" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="gallery_images"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Galerie d'images</FormLabel>
+            <FormControl>
+              <MultiImageUpload
+                images={field.value || []}
+                onImagesChange={(images) => {
+                  field.onChange(images)
+                  // Mettre à jour automatiquement l'image principale si elle n'est pas définie
+                  if (images.length > 0 && !control._formValues.image) {
+                    control._formState.dirtyFields.image = true
+                    control._formValues.image = images[0]
+                  }
+                }}
+                bucketName="accommodation-images"
+                maxImages={8}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

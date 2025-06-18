@@ -16,6 +16,7 @@ export const accommodationSchema = z.object({
   amenities: z.string().optional(),
   features: z.string().optional(),
   rules: z.string().optional(),
+  gallery_images: z.array(z.string()).optional(),
 })
 
 export type AccommodationFormData = z.infer<typeof accommodationSchema>

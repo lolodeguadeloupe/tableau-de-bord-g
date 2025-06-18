@@ -63,6 +63,8 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
         (Array.isArray(accommodation.features) ? (accommodation.features as string[]).join(", ") : "") : "",
       rules: accommodation?.rules ? 
         (Array.isArray(accommodation.rules) ? (accommodation.rules as string[]).join(", ") : "") : "",
+      gallery_images: accommodation?.gallery_images ? 
+        (Array.isArray(accommodation.gallery_images) ? (accommodation.gallery_images as string[]) : []) : [],
     },
   })
 
@@ -79,6 +81,12 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
         throw new Error('Vous devez être connecté pour effectuer cette action')
       }
 
+      // Si des images de galerie sont définies et qu'il n'y a pas d'image principale, utiliser la première image de la galerie
+      let mainImage = data.image
+      if (!mainImage && data.gallery_images && data.gallery_images.length > 0) {
+        mainImage = data.gallery_images[0]
+      }
+
       // Préparation des données pour la base de données
       const accommodationData = {
         name: data.name.trim(),
@@ -90,7 +98,7 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
         rooms: data.rooms,
         bathrooms: data.bathrooms,
         max_guests: data.max_guests,
-        image: data.image?.trim() || "",
+        image: mainImage?.trim() || "",
         discount: data.discount || null,
         amenities: data.amenities ? 
           data.amenities.split(",").map(item => item.trim()).filter(Boolean) : 
@@ -101,7 +109,7 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
         rules: data.rules ? 
           data.rules.split(",").map(item => item.trim()).filter(Boolean) : 
           [],
-        gallery_images: []
+        gallery_images: data.gallery_images || []
       }
 
       console.log('📝 Données préparées pour Supabase:', accommodationData)
