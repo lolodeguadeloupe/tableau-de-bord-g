@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { Plus, Edit, Trash2, Eye, Users, Clock, Euro } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -41,6 +42,7 @@ interface LoisirTableData extends Omit<Loisir, 'id'> {
 }
 
 export default function LeisureActivities() {
+  const navigate = useNavigate()
   const [loisirs, setLoisirs] = useState<Loisir[]>([])
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -84,7 +86,6 @@ export default function LeisureActivities() {
   }, [fetchLoisirs])
 
   const handleEdit = (loisirData: LoisirTableData) => {
-    // Convert back to original Loisir type
     const loisir: Loisir = {
       id: parseInt(loisirData.id),
       title: loisirData.title,
@@ -149,6 +150,11 @@ export default function LeisureActivities() {
     return `${available} places`
   }
 
+  const handleImageClick = (loisirId: number) => {
+    console.log('🖼️ Clic sur l\'image du loisir ID:', loisirId)
+    navigate(`/leisure-activities/${loisirId}`)
+  }
+
   const tableData: LoisirTableData[] = loisirs.map(loisir => ({
     ...loisir,
     id: loisir.id.toString(),
@@ -160,7 +166,13 @@ export default function LeisureActivities() {
     participants: `${loisir.current_participants}/${loisir.max_participants}`,
     dates: `${loisir.start_date} - ${loisir.end_date}`,
     image_preview: loisir.image ? (
-      <img src={loisir.image} alt={loisir.title} className="w-12 h-12 object-cover rounded" />
+      <button 
+        onClick={() => handleImageClick(loisir.id)}
+        className="hover:opacity-80 transition-opacity"
+        title="Voir les détails"
+      >
+        <img src={loisir.image} alt={loisir.title} className="w-12 h-12 object-cover rounded cursor-pointer" />
+      </button>
     ) : (
       <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center">
         <Eye className="h-4 w-4 text-gray-400" />

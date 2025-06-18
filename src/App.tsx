@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import Database from "./pages/Database";
 import Auth from "./pages/Auth";
 import LeisureActivities from "./pages/LeisureActivities";
+import LeisureActivityDetail from "./pages/LeisureActivityDetail";
 import Accommodations from "./pages/Accommodations";
 import Restaurants from "./pages/Restaurants";
 import NotFound from "./pages/NotFound";
@@ -49,6 +50,7 @@ const App = () => (
                             <Route path="/users" element={<Users />} />
                             <Route path="/content" element={<Content />} />
                             <Route path="/leisure-activities" element={<LeisureActivities />} />
+                            <Route path="/leisure-activities/:id" element={<LeisureActivityDetail />} />
                             <Route path="/accommodations" element={<Accommodations />} />
                             <Route path="/restaurants" element={<Restaurants />} />
                             <Route path="/database" element={<Database />} />
