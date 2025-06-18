@@ -59,10 +59,22 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
     }
     if (value && typeof value === "object") {
       // Si c'est un objet, extraire les valeurs
+      console.log("🔄 Conversion des données JSON en chaîne:", value) ;
       return Object.values(value).join(", ");
     }
     return "";
   };
+  const convertJsonToString2 = (value: any): string => {
+    console.log("🔄 Conversion des données JSON en chaîne:", value) ;
+      if (typeof value === "string") {
+        return value;
+      }
+      if (Array.isArray(value)) {
+        // Si c'est un tableau, mapper chaque élément en chaîne de caractères
+        return value.filter(item => item.available).map(item => item.name).join(", ");
+      }
+      return "";
+    };
 
   return (
     <>
@@ -109,7 +121,7 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
               <Input 
                 placeholder="WiFi, Climatisation, Piscine..." 
                 {...field}
-                value={convertJsonToString(field.value)}
+                value={convertJsonToString2(field.value)}
                 onChange={(e) => field.onChange(e.target.value)}
               />
             </FormControl>
