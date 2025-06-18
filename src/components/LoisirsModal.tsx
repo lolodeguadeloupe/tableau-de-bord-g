@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react"
-import { Activity, Plus, Edit } from "lucide-react"
+import { Plus, Edit } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -9,12 +9,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
+import { BasicInfoFields } from "@/components/loisirs/BasicInfoFields"
+import { DateFields } from "@/components/loisirs/DateFields"
+import { ParticipantsFields } from "@/components/loisirs/ParticipantsFields"
+import { ImageUploadSection } from "@/components/loisirs/ImageUploadSection"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { formatDateForInput } from "@/utils/dateUtils"
 import type { Json } from "@/integrations/supabase/types"
 
 interface Loisir {
@@ -35,27 +36,6 @@ interface LoisirsModalProps {
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
-}
-
-// Fonction utilitaire pour formater une date au format YYYY-MM-DD
-const formatDateForInput = (dateString: string): string => {
-  if (!dateString) return ""
-  
-  // Si la date est déjà au bon format (YYYY-MM-DD), la retourner telle quelle
-  if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
-    return dateString
-  }
-  
-  // Sinon, essayer de parser et formater la date
-  try {
-    const date = new Date(dateString)
-    if (isNaN(date.getTime())) return ""
-    
-    return date.toISOString().split('T')[0]
-  } catch (error) {
-    console.error('Erreur lors du formatage de la date:', error)
-    return ""
-  }
 }
 
 export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModalProps) {
@@ -183,28 +163,6 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
     }
   }
 
-  // Convertir gallery_images en tableau d'URLs pour le composant MultiImageUpload
-  const getImagesArray = (): string[] => {
-    const galleryImages = Array.isArray(formData.gallery_images) 
-      ? formData.gallery_images as string[] 
-      : []
-    
-    // Si on a une image principale et qu'elle n'est pas déjà dans la galerie
-    if (formData.image && !galleryImages.includes(formData.image)) {
-      // Mettre l'image principale en premier
-      return [formData.image, ...galleryImages]
-    }
-    
-    // Si l'image principale est déjà dans la galerie, s'assurer qu'elle soit en premier
-    if (formData.image && galleryImages.includes(formData.image)) {
-      const filteredGallery = galleryImages.filter(img => img !== formData.image)
-      return [formData.image, ...filteredGallery]
-    }
-    
-    // Si pas d'image principale, retourner juste la galerie
-    return galleryImages
-  }
-
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
@@ -216,99 +174,10 @@ export function LoisirsModal({ loisir, isOpen, onClose, onSuccess }: LoisirsModa
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Titre *</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                placeholder="Titre du loisir"
-                required
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="description">Description *</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                placeholder="Description du loisir"
-                rows={3}
-                required
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="location">Lieu *</Label>
-              <Input
-                id="location"
-                value={formData.location}
-                onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-                placeholder="Lieu du loisir"
-                required
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="start_date">Date de début *</Label>
-                <Input
-                  id="start_date"
-                  type="date"
-                  value={formData.start_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="end_date">Date de fin *</Label>
-                <Input
-                  id="end_date"
-                  type="date"
-                  value={formData.end_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, end_date: e.target.value }))}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="max_participants">Participants max *</Label>
-                <Input
-                  id="max_participants"
-                  type="number"
-                  min="1"
-                  value={formData.max_participants}
-                  onChange={(e) => setFormData(prev => ({ ...prev, max_participants: parseInt(e.target.value) || 1 }))}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="current_participants">Participants actuels</Label>
-                <Input
-                  id="current_participants"
-                  type="number"
-                  min="0"
-                  value={formData.current_participants || 0}
-                  onChange={(e) => setFormData(prev => ({ ...prev, current_participants: parseInt(e.target.value) || 0 }))}
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Images du loisir</Label>
-              <MultiImageUpload
-                images={getImagesArray()}
-                onImagesChange={handleImagesChange}
-                bucketName="loisir-images"
-                maxImages={5}
-              />
-              <p className="text-sm text-gray-500">
-                La première image sera utilisée comme photo principale du loisir.
-              </p>
-            </div>
+            <BasicInfoFields formData={formData} setFormData={setFormData} />
+            <DateFields formData={formData} setFormData={setFormData} />
+            <ParticipantsFields formData={formData} setFormData={setFormData} />
+            <ImageUploadSection formData={formData} onImagesChange={handleImagesChange} />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose}>
