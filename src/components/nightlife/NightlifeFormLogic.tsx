@@ -104,17 +104,17 @@ export function useNightlifeFormLogic(event?: NightlifeEvent | null, isOpen?: bo
 
   const handleImagesChange = (images: string[]) => {
     console.log('Images changed:', images)
-    setFormData({ 
-      ...formData, 
+    setFormData(prev => ({ 
+      ...prev, 
       gallery_images: images,
       // Update the main image with the first gallery image
-      image: images.length > 0 ? images[0] : formData.image
-    })
+      image: images.length > 0 ? images[0] : prev.image
+    }))
   }
 
   const updateFormData = (updates: Partial<NightlifeEvent>) => {
     console.log('Updating form data with:', updates)
-    setFormData({ ...formData, ...updates })
+    setFormData(prev => ({ ...prev, ...updates }))
   }
 
   return {

@@ -15,6 +15,7 @@ interface NightlifeFormFieldsProps {
 
 export function NightlifeFormFields({ formData, onUpdateFormData, onImagesChange }: NightlifeFormFieldsProps) {
   const eventTypes = [
+    'Club',
     'Soirée Club',
     'Concert Live',
     'DJ Set',
@@ -47,6 +48,8 @@ export function NightlifeFormFields({ formData, onUpdateFormData, onImagesChange
       onUpdateFormData({ features: currentFeatures.filter(f => f !== feature) })
     }
   }
+
+  console.log('NightlifeFormFields rendering with formData:', formData)
 
   return (
     <>
