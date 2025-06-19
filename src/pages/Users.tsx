@@ -27,6 +27,7 @@ interface User {
   first_name: string | null
   last_name: string | null
   role: string
+  admin_type?: string
   created_at: string
   updated_at: string
 }
@@ -40,12 +41,13 @@ export default function Users() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [stats, setStats] = useState({
     total: 0,
-    admins: 0,
+    superAdmins: 0,
+    partnerAdmins: 0,
     editors: 0,
     users: 0
   })
   const { toast } = useToast()
-  const { isAdmin } = useAuth()
+  const { isSuperAdmin } = useAuth()
 
   const fetchUsers = async () => {
     try {
@@ -60,13 +62,15 @@ export default function Users() {
       
       // Calculer les statistiques
       const total = data?.length || 0
-      const admins = data?.filter(user => user.role === 'admin').length || 0
+      const superAdmins = data?.filter(user => user.role === 'admin' && user.admin_type === 'super_admin').length || 0
+      const partnerAdmins = data?.filter(user => user.role === 'admin' && (user.admin_type === 'partner_admin' || (user.role === 'admin' && !user.admin_type))).length || 0
       const editors = data?.filter(user => user.role === 'editor').length || 0
       const regularUsers = data?.filter(user => user.role === 'user').length || 0
 
       setStats({
         total,
-        admins,
+        superAdmins,
+        partnerAdmins,
         editors,
         users: regularUsers
       })
@@ -102,10 +106,10 @@ export default function Users() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!selectedUser || !isAdmin) {
+    if (!selectedUser || !isSuperAdmin) {
       toast({
         title: "Accès refusé",
-        description: "Seuls les administrateurs peuvent supprimer des utilisateurs.",
+        description: "Seuls les super administrateurs peuvent supprimer des utilisateurs.",
         variant: "destructive",
       })
       return
@@ -148,59 +152,73 @@ export default function Users() {
   ]
 
   // Transformer les données pour l'affichage avec badges et actions personnalisées
-  const displayUsers = users.map(user => ({
-    ...user,
-    first_name: user.first_name || "-",
-    last_name: user.last_name || "-",
-    role: (
-      <Badge variant={
-        user.role === "admin" ? "default" : 
-        user.role === "editor" ? "secondary" : 
-        "outline"
-      }>
-        {user.role === "admin" ? "Administrateur" :
-         user.role === "editor" ? "Éditeur" : "Utilisateur"}
-      </Badge>
-    ),
-    created_at: new Date(user.created_at).toLocaleDateString('fr-FR'),
-    actions: (
-      <div className="flex gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleViewDetails(user)}
-          className="h-8 px-3"
-        >
-          <Eye className="h-4 w-4 mr-1" />
-          Voir
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => handleEdit(user)}
-          className="h-8 px-3"
-        >
-          <Edit className="h-4 w-4 mr-1" />
-          Modifier
-        </Button>
-        {isAdmin && (
+  const displayUsers = users.map(user => {
+    let roleText = "Utilisateur"
+    let roleVariant: "default" | "secondary" | "outline" | "destructive" = "outline"
+    
+    if (user.role === "admin") {
+      if (user.admin_type === "super_admin") {
+        roleText = "Super Admin"
+        roleVariant = "destructive"
+      } else {
+        roleText = "Admin Partenaire"
+        roleVariant = "default"
+      }
+    } else if (user.role === "editor") {
+      roleText = "Éditeur"
+      roleVariant = "secondary"
+    }
+
+    return {
+      ...user,
+      first_name: user.first_name || "-",
+      last_name: user.last_name || "-",
+      role: (
+        <Badge variant={roleVariant}>
+          {roleText}
+        </Badge>
+      ),
+      created_at: new Date(user.created_at).toLocaleDateString('fr-FR'),
+      actions: (
+        <div className="flex gap-2">
           <Button
             variant="outline"
             size="sm"
-            onClick={() => handleDeleteClick(user)}
-            className="h-8 px-3 text-red-600 hover:text-red-700"
+            onClick={() => handleViewDetails(user)}
+            className="h-8 px-3"
           >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Supprimer
+            <Eye className="h-4 w-4 mr-1" />
+            Voir
           </Button>
-        )}
-      </div>
-    )
-  }))
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleEdit(user)}
+            className="h-8 px-3"
+          >
+            <Edit className="h-4 w-4 mr-1" />
+            Modifier
+          </Button>
+          {isSuperAdmin && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleDeleteClick(user)}
+              className="h-8 px-3 text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-1" />
+              Supprimer
+            </Button>
+          )}
+        </div>
+      )
+    }
+  })
 
   const statsCards = [
     { title: "Total Utilisateurs", value: stats.total.toString(), change: "Tous les utilisateurs" },
-    { title: "Administrateurs", value: stats.admins.toString(), change: "Accès complet" },
+    { title: "Super Administrateurs", value: stats.superAdmins.toString(), change: "Accès total" },
+    { title: "Admins Partenaires", value: stats.partnerAdmins.toString(), change: "Accès limité" },
     { title: "Éditeurs", value: stats.editors.toString(), change: "Accès modération" },
     { title: "Utilisateurs", value: stats.users.toString(), change: "Accès standard" }
   ]
@@ -223,7 +241,7 @@ export default function Users() {
           <h1 className="text-3xl font-bold text-foreground">Gestion des Utilisateurs</h1>
           <p className="text-muted-foreground mt-1">Gérez les comptes et permissions utilisateurs</p>
         </div>
-        {isAdmin && (
+        {isSuperAdmin && (
           <Button className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800">
             <UserPlus className="h-4 w-4 mr-2" />
             Nouvel Utilisateur
@@ -232,7 +250,7 @@ export default function Users() {
       </div>
 
       {/* Statistiques utilisateurs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
         {statsCards.map((stat, index) => (
           <Card key={index} className="border border-border/40 hover:shadow-md transition-shadow">
             <CardContent className="p-6">

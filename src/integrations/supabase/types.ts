@@ -925,6 +925,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin_type: Database["public"]["Enums"]["admin_type"] | null
           company_id: number | null
           created_at: string
           email: string
@@ -935,6 +936,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          admin_type?: Database["public"]["Enums"]["admin_type"] | null
           company_id?: number | null
           created_at?: string
           email: string
@@ -945,6 +947,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          admin_type?: Database["public"]["Enums"]["admin_type"] | null
           company_id?: number | null
           created_at?: string
           email?: string
@@ -1295,9 +1298,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_partner_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      admin_type: "super_admin" | "partner_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1412,6 +1423,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_type: ["super_admin", "partner_admin"],
+    },
   },
 } as const

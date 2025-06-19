@@ -5,10 +5,11 @@ import { useAuth } from "@/hooks/useAuth"
 
 interface ProtectedRouteProps {
   children: React.ReactNode
+  requireSuperAdmin?: boolean
 }
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading, isAdmin } = useAuth()
+export function ProtectedRoute({ children, requireSuperAdmin = false }: ProtectedRouteProps) {
+  const { user, loading, isAdmin, isSuperAdmin, isPartnerAdmin } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -16,6 +17,9 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
       hasUser: !!user, 
       loading,
       isAdmin,
+      isSuperAdmin,
+      isPartnerAdmin,
+      requireSuperAdmin,
       userEmail: user?.email
     })
 
@@ -32,9 +36,15 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
         return
       }
 
+      if (requireSuperAdmin && !isSuperAdmin) {
+        console.log('🚫 Super admin required but user is not super admin, redirecting to /auth')
+        navigate('/auth')
+        return
+      }
+
       console.log('✅ Admin user authenticated, access granted')
     }
-  }, [user, loading, isAdmin, navigate])
+  }, [user, loading, isAdmin, isSuperAdmin, isPartnerAdmin, requireSuperAdmin, navigate])
 
   if (loading) {
     return (
@@ -48,6 +58,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!user || !isAdmin) {
+    return null
+  }
+
+  if (requireSuperAdmin && !isSuperAdmin) {
     return null
   }
 

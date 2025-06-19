@@ -60,12 +60,10 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
 
         if (data.user) {
           // Vérifier le profil de l'utilisateur
-          // SQL equivalent:
-          // SELECT role FROM profiles WHERE id = {data.user.id} LIMIT 1;
           console.log("🔍 ID de l'utilisateur:", data.user.id)
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
-            .select('role')
+            .select('role, admin_type')
             .eq('id', data.user.id as string)
             .single();
 
@@ -78,9 +76,13 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
             throw new Error('Accès refusé. Seuls les administrateurs peuvent accéder à cette application.');
           }
 
+          const adminTypeText = profileData.admin_type === 'super_admin' 
+            ? 'Super Administrateur' 
+            : 'Administrateur Partenaire'
+
           toast({
             title: "Connexion réussie",
-            description: "Bienvenue dans l'interface d'administration.",
+            description: `Bienvenue dans l'interface d'administration (${adminTypeText}).`,
           })
 
           // Petit délai pour laisser le temps au hook useAuth de se mettre à jour

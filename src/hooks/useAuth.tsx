@@ -10,6 +10,7 @@ interface Profile {
   first_name: string | null
   last_name: string | null
   role: string
+  admin_type?: string
   created_at: string
   updated_at: string
 }
@@ -22,6 +23,8 @@ interface AuthContextType {
   signOut: () => Promise<void>
   isAdmin: boolean
   isEditor: boolean
+  isSuperAdmin: boolean
+  isPartnerAdmin: boolean
   refreshProfile: () => Promise<void>
 }
 
@@ -68,20 +71,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error.code === 'PGRST116') {
           console.log('📝 Création d\'un profil par défaut...')
           
-          // Déterminer le rôle en fonction de l'email
+          // Déterminer le rôle et le type d'admin en fonction de l'email
           let role = 'client'
+          let adminType = null
+          
           if (userEmail === 'admin@clubcreole.com') {
             role = 'admin'
-            console.log('🎯 Email admin détecté, attribution du rôle admin')
+            adminType = 'super_admin'
+            console.log('🎯 Email super admin détecté, attribution du rôle super_admin')
+          }
+          
+          const insertData: any = {
+            id: userId,
+            email: userEmail || '',
+            role: role
+          }
+          
+          if (adminType) {
+            insertData.admin_type = adminType
           }
           
           const { data: newProfile, error: createError } = await supabase
             .from('profiles')
-            .insert({
-              id: userId,
-              email: userEmail || '',
-              role: role
-            })
+            .insert(insertData)
             .select()
             .single()
 
@@ -125,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       setProfile(data)
-      console.log('✅ Utilisateur admin validé')
+      console.log('✅ Utilisateur admin validé:', data.admin_type || 'partner_admin')
     } catch (error) {
       console.error('💥 Erreur inattendue lors de la récupération du profil:', error)
     }
@@ -164,6 +176,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const isAdmin = profile?.role === 'admin'
   const isEditor = profile?.role === 'editor' || isAdmin
+  const isSuperAdmin = profile?.role === 'admin' && profile?.admin_type === 'super_admin'
+  const isPartnerAdmin = profile?.role === 'admin' && (profile?.admin_type === 'partner_admin' || !profile?.admin_type)
 
   return (
     <AuthContext.Provider value={{
@@ -174,6 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut,
       isAdmin,
       isEditor,
+      isSuperAdmin,
+      isPartnerAdmin,
       refreshProfile
     }}>
       {children}
