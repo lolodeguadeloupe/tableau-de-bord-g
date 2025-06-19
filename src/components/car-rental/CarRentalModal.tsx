@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -6,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { CarRentalCompany } from "@/hooks/useCarRentalActions"
+import { CarRentalImageSection } from "./CarRentalImageSection"
 
 interface CarRentalModalProps {
   isOpen: boolean
@@ -24,7 +26,8 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
     description: '',
     rating: 4.5,
     offer: '',
-    icon_name: 'Car'
+    icon_name: 'Car',
+    gallery_images: []
   })
 
   useEffect(() => {
@@ -39,7 +42,8 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
         description: company.description,
         rating: company.rating,
         offer: company.offer,
-        icon_name: company.icon_name
+        icon_name: company.icon_name,
+        gallery_images: company.gallery_images || []
       })
     } else {
       setFormData({
@@ -50,7 +54,8 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
         description: '',
         rating: 4.5,
         offer: '',
-        icon_name: 'Car'
+        icon_name: 'Car',
+        gallery_images: []
       })
     }
   }, [company, isOpen])
@@ -63,6 +68,17 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
 
   const handleChange = (field: keyof CarRentalCompany, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  const handleImagesChange = (images: string[]) => {
+    const mainImage = images.length > 0 ? images[0] : ''
+    const galleryImages = images.slice(1) // Toutes les images sauf la première
+    
+    setFormData(prev => ({
+      ...prev,
+      image: mainImage,
+      gallery_images: galleryImages
+    }))
   }
 
   return (
@@ -120,15 +136,10 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
             />
           </div>
 
-          <div>
-            <Label htmlFor="image">URL de l'image</Label>
-            <Input
-              id="image"
-              value={formData.image || ''}
-              onChange={(e) => handleChange('image', e.target.value)}
-              placeholder="https://exemple.com/image.jpg"
-            />
-          </div>
+          <CarRentalImageSection
+            formData={formData as CarRentalCompany}
+            onImagesChange={handleImagesChange}
+          />
 
           <div>
             <Label htmlFor="description">Description</Label>

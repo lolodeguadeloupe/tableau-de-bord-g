@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -14,6 +13,7 @@ export interface CarRentalCompany {
   offer: string
   icon_name: string
   partner_id?: string
+  gallery_images?: any
   created_at?: string
   updated_at?: string
 }
@@ -29,6 +29,7 @@ export interface CarModel {
   transmission: string
   air_con: boolean
   is_active: boolean
+  gallery_images?: any
   created_at?: string
   updated_at?: string
 }
@@ -98,6 +99,7 @@ export function useCarRentalActions() {
             rating: Number(companyData.rating) || 4.5,
             offer: companyData.offer || '',
             icon_name: companyData.icon_name || 'Car',
+            gallery_images: companyData.gallery_images || [],
             updated_at: new Date().toISOString()
           })
           .eq('id', companyData.id)
@@ -130,7 +132,8 @@ export function useCarRentalActions() {
             description: companyData.description || '',
             rating: Number(companyData.rating) || 4.5,
             offer: companyData.offer || '',
-            icon_name: companyData.icon_name || 'Car'
+            icon_name: companyData.icon_name || 'Car',
+            gallery_images: companyData.gallery_images || []
           })
           .select()
 
@@ -250,6 +253,7 @@ export function useCarRentalActions() {
             transmission: modelData.transmission || 'Automatique',
             air_con: modelData.air_con ?? true,
             is_active: modelData.is_active ?? true,
+            gallery_images: modelData.gallery_images || [],
             updated_at: new Date().toISOString()
           })
           .eq('id', modelData.id)
@@ -279,7 +283,8 @@ export function useCarRentalActions() {
             seats: Number(modelData.seats) || 5,
             transmission: modelData.transmission || 'Automatique',
             air_con: modelData.air_con ?? true,
-            is_active: modelData.is_active ?? true
+            is_active: modelData.is_active ?? true,
+            gallery_images: modelData.gallery_images || []
           })
           .select()
 
