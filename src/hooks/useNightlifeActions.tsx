@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -56,25 +57,6 @@ export function useNightlifeActions() {
         const eventId = typeof eventData.id === 'string' ? parseInt(eventData.id) : eventData.id
         console.log('Updating event with ID:', eventId, 'type:', typeof eventId)
         
-        // First, let's check if the event exists
-        const { data: existingEvent, error: fetchError } = await supabase
-          .from('nightlife_events')
-          .select('id')
-          .eq('id', eventId)
-          .single()
-        
-        if (fetchError) {
-          console.error('Error checking existing event:', fetchError)
-          throw new Error('Événement non trouvé: ' + fetchError.message)
-        }
-        
-        if (!existingEvent) {
-          console.error('Event not found with ID:', eventId)
-          throw new Error('Événement non trouvé avec l\'ID: ' + eventId)
-        }
-        
-        console.log('Existing event found:', existingEvent)
-        
         // Prepare update data
         const updateData = {
           name: eventData.name,
@@ -94,22 +76,47 @@ export function useNightlifeActions() {
         
         console.log('Update data prepared:', JSON.stringify(updateData, null, 2))
         
-        const { data, error } = await supabase
+        // Check current user session
+        const { data: session, error: sessionError } = await supabase.auth.getSession()
+        console.log('Current session:', session?.session?.user?.id, 'Session error:', sessionError)
+        
+        // Try the update with better error handling
+        const { data, error, status, statusText } = await supabase
           .from('nightlife_events')
           .update(updateData)
           .eq('id', eventId)
           .select()
 
+        console.log('Update response:', { data, error, status, statusText })
+
         if (error) {
-          console.error('Update error:', error)
+          console.error('Update error details:', {
+            message: error.message,
+            details: error.details,
+            hint: error.hint,
+            code: error.code
+          })
           throw new Error('Erreur de mise à jour: ' + error.message)
         }
 
-        console.log('Update result:', data)
-
         if (!data || data.length === 0) {
-          throw new Error('Aucune ligne mise à jour - événement non trouvé avec l\'ID: ' + eventId)
+          // Try to fetch the event again to see if it still exists
+          const { data: checkData, error: checkError } = await supabase
+            .from('nightlife_events')
+            .select('*')
+            .eq('id', eventId)
+            .single()
+          
+          console.log('Event check after failed update:', { checkData, checkError })
+          
+          if (checkError) {
+            throw new Error('Événement non trouvé après tentative de mise à jour: ' + checkError.message)
+          }
+          
+          throw new Error('Aucune ligne mise à jour - possible problème de permissions RLS')
         }
+
+        console.log('Update successful:', data)
 
         toast({
           title: "Succès",
