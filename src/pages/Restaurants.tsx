@@ -17,7 +17,7 @@ import {
 import { RestaurantStats } from "@/components/restaurant/RestaurantStats"
 import { AuthGuard } from "@/components/restaurant/AuthGuard"
 import { EmptyState } from "@/components/restaurant/EmptyState"
-import { transformRestaurantsToTableData, tableColumns } from "@/components/restaurant/RestaurantTableUtils"
+import { transformRestaurantsToTableData, tableColumns, formatTableData } from "@/components/restaurant/RestaurantTableUtils"
 import { useRestaurants } from "@/hooks/useRestaurants"
 import { useRestaurantActions } from "@/hooks/useRestaurantActions"
 
@@ -50,6 +50,14 @@ export default function Restaurants() {
   }
 
   const tableData = transformRestaurantsToTableData(restaurants)
+  const formattedTableData = formatTableData(restaurants)
+
+  const handleEditWrapper = (item: any) => {
+    const restaurant = tableData.find(r => r.id === item.id)
+    if (restaurant) {
+      handleEdit(restaurant)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -71,9 +79,9 @@ export default function Restaurants() {
       {restaurants.length > 0 && (
         <DataTable
           title="Liste des restaurants"
-          data={tableData}
+          data={formattedTableData}
           columns={tableColumns}
-          onEdit={handleEdit}
+          onEdit={handleEditWrapper}
           onDelete={(id) => setDeleteRestaurantId(parseInt(id))}
         />
       )}

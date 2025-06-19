@@ -12,6 +12,29 @@ export const iconOptions = [
   { value: "cake", label: "Gâteau" }
 ]
 
+export const restaurantTypes = [
+  "Français",
+  "Italien",
+  "Japonais",
+  "Chinois",
+  "Indien",
+  "Mexicain",
+  "Méditerranéen",
+  "Américain",
+  "Thaï",
+  "Libanais",
+  "Marocain",
+  "Végétarien",
+  "Fruits de mer",
+  "Grillades",
+  "Pizzeria",
+  "Brasserie",
+  "Bistrot",
+  "Gastronomique",
+  "Fast-food",
+  "Autre"
+]
+
 export const restaurantSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   type: z.string().min(1, "Le type est requis"),
