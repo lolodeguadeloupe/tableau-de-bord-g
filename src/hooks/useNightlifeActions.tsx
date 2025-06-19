@@ -120,21 +120,26 @@ export function useNightlifeActions() {
 
   const handleEdit = (eventData: NightlifeEventTableData): NightlifeEvent => {
     console.log('Converting table data to event data:', eventData)
-    return {
+    
+    // Ensure all required fields are properly converted and present
+    const convertedEvent: NightlifeEvent = {
       id: parseInt(eventData.id),
-      name: eventData.name,
-      type: eventData.type,
-      venue: eventData.venue,
-      image: eventData.image,
-      description: eventData.description,
-      date: eventData.date,
-      time: eventData.time,
-      price: eventData.price,
-      offer: eventData.offer,
-      rating: eventData.rating,
-      features: eventData.features,
-      gallery_images: eventData.gallery_images
+      name: eventData.name || '',
+      type: eventData.type || '',
+      venue: eventData.venue || '',
+      image: eventData.image || '',
+      description: eventData.description || '',
+      date: eventData.date || '',
+      time: eventData.time || '',
+      price: eventData.price || 0,
+      offer: eventData.offer || '',
+      rating: eventData.rating || 4.5,
+      features: Array.isArray(eventData.features) ? eventData.features : [],
+      gallery_images: Array.isArray(eventData.gallery_images) ? eventData.gallery_images : []
     }
+    
+    console.log('Converted event data:', convertedEvent)
+    return convertedEvent
   }
 
   const handleDelete = async (id: string): Promise<boolean> => {

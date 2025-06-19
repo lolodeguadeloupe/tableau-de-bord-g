@@ -20,26 +20,43 @@ export function useNightlifeFormLogic(event?: NightlifeEvent | null, isOpen?: bo
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
+    console.log('NightlifeFormLogic useEffect triggered - isOpen:', isOpen, 'event:', event)
+    
     if (isOpen) {
       if (event) {
         console.log('Setting form data with event:', event)
+        
         // Initialize gallery images with existing image as first item if gallery is empty
-        let initialGalleryImages = event.gallery_images || []
+        let initialGalleryImages = Array.isArray(event.gallery_images) ? event.gallery_images : []
         
         // If we have an existing image but no gallery images, add the existing image as the first gallery image
-        if (event.image && (!initialGalleryImages || initialGalleryImages.length === 0)) {
+        if (event.image && initialGalleryImages.length === 0) {
           initialGalleryImages = [event.image]
         }
         
         // If we have an existing image and gallery images, but the existing image is not in the gallery, add it as first
-        if (event.image && initialGalleryImages && initialGalleryImages.length > 0 && !initialGalleryImages.includes(event.image)) {
+        if (event.image && initialGalleryImages.length > 0 && !initialGalleryImages.includes(event.image)) {
           initialGalleryImages = [event.image, ...initialGalleryImages]
         }
 
-        setFormData({
-          ...event,
+        const newFormData = {
+          id: event.id,
+          name: event.name || '',
+          type: event.type || '',
+          venue: event.venue || '',
+          image: event.image || '',
+          description: event.description || '',
+          date: event.date || '',
+          time: event.time || '',
+          price: event.price || 0,
+          offer: event.offer || '',
+          rating: event.rating || 4.5,
+          features: Array.isArray(event.features) ? event.features : [],
           gallery_images: initialGalleryImages
-        })
+        }
+        
+        console.log('Setting new form data:', newFormData)
+        setFormData(newFormData)
       } else {
         console.log('Resetting form data for new event')
         setFormData({
@@ -86,6 +103,7 @@ export function useNightlifeFormLogic(event?: NightlifeEvent | null, isOpen?: bo
   }
 
   const handleImagesChange = (images: string[]) => {
+    console.log('Images changed:', images)
     setFormData({ 
       ...formData, 
       gallery_images: images,
@@ -95,6 +113,7 @@ export function useNightlifeFormLogic(event?: NightlifeEvent | null, isOpen?: bo
   }
 
   const updateFormData = (updates: Partial<NightlifeEvent>) => {
+    console.log('Updating form data with:', updates)
     setFormData({ ...formData, ...updates })
   }
 
