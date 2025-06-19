@@ -14,6 +14,7 @@ import {
   Waves,
   Calendar,
   Menu,
+  PartyPopper,
 } from "lucide-react"
 
 import {
@@ -60,6 +61,12 @@ const items = [
     url: "/concerts",
     icon: Music,
     color: "text-pink-600"
+  },
+  {
+    title: "Soirées",
+    url: "/nightlife",
+    icon: PartyPopper,
+    color: "text-violet-600"
   },
   {
     title: "Activités Loisirs",

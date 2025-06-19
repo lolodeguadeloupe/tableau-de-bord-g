@@ -17,6 +17,7 @@ import Settings from "./pages/Settings";
 import Restaurants from "./pages/Restaurants";
 import Accommodations from "./pages/Accommodations";
 import Concerts from "./pages/Concerts";
+import Nightlife from "./pages/Nightlife";
 import LeisureActivities from "./pages/LeisureActivities";
 import LeisureActivityDetail from "./pages/LeisureActivityDetail";
 import NotFound from "./pages/NotFound";
@@ -57,6 +58,7 @@ function App() {
                             <Route path="restaurants" element={<Restaurants />} />
                             <Route path="accommodations" element={<Accommodations />} />
                             <Route path="concerts" element={<Concerts />} />
+                            <Route path="nightlife" element={<Nightlife />} />
                             <Route path="leisure-activities" element={<LeisureActivities />} />
                             <Route path="leisure-activity/:id" element={<LeisureActivityDetail />} />
                             <Route path="*" element={<NotFound />} />
