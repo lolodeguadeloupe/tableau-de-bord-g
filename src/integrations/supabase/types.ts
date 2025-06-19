@@ -495,6 +495,7 @@ export type Database = {
           created_at: string | null
           date: string
           description: string
+          gallery_images: Json | null
           genre: string
           icon: string
           id: number
@@ -512,6 +513,7 @@ export type Database = {
           created_at?: string | null
           date: string
           description: string
+          gallery_images?: Json | null
           genre: string
           icon?: string
           id?: number
@@ -529,6 +531,7 @@ export type Database = {
           created_at?: string | null
           date?: string
           description?: string
+          gallery_images?: Json | null
           genre?: string
           icon?: string
           id?: number

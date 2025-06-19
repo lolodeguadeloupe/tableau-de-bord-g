@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
 import type { Concert } from "@/types/concert"
 
 interface ConcertModalProps {
@@ -28,13 +29,17 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
     price: 0,
     offer: '',
     rating: 4.5,
-    icon: 'Music'
+    icon: 'Music',
+    gallery_images: []
   })
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (concert) {
-      setFormData(concert)
+      setFormData({
+        ...concert,
+        gallery_images: concert.gallery_images || []
+      })
     } else {
       setFormData({
         name: '',
@@ -48,7 +53,8 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
         price: 0,
         offer: '',
         rating: 4.5,
-        icon: 'Music'
+        icon: 'Music',
+        gallery_images: []
       })
     }
   }, [concert, isOpen])
@@ -58,13 +64,30 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
     setIsLoading(true)
 
     try {
-      const result = await onSave(formData)
+      // Set the main image as the first gallery image if gallery_images exist
+      const finalFormData = {
+        ...formData,
+        image: formData.gallery_images && formData.gallery_images.length > 0 
+          ? formData.gallery_images[0] 
+          : formData.image
+      }
+
+      const result = await onSave(finalFormData)
       if (result) {
         onClose()
       }
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleImagesChange = (images: string[]) => {
+    setFormData({ 
+      ...formData, 
+      gallery_images: images,
+      // Update the main image with the first gallery image
+      image: images.length > 0 ? images[0] : formData.image
+    })
   }
 
   const genres = [
@@ -84,14 +107,14 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {concert ? 'Modifier le concert' : 'Nouveau concert'}
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nom du concert *</Label>
@@ -150,13 +173,12 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image">URL de l'image *</Label>
-            <Input
-              id="image"
-              type="url"
-              value={formData.image || ''}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              required
+            <Label>Images du concert</Label>
+            <MultiImageUpload
+              images={formData.gallery_images || []}
+              onImagesChange={handleImagesChange}
+              bucketName="concert-images"
+              maxImages={5}
             />
           </div>
 

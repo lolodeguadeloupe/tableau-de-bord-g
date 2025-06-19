@@ -51,6 +51,7 @@ export function useConcertActions() {
       offer: concertData.offer,
       rating: concertData.rating,
       icon: concertData.icon,
+      gallery_images: concertData.gallery_images || []
     }
     console.log('✏️ Édition du concert:', concert)
     return concert
@@ -106,6 +107,7 @@ export function useConcertActions() {
             offer: concert.offer,
             rating: concert.rating,
             icon: concert.icon || 'Music',
+            gallery_images: concert.gallery_images || [],
             updated_at: new Date().toISOString()
           })
           .eq('id', concert.id)
@@ -135,7 +137,8 @@ export function useConcertActions() {
             price: concert.price!,
             offer: concert.offer!,
             rating: concert.rating!,
-            icon: concert.icon || 'Music'
+            icon: concert.icon || 'Music',
+            gallery_images: concert.gallery_images || []
           })
           .select()
 

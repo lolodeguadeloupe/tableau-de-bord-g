@@ -15,6 +15,7 @@ export interface Concert {
   offer: string
   rating: number
   icon: string
+  gallery_images?: string[]
   created_at?: string
   updated_at?: string
 }
