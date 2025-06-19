@@ -1,4 +1,21 @@
-import { Home, BarChart3, Users, Settings, Database, Activity, Building2, Utensils } from "lucide-react"
+
+import { useState } from "react"
+import {
+  Music,
+  Home,
+  Users,
+  Settings,
+  BarChart3,
+  FileText,
+  Database,
+  Utensils,
+  MapPin,
+  Car,
+  Waves,
+  Calendar,
+  Menu,
+} from "lucide-react"
+
 import {
   Sidebar,
   SidebarContent,
@@ -8,91 +25,104 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
+  SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { UserMenu } from "./UserMenu"
-import { Link, useLocation, useNavigate } from "react-router-dom"
-import { supabase } from "@/integrations/supabase/client"
+import { useLocation, Link } from "react-router-dom"
 
+// Menu items.
 const items = [
-  // {
-  //   title: "Tableau de bord",
-  //   url: "/dashboard",
-  //   icon: Home,
-  // },
-  // {
-  //   title: "Analytiques",
-  //   url: "/analytics",
-  //   icon: BarChart3,
-  // },
-  // {
-  //   title: "Utilisateurs",
-  //   url: "/users",
-  //   icon: Users,
-  // },
   {
-    title: "Loisirs",
-    url: "/leisure-activities",
-    icon: Activity,
+    title: "Tableau de bord",
+    url: "/",
+    icon: Home,
+    color: "text-blue-600"
   },
   {
-    title: "Hébergements",
-    url: "/accommodations",
-    icon: Building2,
+    title: "Utilisateurs",
+    url: "/users", 
+    icon: Users,
+    color: "text-green-600"
   },
   {
     title: "Restaurants",
     url: "/restaurants",
     icon: Utensils,
+    color: "text-orange-600"
   },
-
-  // {
-  //   title: "Base de données",
-  //   url: "/database",
-  //   icon: Database,
-  // },
-  // {
-  //   title: "Paramètres",
-  //   url: "/settings",
-  //   icon: Settings,
-  // },
+  {
+    title: "Hébergements",
+    url: "/accommodations",
+    icon: MapPin,
+    color: "text-purple-600"
+  },
+  {
+    title: "Concerts",
+    url: "/concerts",
+    icon: Music,
+    color: "text-pink-600"
+  },
+  {
+    title: "Activités Loisirs",
+    url: "/leisure-activities",
+    icon: Waves,
+    color: "text-cyan-600"
+  },
+  {
+    title: "Analytics", 
+    url: "/analytics",
+    icon: BarChart3,
+    color: "text-indigo-600"
+  },
+  {
+    title: "Contenu",
+    url: "/content",
+    icon: FileText,
+    color: "text-yellow-600"
+  },
+  {
+    title: "Base de Données",
+    url: "/database",
+    icon: Database,
+    color: "text-red-600"
+  },
+  {
+    title: "Paramètres",
+    url: "/settings",
+    icon: Settings,
+    color: "text-gray-600"
+  },
 ]
 
 export function AppSidebar() {
   const location = useLocation()
-  const navigate = useNavigate()
-
-  async function handleLogout() {
-    console.log("👋 Déconnexion...")
-    // Assumes you have a supabase client instance imported as 'supabase'
-    try {
-      await supabase.auth.signOut()
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion :", error)
-    }
-    localStorage.removeItem("authToken")
-    navigate("/auth")
-  }
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   return (
-    <Sidebar>
-      <SidebarHeader className="p-4">
-        <h2 className="text-lg font-semibold">Admin Panel</h2>
-      </SidebarHeader>
+    <Sidebar collapsible="icon" className="border-r border-border/40">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          <div className="flex items-center justify-between px-4 py-2">
+            <SidebarGroupLabel className={`text-lg font-bold text-primary ${isCollapsed ? 'hidden' : ''}`}>
+              Club Créole Admin
+            </SidebarGroupLabel>
+            <SidebarTrigger 
+              className="p-2 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+              <Menu className="h-4 w-4" />
+            </SidebarTrigger>
+          </div>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
-                    asChild 
+                    asChild
                     isActive={location.pathname === item.url}
+                    className="hover:bg-accent hover:text-accent-foreground transition-colors"
                   >
-                    <Link to={item.url}>
-                      <item.icon />
+                    <Link to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-md">
+                      <item.icon className={`h-5 w-5 ${item.color}`} />
                       <span>{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
@@ -102,15 +132,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4">
-        <UserMenu />
-        <button
-          onClick={handleLogout}
-          className="mt-4 w-full rounded bg-red-500 px-4 py-2 text-white hover:bg-red-600 transition"
-        >
-          Déconnexion
-        </button>
-      </SidebarFooter>
     </Sidebar>
   )
 }
