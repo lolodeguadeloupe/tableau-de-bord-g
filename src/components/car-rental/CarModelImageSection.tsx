@@ -1,7 +1,6 @@
 
 import { Label } from "@/components/ui/label"
 import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
-import type { Json } from "@/integrations/supabase/types"
 
 interface CarModel {
   id?: number
@@ -14,7 +13,7 @@ interface CarModel {
   transmission: string
   air_con: boolean
   is_active: boolean
-  gallery_images?: Json
+  gallery_images?: string[]
 }
 
 interface CarModelImageSectionProps {

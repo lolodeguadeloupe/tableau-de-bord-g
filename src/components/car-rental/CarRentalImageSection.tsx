@@ -1,7 +1,6 @@
 
 import { Label } from "@/components/ui/label"
 import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
-import type { Json } from "@/integrations/supabase/types"
 
 interface CarRentalCompany {
   id?: number
@@ -13,7 +12,7 @@ interface CarRentalCompany {
   rating: number
   offer: string
   icon_name: string
-  gallery_images?: Json
+  gallery_images?: string[]
 }
 
 interface CarRentalImageSectionProps {

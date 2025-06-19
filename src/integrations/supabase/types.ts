@@ -304,6 +304,7 @@ export type Database = {
           category: string
           company_id: number
           created_at: string | null
+          gallery_images: Json | null
           id: number
           image: string
           is_active: boolean
@@ -318,6 +319,7 @@ export type Database = {
           category: string
           company_id: number
           created_at?: string | null
+          gallery_images?: Json | null
           id?: number
           image: string
           is_active?: boolean
@@ -332,6 +334,7 @@ export type Database = {
           category?: string
           company_id?: number
           created_at?: string | null
+          gallery_images?: Json | null
           id?: number
           image?: string
           is_active?: boolean
@@ -355,6 +358,7 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string
+          gallery_images: Json | null
           icon_name: string
           id: number
           image: string
@@ -369,6 +373,7 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description: string
+          gallery_images?: Json | null
           icon_name: string
           id?: number
           image: string
@@ -383,6 +388,7 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string
+          gallery_images?: Json | null
           icon_name?: string
           id?: number
           image?: string
