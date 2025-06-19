@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -90,7 +89,11 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
             
             <div>
               <Label htmlFor="type">Type *</Label>
-              <Select value={formData.type || ''} onValueChange={(value) => handleChange('type', value)}>
+              <Select 
+                value={formData.type || ''} 
+                onValueChange={(value) => handleChange('type', value)}
+                required
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner le type" />
                 </SelectTrigger>
@@ -99,6 +102,8 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
                   <SelectItem value="Standard">Standard</SelectItem>
                   <SelectItem value="Économique">Économique</SelectItem>
                   <SelectItem value="Luxe">Luxe</SelectItem>
+                  <SelectItem value="Véhicules électriques">Véhicules électriques</SelectItem>
+                  <SelectItem value="Véhicules tout-terrain">Véhicules tout-terrain</SelectItem>
                 </SelectContent>
               </Select>
             </div>
