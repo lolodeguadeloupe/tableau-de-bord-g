@@ -8,7 +8,7 @@ export function useNightlifeActions() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
 
-  const fetchNightlifeEvents = async (): Promise<NightlifeEvent[]> => {
+  const fetchEvents = async (): Promise<NightlifeEvent[]> => {
     try {
       setLoading(true)
       const { data, error } = await supabase
@@ -40,7 +40,7 @@ export function useNightlifeActions() {
     }
   }
 
-  const saveConcert = async (eventData: Partial<NightlifeEvent>): Promise<NightlifeEvent | null> => {
+  const saveEvent = async (eventData: Partial<NightlifeEvent>): Promise<NightlifeEvent | null> => {
     try {
       setLoading(true)
       
@@ -166,8 +166,8 @@ export function useNightlifeActions() {
   }
 
   return {
-    fetchNightlifeEvents,
-    saveConcert,
+    fetchEvents,
+    saveEvent,
     handleEdit,
     handleDelete,
     loading
