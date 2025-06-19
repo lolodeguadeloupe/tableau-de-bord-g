@@ -32,6 +32,10 @@ export const restaurantTypes = [
   "Bistrot",
   "Gastronomique",
   "Fast-food",
+  "Créole",
+  "Haïtien",
+  "Traditionnel",
+  "Antillais",
   "Autre"
 ]
 
