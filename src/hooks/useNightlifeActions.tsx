@@ -43,9 +43,11 @@ export function useNightlifeActions() {
   const saveEvent = async (eventData: Partial<NightlifeEvent>): Promise<NightlifeEvent | null> => {
     try {
       setLoading(true)
+      console.log('saveEvent called with:', eventData)
       
       if (eventData.id) {
         // Update existing event
+        console.log('Updating event with ID:', eventData.id)
         const { data, error } = await supabase
           .from('nightlife_events')
           .update({
@@ -65,18 +67,27 @@ export function useNightlifeActions() {
           })
           .eq('id', eventData.id)
           .select()
-          .single()
 
-        if (error) throw error
+        if (error) {
+          console.error('Update error:', error)
+          throw error
+        }
+
+        console.log('Update result:', data)
+
+        if (!data || data.length === 0) {
+          throw new Error('No rows updated')
+        }
 
         toast({
           title: "Succès",
           description: "L'événement de soirée a été modifié avec succès.",
         })
 
-        return data
+        return data[0]
       } else {
         // Create new event
+        console.log('Creating new event')
         const { data, error } = await supabase
           .from('nightlife_events')
           .insert({
@@ -94,16 +105,24 @@ export function useNightlifeActions() {
             gallery_images: eventData.gallery_images || []
           })
           .select()
-          .single()
 
-        if (error) throw error
+        if (error) {
+          console.error('Insert error:', error)
+          throw error
+        }
+
+        console.log('Insert result:', data)
+
+        if (!data || data.length === 0) {
+          throw new Error('No rows inserted')
+        }
 
         toast({
           title: "Succès",
           description: "L'événement de soirée a été créé avec succès.",
         })
 
-        return data
+        return data[0]
       }
     } catch (error) {
       console.error('Error saving nightlife event:', error)
