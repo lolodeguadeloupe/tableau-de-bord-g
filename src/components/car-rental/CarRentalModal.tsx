@@ -30,7 +30,18 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
 
   useEffect(() => {
     if (company) {
-      setFormData(company)
+      console.log('Setting form data with company:', company)
+      setFormData({
+        id: company.id,
+        name: company.name,
+        type: company.type,
+        image: company.image,
+        location: company.location,
+        description: company.description,
+        rating: company.rating,
+        offer: company.offer,
+        icon_name: company.icon_name
+      })
     } else {
       setFormData({
         name: '',
@@ -43,10 +54,11 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
         icon_name: 'Car'
       })
     }
-  }, [company])
+  }, [company, isOpen])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    console.log('Submitting form data:', formData)
     onSave(formData)
   }
 
