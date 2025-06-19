@@ -798,7 +798,7 @@ export type Database = {
           name: string
           offer: string
           price: number
-          rating?: number
+          rating: number
           time: string
           type: string
           updated_at?: string | null
