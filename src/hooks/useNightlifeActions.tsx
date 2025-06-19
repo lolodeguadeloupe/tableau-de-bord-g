@@ -46,8 +46,10 @@ export function useNightlifeActions() {
       console.log('saveEvent called with:', eventData)
       
       if (eventData.id) {
-        // Update existing event
-        console.log('Updating event with ID:', eventData.id)
+        // Ensure ID is a number
+        const eventId = typeof eventData.id === 'string' ? parseInt(eventData.id) : eventData.id
+        console.log('Updating event with ID:', eventId, 'type:', typeof eventId)
+        
         const { data, error } = await supabase
           .from('nightlife_events')
           .update({
@@ -65,7 +67,7 @@ export function useNightlifeActions() {
             gallery_images: eventData.gallery_images,
             updated_at: new Date().toISOString()
           })
-          .eq('id', eventData.id)
+          .eq('id', eventId)
           .select()
 
         if (error) {
@@ -76,7 +78,7 @@ export function useNightlifeActions() {
         console.log('Update result:', data)
 
         if (!data || data.length === 0) {
-          throw new Error('No rows updated')
+          throw new Error('No rows updated - event not found with ID: ' + eventId)
         }
 
         toast({
