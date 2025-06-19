@@ -54,9 +54,13 @@ export default function CarRentals() {
     }
   }
 
-  const handleEditCompany = (company: CarRentalCompany) => {
-    setSelectedCompany(company)
-    setIsCompanyModalOpen(true)
+  const handleEditCompany = (item: any) => {
+    // Find the original company object using the string ID
+    const company = companies.find(c => c.id.toString() === item.id)
+    if (company) {
+      setSelectedCompany(company)
+      setIsCompanyModalOpen(true)
+    }
   }
 
   const handleDeleteCompany = async (id: string) => {
@@ -78,9 +82,13 @@ export default function CarRentals() {
     }
   }
 
-  const handleEditModel = (model: CarModel) => {
-    setSelectedModel(model)
-    setIsModelModalOpen(true)
+  const handleEditModel = (item: any) => {
+    // Find the original model object using the string ID
+    const model = carModels.find(m => m.id.toString() === item.id)
+    if (model) {
+      setSelectedModel(model)
+      setIsModelModalOpen(true)
+    }
   }
 
   const handleDeleteModel = async (id: string) => {
