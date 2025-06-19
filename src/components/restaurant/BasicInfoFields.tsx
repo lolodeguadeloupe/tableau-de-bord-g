@@ -17,6 +17,13 @@ interface BasicInfoFieldsProps {
 }
 
 export function BasicInfoFields({ formData, onFieldChange }: BasicInfoFieldsProps) {
+  const handleRatingChange = (value: string) => {
+    const numValue = parseInt(value)
+    if (!isNaN(numValue)) {
+      onFieldChange('rating', numValue)
+    }
+  }
+
   return (
     <>
       <div className="grid grid-cols-2 gap-4">
@@ -62,7 +69,7 @@ export function BasicInfoFields({ formData, onFieldChange }: BasicInfoFieldsProp
 
         <div className="space-y-2">
           <Label htmlFor="rating">Note (1-5) *</Label>
-          <Select value={formData.rating.toString()} onValueChange={(value) => onFieldChange('rating', parseInt(value))}>
+          <Select value={formData.rating.toString()} onValueChange={handleRatingChange}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>

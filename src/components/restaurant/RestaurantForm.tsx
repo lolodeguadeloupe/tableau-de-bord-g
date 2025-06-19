@@ -42,7 +42,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         icon: restaurant.icon,
         image: restaurant.image,
         gallery_images: restaurant.gallery_images || [],
-        rating: restaurant.rating
+        rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5
       })
     } else {
       setFormData({
@@ -60,6 +60,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
   }, [restaurant])
 
   const handleFieldChange = (field: string, value: string | number | string[]) => {
+    console.log('🔄 Changement de champ:', field, value, typeof value)
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -78,9 +79,12 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
       return
     }
 
+    console.log('📋 Données du formulaire avant validation:', formData)
+
     // Validate form data using Zod schema
     try {
       const validatedData = restaurantSchema.parse(formData)
+      console.log('✅ Données validées:', validatedData)
       
       // Prepare data for database insertion/update - ensure all required fields are strings
       const dbData = {
@@ -135,9 +139,12 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
 
       onSuccess()
     } catch (validationError: any) {
+      console.error('❌ Erreur de validation:', validationError)
+      
       if (validationError.errors) {
         // Zod validation errors
-        const errorMessages = validationError.errors.map((err: any) => err.message).join(', ')
+        const errorMessages = validationError.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ')
+        console.error('📝 Messages d\'erreur détaillés:', errorMessages)
         toast({
           title: "Erreur de validation",
           description: errorMessages,
