@@ -20,7 +20,7 @@ import LeisureActivities from "./pages/LeisureActivities";
 import LeisureActivityDetail from "./pages/LeisureActivityDetail";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
