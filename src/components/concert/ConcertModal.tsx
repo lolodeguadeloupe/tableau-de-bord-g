@@ -36,9 +36,22 @@ export function ConcertModal({ isOpen, onClose, concert, onSave }: ConcertModalP
 
   useEffect(() => {
     if (concert) {
+      // Initialize gallery images with existing image as first item if gallery is empty
+      let initialGalleryImages = concert.gallery_images || []
+      
+      // If we have an existing image but no gallery images, add the existing image as the first gallery image
+      if (concert.image && (!initialGalleryImages || initialGalleryImages.length === 0)) {
+        initialGalleryImages = [concert.image]
+      }
+      
+      // If we have an existing image and gallery images, but the existing image is not in the gallery, add it as first
+      if (concert.image && initialGalleryImages && initialGalleryImages.length > 0 && !initialGalleryImages.includes(concert.image)) {
+        initialGalleryImages = [concert.image, ...initialGalleryImages]
+      }
+
       setFormData({
         ...concert,
-        gallery_images: concert.gallery_images || []
+        gallery_images: initialGalleryImages
       })
     } else {
       setFormData({
