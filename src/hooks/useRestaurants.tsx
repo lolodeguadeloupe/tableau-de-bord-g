@@ -36,7 +36,14 @@ export function useRestaurants(authLoading: boolean) {
       }
       
       console.log('✅ Nombre de restaurants récupérés:', data?.length || 0)
-      setRestaurants(data || [])
+      
+      // Transform data to ensure gallery_images is always an array
+      const transformedData = data?.map(restaurant => ({
+        ...restaurant,
+        gallery_images: restaurant.gallery_images || [restaurant.image].filter(Boolean)
+      })) || []
+      
+      setRestaurants(transformedData)
     } catch (error: unknown) {
       console.error('💥 Erreur lors du chargement des restaurants:', error)
       toast({

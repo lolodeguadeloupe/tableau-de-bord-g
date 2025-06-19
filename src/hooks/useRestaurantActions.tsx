@@ -30,6 +30,7 @@ export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
       offer: restaurantData.offer,
       icon: restaurantData.icon,
       image: restaurantData.image,
+      gallery_images: restaurantData.gallery_images || [],
       rating: restaurantData.rating,
     }
     console.log('✏️ Édition du restaurant:', restaurant)

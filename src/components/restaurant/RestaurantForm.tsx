@@ -25,6 +25,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     offer: '',
     icon: 'utensils',
     image: '',
+    gallery_images: [],
     rating: 5
   })
   const { toast } = useToast()
@@ -40,6 +41,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         offer: restaurant.offer,
         icon: restaurant.icon,
         image: restaurant.image,
+        gallery_images: restaurant.gallery_images || [],
         rating: restaurant.rating
       })
     } else {
@@ -51,12 +53,13 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         offer: '',
         icon: 'utensils',
         image: '',
+        gallery_images: [],
         rating: 5
       })
     }
   }, [restaurant])
 
-  const handleFieldChange = (field: string, value: string | number) => {
+  const handleFieldChange = (field: string, value: string | number | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -88,6 +91,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         offer: validatedData.offer || '',
         icon: validatedData.icon,
         image: validatedData.image || '',
+        gallery_images: validatedData.gallery_images || [],
         rating: validatedData.rating
       }
       
