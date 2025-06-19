@@ -1120,6 +1120,7 @@ export type Database = {
       restaurants: {
         Row: {
           description: string
+          gallery_images: Json | null
           icon: string
           id: number
           image: string
@@ -1131,6 +1132,7 @@ export type Database = {
         }
         Insert: {
           description: string
+          gallery_images?: Json | null
           icon: string
           id?: number
           image: string
@@ -1142,6 +1144,7 @@ export type Database = {
         }
         Update: {
           description?: string
+          gallery_images?: Json | null
           icon?: string
           id?: number
           image?: string
