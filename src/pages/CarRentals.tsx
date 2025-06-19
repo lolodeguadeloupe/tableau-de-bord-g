@@ -1,13 +1,11 @@
 
 import React, { useState, useEffect } from "react"
-import { Plus, Car, Edit, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { DataTable } from "@/components/DataTable"
 import { CarRentalModal } from "@/components/car-rental/CarRentalModal"
 import { CarModelModal } from "@/components/car-rental/CarModelModal"
+import { CarCompanyTable } from "@/components/car-rental/CarCompanyTable"
+import { CarModelTable } from "@/components/car-rental/CarModelTable"
+import { CarRentalStats } from "@/components/car-rental/CarRentalStats"
 import { useCarRentalActions, CarRentalCompany, CarModel } from "@/hooks/useCarRentalActions"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -100,51 +98,6 @@ export default function CarRentals() {
     }
   }
 
-  const companyColumns = [
-    { key: 'name', label: 'Nom' },
-    { key: 'type', label: 'Type' },
-    { key: 'location', label: 'Localisation' },
-    { 
-      key: 'rating', 
-      label: 'Note',
-    },
-    { key: 'offer', label: 'Offre' }
-  ]
-
-  const modelColumns = [
-    { key: 'name', label: 'Modèle' },
-    { 
-      key: 'company_name', 
-      label: 'Compagnie',
-    },
-    { key: 'category', label: 'Catégorie' },
-    { 
-      key: 'price_per_day', 
-      label: 'Prix/jour',
-    },
-    { key: 'seats', label: 'Places' },
-    { key: 'transmission', label: 'Transmission' },
-    { 
-      key: 'status', 
-      label: 'Statut',
-    }
-  ]
-
-  // Enrichir les données des modèles avec les noms des compagnies
-  const enrichedModels = carModels.map(model => {
-    const company = companies.find(c => c.id === model.company_id)
-    return {
-      ...model,
-      company_name: company?.name || 'N/A',
-      price_per_day: `${model.price_per_day}€`,
-      status: (
-        <Badge variant={model.is_active ? "default" : "secondary"}>
-          {model.is_active ? 'Actif' : 'Inactif'}
-        </Badge>
-      )
-    }
-  })
-
   if (!isAdmin) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -158,12 +111,10 @@ export default function CarRentals() {
 
   return (
     <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Gestion des Locations de Voitures</h1>
-          <p className="text-gray-600">Gérez les compagnies de location et leurs véhicules</p>
-        </div>
-      </div>
+      <CarRentalStats 
+        companiesCount={companies.length} 
+        modelsCount={carModels.length} 
+      />
 
       <Tabs defaultValue="companies" className="space-y-6">
         <TabsList>
@@ -172,69 +123,22 @@ export default function CarRentals() {
         </TabsList>
 
         <TabsContent value="companies">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5" />
-                Compagnies de location ({companies.length})
-              </CardTitle>
-              <Button onClick={() => setIsCompanyModalOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter une compagnie
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <DataTable
-                title="Liste des compagnies"
-                data={companies.map(company => ({
-                  ...company,
-                  id: company.id.toString(),
-                  rating: `${company.rating}/5`
-                }))}
-                columns={companyColumns}
-                onEdit={handleEditCompany}
-                onDelete={handleDeleteCompany}
-                hideSearch={false}
-              />
-            </CardContent>
-          </Card>
+          <CarCompanyTable
+            companies={companies}
+            onAddCompany={() => setIsCompanyModalOpen(true)}
+            onEditCompany={handleEditCompany}
+            onDeleteCompany={handleDeleteCompany}
+          />
         </TabsContent>
 
         <TabsContent value="models">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <Car className="h-5 w-5" />
-                Modèles de voitures ({carModels.length})
-              </CardTitle>
-              <Button 
-                onClick={() => setIsModelModalOpen(true)}
-                disabled={companies.length === 0}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter un modèle
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {companies.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-600">Vous devez d'abord créer une compagnie avant d'ajouter des modèles.</p>
-                </div>
-              ) : (
-                <DataTable
-                  title="Liste des modèles"
-                  data={enrichedModels.map(model => ({
-                    ...model,
-                    id: model.id.toString()
-                  }))}
-                  columns={modelColumns}
-                  onEdit={handleEditModel}
-                  onDelete={handleDeleteModel}
-                  hideSearch={false}
-                />
-              )}
-            </CardContent>
-          </Card>
+          <CarModelTable
+            carModels={carModels}
+            companies={companies}
+            onAddModel={() => setIsModelModalOpen(true)}
+            onEditModel={handleEditModel}
+            onDeleteModel={handleDeleteModel}
+          />
         </TabsContent>
       </Tabs>
 
