@@ -119,6 +119,7 @@ export function useNightlifeActions() {
   }
 
   const handleEdit = (eventData: NightlifeEventTableData): NightlifeEvent => {
+    console.log('Converting table data to event data:', eventData)
     return {
       id: parseInt(eventData.id),
       name: eventData.name,
