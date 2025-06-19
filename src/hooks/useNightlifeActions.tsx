@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
@@ -43,42 +42,73 @@ export function useNightlifeActions() {
   const saveEvent = async (eventData: Partial<NightlifeEvent>): Promise<NightlifeEvent | null> => {
     try {
       setLoading(true)
-      console.log('saveEvent called with:', eventData)
+      console.log('=== SAVE EVENT START ===')
+      console.log('Raw eventData received:', JSON.stringify(eventData, null, 2))
+      
+      // Validate required fields
+      if (!eventData.name || !eventData.type || !eventData.venue) {
+        console.error('Missing required fields:', { name: eventData.name, type: eventData.type, venue: eventData.venue })
+        throw new Error('Champs obligatoires manquants')
+      }
       
       if (eventData.id) {
-        // Ensure ID is a number
+        // Update existing event
         const eventId = typeof eventData.id === 'string' ? parseInt(eventData.id) : eventData.id
         console.log('Updating event with ID:', eventId, 'type:', typeof eventId)
         
+        // First, let's check if the event exists
+        const { data: existingEvent, error: fetchError } = await supabase
+          .from('nightlife_events')
+          .select('id')
+          .eq('id', eventId)
+          .single()
+        
+        if (fetchError) {
+          console.error('Error checking existing event:', fetchError)
+          throw new Error('Événement non trouvé: ' + fetchError.message)
+        }
+        
+        if (!existingEvent) {
+          console.error('Event not found with ID:', eventId)
+          throw new Error('Événement non trouvé avec l\'ID: ' + eventId)
+        }
+        
+        console.log('Existing event found:', existingEvent)
+        
+        // Prepare update data
+        const updateData = {
+          name: eventData.name,
+          type: eventData.type,
+          venue: eventData.venue,
+          image: eventData.image || '',
+          description: eventData.description || '',
+          date: eventData.date || '',
+          time: eventData.time || '',
+          price: Number(eventData.price) || 0,
+          offer: eventData.offer || '',
+          rating: Number(eventData.rating) || 4.5,
+          features: Array.isArray(eventData.features) ? eventData.features : [],
+          gallery_images: Array.isArray(eventData.gallery_images) ? eventData.gallery_images : [],
+          updated_at: new Date().toISOString()
+        }
+        
+        console.log('Update data prepared:', JSON.stringify(updateData, null, 2))
+        
         const { data, error } = await supabase
           .from('nightlife_events')
-          .update({
-            name: eventData.name,
-            type: eventData.type,
-            venue: eventData.venue,
-            image: eventData.image,
-            description: eventData.description,
-            date: eventData.date,
-            time: eventData.time,
-            price: eventData.price,
-            offer: eventData.offer,
-            rating: eventData.rating,
-            features: eventData.features,
-            gallery_images: eventData.gallery_images,
-            updated_at: new Date().toISOString()
-          })
+          .update(updateData)
           .eq('id', eventId)
           .select()
 
         if (error) {
           console.error('Update error:', error)
-          throw error
+          throw new Error('Erreur de mise à jour: ' + error.message)
         }
 
         console.log('Update result:', data)
 
         if (!data || data.length === 0) {
-          throw new Error('No rows updated - event not found with ID: ' + eventId)
+          throw new Error('Aucune ligne mise à jour - événement non trouvé avec l\'ID: ' + eventId)
         }
 
         toast({
@@ -90,33 +120,38 @@ export function useNightlifeActions() {
       } else {
         // Create new event
         console.log('Creating new event')
+        
+        const insertData = {
+          name: eventData.name,
+          type: eventData.type,
+          venue: eventData.venue,
+          image: eventData.image || eventData.gallery_images?.[0] || '',
+          description: eventData.description || '',
+          date: eventData.date || '',
+          time: eventData.time || '',
+          price: Number(eventData.price) || 0,
+          offer: eventData.offer || '',
+          rating: Number(eventData.rating) || 4.5,
+          features: Array.isArray(eventData.features) ? eventData.features : [],
+          gallery_images: Array.isArray(eventData.gallery_images) ? eventData.gallery_images : []
+        }
+        
+        console.log('Insert data prepared:', JSON.stringify(insertData, null, 2))
+        
         const { data, error } = await supabase
           .from('nightlife_events')
-          .insert({
-            name: eventData.name,
-            type: eventData.type,
-            venue: eventData.venue,
-            image: eventData.image || eventData.gallery_images?.[0] || '',
-            description: eventData.description,
-            date: eventData.date,
-            time: eventData.time,
-            price: eventData.price,
-            offer: eventData.offer,
-            rating: eventData.rating || 4.5,
-            features: eventData.features || [],
-            gallery_images: eventData.gallery_images || []
-          })
+          .insert(insertData)
           .select()
 
         if (error) {
           console.error('Insert error:', error)
-          throw error
+          throw new Error('Erreur de création: ' + error.message)
         }
 
         console.log('Insert result:', data)
 
         if (!data || data.length === 0) {
-          throw new Error('No rows inserted')
+          throw new Error('Aucune ligne insérée')
         }
 
         toast({
@@ -127,15 +162,20 @@ export function useNightlifeActions() {
         return data[0]
       }
     } catch (error) {
+      console.error('=== SAVE EVENT ERROR ===')
       console.error('Error saving nightlife event:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
+      console.error('Error message:', errorMessage)
+      
       toast({
         title: "Erreur",
-        description: "Impossible de sauvegarder l'événement de soirée.",
+        description: `Impossible de sauvegarder l'événement de soirée: ${errorMessage}`,
         variant: "destructive",
       })
       return null
     } finally {
       setLoading(false)
+      console.log('=== SAVE EVENT END ===')
     }
   }
 
