@@ -75,6 +75,12 @@ const items = [
     color: "text-cyan-600"
   },
   {
+    title: "Locations de voitures",
+    url: "/car-rentals",
+    icon: Car,
+    color: "text-emerald-600"
+  },
+  {
     title: "Analytics", 
     url: "/analytics",
     icon: BarChart3,

@@ -20,6 +20,7 @@ import Concerts from "./pages/Concerts";
 import Nightlife from "./pages/Nightlife";
 import LeisureActivities from "./pages/LeisureActivities";
 import LeisureActivityDetail from "./pages/LeisureActivityDetail";
+import CarRentals from "./pages/CarRentals";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -61,6 +62,7 @@ function App() {
                             <Route path="nightlife" element={<Nightlife />} />
                             <Route path="leisure-activities" element={<LeisureActivities />} />
                             <Route path="leisure-activity/:id" element={<LeisureActivityDetail />} />
+                            <Route path="car-rentals" element={<CarRentals />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>
