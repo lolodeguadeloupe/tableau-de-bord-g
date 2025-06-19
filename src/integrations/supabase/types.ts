@@ -769,6 +769,60 @@ export type Database = {
         }
         Relationships: []
       }
+      nightlife_events: {
+        Row: {
+          created_at: string | null
+          date: string
+          description: string
+          features: Json
+          gallery_images: Json | null
+          id: number
+          image: string
+          name: string
+          offer: string
+          price: number
+          rating: number
+          time: string
+          type: string
+          updated_at: string | null
+          venue: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          description: string
+          features?: Json
+          gallery_images?: Json | null
+          id?: number
+          image: string
+          name: string
+          offer: string
+          price: number
+          rating?: number
+          time: string
+          type: string
+          updated_at?: string | null
+          venue: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          description?: string
+          features?: Json
+          gallery_images?: Json | null
+          id?: number
+          image?: string
+          name?: string
+          offer?: string
+          price?: number
+          rating?: number
+          time?: string
+          type?: string
+          updated_at?: string | null
+          venue?: string
+        }
+        Relationships: []
+      }
       offers: {
         Row: {
           created_at: string

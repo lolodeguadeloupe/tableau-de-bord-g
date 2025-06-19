@@ -1,0 +1,175 @@
+
+import { useState } from "react"
+import { supabase } from "@/integrations/supabase/client"
+import { useToast } from "@/hooks/use-toast"
+import type { NightlifeEvent, NightlifeEventTableData } from "@/types/nightlife"
+
+export function useNightlifeActions() {
+  const [loading, setLoading] = useState(false)
+  const { toast } = useToast()
+
+  const fetchNightlifeEvents = async (): Promise<NightlifeEvent[]> => {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('nightlife_events')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching nightlife events:', error)
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les événements de soirée.",
+          variant: "destructive",
+        })
+        return []
+      }
+
+      return data || []
+    } catch (error) {
+      console.error('Error:', error)
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite.",
+        variant: "destructive",
+      })
+      return []
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const saveConcert = async (eventData: Partial<NightlifeEvent>): Promise<NightlifeEvent | null> => {
+    try {
+      setLoading(true)
+      
+      if (eventData.id) {
+        // Update existing event
+        const { data, error } = await supabase
+          .from('nightlife_events')
+          .update({
+            name: eventData.name,
+            type: eventData.type,
+            venue: eventData.venue,
+            image: eventData.image,
+            description: eventData.description,
+            date: eventData.date,
+            time: eventData.time,
+            price: eventData.price,
+            offer: eventData.offer,
+            rating: eventData.rating,
+            features: eventData.features,
+            gallery_images: eventData.gallery_images,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', eventData.id)
+          .select()
+          .single()
+
+        if (error) throw error
+
+        toast({
+          title: "Succès",
+          description: "L'événement de soirée a été modifié avec succès.",
+        })
+
+        return data
+      } else {
+        // Create new event
+        const { data, error } = await supabase
+          .from('nightlife_events')
+          .insert({
+            name: eventData.name,
+            type: eventData.type,
+            venue: eventData.venue,
+            image: eventData.image || eventData.gallery_images?.[0] || '',
+            description: eventData.description,
+            date: eventData.date,
+            time: eventData.time,
+            price: eventData.price,
+            offer: eventData.offer,
+            rating: eventData.rating || 4.5,
+            features: eventData.features || [],
+            gallery_images: eventData.gallery_images || []
+          })
+          .select()
+          .single()
+
+        if (error) throw error
+
+        toast({
+          title: "Succès",
+          description: "L'événement de soirée a été créé avec succès.",
+        })
+
+        return data
+      }
+    } catch (error) {
+      console.error('Error saving nightlife event:', error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder l'événement de soirée.",
+        variant: "destructive",
+      })
+      return null
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleEdit = (eventData: NightlifeEventTableData): NightlifeEvent => {
+    return {
+      id: parseInt(eventData.id),
+      name: eventData.name,
+      type: eventData.type,
+      venue: eventData.venue,
+      image: eventData.image,
+      description: eventData.description,
+      date: eventData.date,
+      time: eventData.time,
+      price: eventData.price,
+      offer: eventData.offer,
+      rating: eventData.rating,
+      features: eventData.features,
+      gallery_images: eventData.gallery_images
+    }
+  }
+
+  const handleDelete = async (id: string): Promise<boolean> => {
+    try {
+      setLoading(true)
+      const { error } = await supabase
+        .from('nightlife_events')
+        .delete()
+        .eq('id', parseInt(id))
+
+      if (error) throw error
+
+      toast({
+        title: "Succès",
+        description: "L'événement de soirée a été supprimé avec succès.",
+      })
+
+      return true
+    } catch (error) {
+      console.error('Error deleting nightlife event:', error)
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'événement de soirée.",
+        variant: "destructive",
+      })
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return {
+    fetchNightlifeEvents,
+    saveConcert,
+    handleEdit,
+    handleDelete,
+    loading
+  }
+}
