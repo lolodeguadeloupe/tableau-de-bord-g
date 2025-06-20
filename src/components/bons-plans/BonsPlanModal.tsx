@@ -169,9 +169,8 @@ export function BonsPlanModal({ open, onOpenChange, bonPlan, onClose }: BonsPlan
               <Label>Image</Label>
               <ImageUpload
                 value={formData.image}
-                onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
-                bucket="voyance-images"
-                path="bons-plans"
+                onImageChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                bucketName="voyance-images"
               />
             </div>
 
