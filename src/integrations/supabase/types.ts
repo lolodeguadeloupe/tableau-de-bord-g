@@ -1292,6 +1292,160 @@ export type Database = {
           },
         ]
       }
+      voyance_consultations: {
+        Row: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          consultation_type: string
+          created_at: string
+          id: string
+          medium_id: number
+          message: string | null
+          preferred_date: string
+          preferred_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          client_email: string
+          client_name: string
+          client_phone: string
+          consultation_type?: string
+          created_at?: string
+          id?: string
+          medium_id: number
+          message?: string | null
+          preferred_date: string
+          preferred_time: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          client_email?: string
+          client_name?: string
+          client_phone?: string
+          consultation_type?: string
+          created_at?: string
+          id?: string
+          medium_id?: number
+          message?: string | null
+          preferred_date?: string
+          preferred_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voyance_consultations_medium_id_fkey"
+            columns: ["medium_id"]
+            isOneToOne: false
+            referencedRelation: "voyance_mediums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      voyance_mediums: {
+        Row: {
+          availability_schedule: Json
+          consultation_types: string[]
+          contact_email: string | null
+          contact_phone: string | null
+          contact_whatsapp: string | null
+          created_at: string
+          description: string
+          experience_years: number
+          id: number
+          image: string
+          is_active: boolean
+          languages: string[]
+          location: string | null
+          name: string
+          price_per_session: number
+          rating: number
+          specialties: string[]
+          updated_at: string
+        }
+        Insert: {
+          availability_schedule?: Json
+          consultation_types?: string[]
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string
+          description: string
+          experience_years?: number
+          id?: number
+          image: string
+          is_active?: boolean
+          languages?: string[]
+          location?: string | null
+          name: string
+          price_per_session: number
+          rating?: number
+          specialties?: string[]
+          updated_at?: string
+        }
+        Update: {
+          availability_schedule?: Json
+          consultation_types?: string[]
+          contact_email?: string | null
+          contact_phone?: string | null
+          contact_whatsapp?: string | null
+          created_at?: string
+          description?: string
+          experience_years?: number
+          id?: number
+          image?: string
+          is_active?: boolean
+          languages?: string[]
+          location?: string | null
+          name?: string
+          price_per_session?: number
+          rating?: number
+          specialties?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      voyance_reviews: {
+        Row: {
+          client_name: string
+          comment: string
+          consultation_date: string
+          created_at: string
+          id: number
+          medium_id: number
+          rating: number
+        }
+        Insert: {
+          client_name: string
+          comment: string
+          consultation_date: string
+          created_at?: string
+          id?: number
+          medium_id: number
+          rating: number
+        }
+        Update: {
+          client_name?: string
+          comment?: string
+          consultation_date?: string
+          created_at?: string
+          id?: number
+          medium_id?: number
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voyance_reviews_medium_id_fkey"
+            columns: ["medium_id"]
+            isOneToOne: false
+            referencedRelation: "voyance_mediums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
