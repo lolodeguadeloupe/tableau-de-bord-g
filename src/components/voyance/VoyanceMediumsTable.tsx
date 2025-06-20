@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Edit, Trash2, Star } from "lucide-react"
+import { Edit, Trash2, Star, Images } from "lucide-react"
 import { VoyanceMediumModal } from "./VoyanceMediumModal"
 import { useToast } from "@/hooks/use-toast"
 
@@ -86,17 +86,29 @@ export function VoyanceMediumsTable() {
             <TableRow key={medium.id}>
               <TableCell>
                 <div className="flex items-center space-x-3">
-                  <Avatar>
-                    <AvatarImage src={medium.image} />
-                    <AvatarFallback>
-                      {medium.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="relative">
+                    <Avatar>
+                      <AvatarImage src={medium.image} />
+                      <AvatarFallback>
+                        {medium.name?.charAt(0)?.toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    {medium.gallery_images && medium.gallery_images.length > 0 && (
+                      <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                        <Images className="h-3 w-3" />
+                      </div>
+                    )}
+                  </div>
                   <div>
                     <div className="font-medium">{medium.name}</div>
                     <div className="text-sm text-muted-foreground">
                       {medium.experience_years} ans d'expérience
                     </div>
+                    {medium.location && (
+                      <div className="text-xs text-muted-foreground">
+                        📍 {medium.location}
+                      </div>
+                    )}
                   </div>
                 </div>
               </TableCell>

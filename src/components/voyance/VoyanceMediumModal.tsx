@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge"
 import { X, Plus } from "lucide-react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { ImageUpload } from "@/components/ui/ImageUpload"
+import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
 
 interface VoyanceMediumModalProps {
   open: boolean
@@ -37,6 +39,7 @@ export function VoyanceMediumModal({
     name: '',
     description: '',
     image: '',
+    gallery_images: [] as string[],
     specialties: [] as string[],
     languages: ['français'],
     consultation_types: ['présentiel'],
@@ -59,6 +62,7 @@ export function VoyanceMediumModal({
         name: medium.name || '',
         description: medium.description || '',
         image: medium.image || '',
+        gallery_images: medium.gallery_images || [],
         specialties: medium.specialties || [],
         languages: medium.languages || ['français'],
         consultation_types: medium.consultation_types || ['présentiel'],
@@ -77,6 +81,7 @@ export function VoyanceMediumModal({
         name: '',
         description: '',
         image: '',
+        gallery_images: [],
         specialties: [],
         languages: ['français'],
         consultation_types: ['présentiel'],
@@ -129,6 +134,14 @@ export function VoyanceMediumModal({
     }
   }
 
+  const handleImageChange = (url: string) => {
+    setFormData(prev => ({ ...prev, image: url }))
+  }
+
+  const handleGalleryImagesChange = (images: string[]) => {
+    setFormData(prev => ({ ...prev, gallery_images: images }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -160,6 +173,7 @@ export function VoyanceMediumModal({
       }
 
       onSuccess?.()
+      onOpenChange(false)
     } catch (error) {
       console.error('Erreur:', error)
       toast({
@@ -174,7 +188,7 @@ export function VoyanceMediumModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {medium ? 'Modifier le médium' : 'Ajouter un médium'}
@@ -184,7 +198,7 @@ export function VoyanceMediumModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nom *</Label>
@@ -213,16 +227,28 @@ export function VoyanceMediumModal({
               value={formData.description}
               onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
               required
+              rows={3}
             />
           </div>
 
+          {/* Photo principale */}
           <div className="space-y-2">
-            <Label htmlFor="image">URL de l'image</Label>
-            <Input
-              id="image"
+            <Label>Photo principale</Label>
+            <ImageUpload
               value={formData.image}
-              onChange={(e) => setFormData(prev => ({ ...prev, image: e.target.value }))}
-              placeholder="https://..."
+              onImageChange={handleImageChange}
+              bucketName="voyance-images"
+            />
+          </div>
+
+          {/* Galerie d'images */}
+          <div className="space-y-2">
+            <Label>Galerie d'images</Label>
+            <MultiImageUpload
+              images={formData.gallery_images}
+              onImagesChange={handleGalleryImagesChange}
+              bucketName="voyance-images"
+              maxImages={6}
             />
           </div>
 
@@ -320,6 +346,16 @@ export function VoyanceMediumModal({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="contact_whatsapp">WhatsApp (optionnel)</Label>
+            <Input
+              id="contact_whatsapp"
+              value={formData.contact_whatsapp}
+              onChange={(e) => setFormData(prev => ({ ...prev, contact_whatsapp: e.target.value }))}
+              placeholder="+33 6 12 34 56 78"
+            />
+          </div>
+
           <div className="flex items-center space-x-2">
             <Switch
               id="is_active"
@@ -329,7 +365,7 @@ export function VoyanceMediumModal({
             <Label htmlFor="is_active">Médium actif</Label>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               type="button"
               variant="outline"
