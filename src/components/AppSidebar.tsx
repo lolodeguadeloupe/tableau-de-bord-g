@@ -15,6 +15,7 @@ import {
   Calendar,
   Menu,
   PartyPopper,
+  Crystal,
 } from "lucide-react"
 
 import {
@@ -79,6 +80,12 @@ const items = [
     url: "/car-rentals",
     icon: Car,
     color: "text-emerald-600"
+  },
+  {
+    title: "Voyance",
+    url: "/voyance",
+    icon: Crystal,
+    color: "text-indigo-500"
   },
   {
     title: "Analytics", 
