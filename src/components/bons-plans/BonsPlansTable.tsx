@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
 import {
   Table,
@@ -22,6 +22,7 @@ interface BonsPlansTableProps {
 export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const queryClient = useQueryClient()
 
   const { data: bonsPlans, refetch } = useQuery({
     queryKey: ['bons-plans'],
@@ -51,7 +52,9 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
         description: `Le bon plan a été ${!currentStatus ? 'activé' : 'désactivé'}.`
       })
 
-      refetch()
+      // Force la mise à jour des données
+      await queryClient.invalidateQueries({ queryKey: ['bons-plans'] })
+      await refetch()
     } catch (error) {
       console.error('Erreur:', error)
       toast({
@@ -81,7 +84,9 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
         description: "Le bon plan a été supprimé avec succès."
       })
 
-      refetch()
+      // Force la mise à jour des données
+      await queryClient.invalidateQueries({ queryKey: ['bons-plans'] })
+      await refetch()
     } catch (error) {
       console.error('Erreur:', error)
       toast({

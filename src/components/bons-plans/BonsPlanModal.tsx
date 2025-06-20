@@ -90,6 +90,8 @@ export function BonsPlanModal({ open, onOpenChange, bonPlan, onClose }: BonsPlan
       }
 
       onClose()
+      // Forcer le rechargement de la page pour s'assurer que les données sont à jour
+      window.location.reload()
     } catch (error) {
       console.error('Erreur:', error)
       toast({
