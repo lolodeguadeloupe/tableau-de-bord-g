@@ -147,10 +147,19 @@ export function VoyanceMediumModal({
     setLoading(true)
 
     try {
+      const dataToSubmit = {
+        ...formData,
+        // Ensure arrays are properly formatted for PostgreSQL
+        specialties: formData.specialties,
+        languages: formData.languages,
+        consultation_types: formData.consultation_types,
+        gallery_images: formData.gallery_images
+      }
+
       if (medium) {
         const { error } = await supabase
           .from('voyance_mediums')
-          .update(formData)
+          .update(dataToSubmit)
           .eq('id', medium.id)
 
         if (error) throw error
@@ -162,7 +171,7 @@ export function VoyanceMediumModal({
       } else {
         const { error } = await supabase
           .from('voyance_mediums')
-          .insert(formData)
+          .insert(dataToSubmit)
 
         if (error) throw error
 

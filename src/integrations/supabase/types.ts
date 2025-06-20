@@ -1355,6 +1355,7 @@ export type Database = {
           created_at: string
           description: string
           experience_years: number
+          gallery_images: Json | null
           id: number
           image: string
           is_active: boolean
@@ -1375,6 +1376,7 @@ export type Database = {
           created_at?: string
           description: string
           experience_years?: number
+          gallery_images?: Json | null
           id?: number
           image: string
           is_active?: boolean
@@ -1395,6 +1397,7 @@ export type Database = {
           created_at?: string
           description?: string
           experience_years?: number
+          gallery_images?: Json | null
           id?: number
           image?: string
           is_active?: boolean
