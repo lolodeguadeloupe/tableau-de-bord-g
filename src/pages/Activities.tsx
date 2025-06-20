@@ -89,6 +89,7 @@ export default function Activities() {
         activities={activities}
         onEdit={onEdit}
         onDelete={(id) => setDeleteActivityId(parseInt(id))}
+        onRefresh={loadActivities}
       />
 
       <ActivityModal
