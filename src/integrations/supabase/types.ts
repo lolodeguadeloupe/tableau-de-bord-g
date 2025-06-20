@@ -259,6 +259,42 @@ export type Database = {
           },
         ]
       }
+      bons_plans: {
+        Row: {
+          badge: string | null
+          created_at: string | null
+          description: string
+          icon: string
+          id: number
+          image: string | null
+          is_active: boolean | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string | null
+          description: string
+          icon: string
+          id?: number
+          image?: string | null
+          is_active?: boolean | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string | null
+          description?: string
+          icon?: string
+          id?: number
+          image?: string | null
+          is_active?: boolean | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       car_client_reviews: {
         Row: {
           avatar: string
