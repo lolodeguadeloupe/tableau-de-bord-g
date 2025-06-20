@@ -18,21 +18,22 @@ export function ActivityStats({ activities }: ActivityStatsProps) {
         title="Total des activités"
         value={totalActivities}
         icon={ActivityIcon}
-        description="Nombre total d'activités"
+        change="Nombre total d'activités"
+        changeType="neutral"
       />
       <StatCard
         title="Activités visibles"
         value={activeActivities}
         icon={Eye}
-        description="Activités affichées sur le site"
-        className="border-green-200 bg-green-50"
+        change="Activités affichées sur le site"
+        changeType="positive"
       />
       <StatCard
         title="Activités masquées"
         value={inactiveActivities}
         icon={EyeOff}
-        description="Activités non affichées"
-        className="border-orange-200 bg-orange-50"
+        change="Activités non affichées"
+        changeType="neutral"
       />
     </div>
   )

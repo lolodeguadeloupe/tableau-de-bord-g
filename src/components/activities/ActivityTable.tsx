@@ -41,6 +41,15 @@ export function ActivityTable({ activities, onEdit, onDelete }: ActivityTablePro
     { key: 'status', label: 'Statut' }
   ]
 
+  const handleEdit = (item: ActivityTableData) => {
+    // Convert back to Activity type for the callback
+    const activity: Activity = {
+      ...item,
+      id: parseInt(item.id)
+    }
+    onEdit(activity)
+  }
+
   if (activities.length === 0) {
     return (
       <div className="text-center p-8 bg-yellow-50 border border-yellow-200 rounded-lg">
@@ -57,7 +66,7 @@ export function ActivityTable({ activities, onEdit, onDelete }: ActivityTablePro
       title="Liste des activités"
       data={tableData}
       columns={columns}
-      onEdit={onEdit}
+      onEdit={handleEdit}
       onDelete={onDelete}
     />
   )
