@@ -42,6 +42,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
         is_active: bonPlan.is_active ?? true
       })
     } else {
+      // Réinitialiser immédiatement quand il n'y a pas de bonPlan (création)
       setFormData(initialFormData)
     }
   }, [bonPlan])
@@ -90,7 +91,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
           description: "Le nouveau bon plan a été ajouté avec succès."
         })
 
-        // Réinitialiser le formulaire après création
+        // Réinitialiser le formulaire AVANT de fermer le modal
         setFormData(initialFormData)
       }
 
