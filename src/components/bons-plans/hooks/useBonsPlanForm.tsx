@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
@@ -10,6 +9,7 @@ interface FormData {
   badge: string
   icon: string
   image: string
+  url: string
   is_active: boolean
 }
 
@@ -23,6 +23,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
     badge: '',
     icon: 'star',
     image: '',
+    url: '',
     is_active: true
   })
 
@@ -34,6 +35,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
         badge: bonPlan.badge || '',
         icon: bonPlan.icon || 'star',
         image: bonPlan.image || '',
+        url: bonPlan.url || '',
         is_active: bonPlan.is_active ?? true
       })
     } else {
@@ -43,6 +45,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
         badge: '',
         icon: 'star',
         image: '',
+        url: '',
         is_active: true
       })
     }

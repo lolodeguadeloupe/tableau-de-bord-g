@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
@@ -12,7 +11,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Edit, Trash2, Eye, EyeOff } from "lucide-react"
+import { Edit, Trash2, Eye, EyeOff, ExternalLink } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 interface BonsPlansTableProps {
@@ -118,6 +117,7 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
           <TableHead>Titre</TableHead>
           <TableHead>Description</TableHead>
           <TableHead>Badge</TableHead>
+          <TableHead>URL</TableHead>
           <TableHead>Statut</TableHead>
           <TableHead>Actions</TableHead>
         </TableRow>
@@ -125,7 +125,7 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
       <TableBody>
         {!bonsPlans || bonsPlans.length === 0 ? (
           <TableRow>
-            <TableCell colSpan={5} className="text-center text-muted-foreground">
+            <TableCell colSpan={6} className="text-center text-muted-foreground">
               Aucun bon plan trouvé
             </TableCell>
           </TableRow>
@@ -137,6 +137,23 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
               <TableCell>
                 {bonPlan.badge && (
                   <Badge variant="secondary">{bonPlan.badge}</Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                {bonPlan.url && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                      {bonPlan.url}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(bonPlan.url, '_blank')}
+                      className="h-6 w-6 p-0"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                    </Button>
+                  </div>
                 )}
               </TableCell>
               <TableCell>

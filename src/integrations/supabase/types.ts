@@ -270,6 +270,7 @@ export type Database = {
           is_active: boolean | null
           title: string
           updated_at: string | null
+          url: string | null
         }
         Insert: {
           badge?: string | null
@@ -281,6 +282,7 @@ export type Database = {
           is_active?: boolean | null
           title: string
           updated_at?: string | null
+          url?: string | null
         }
         Update: {
           badge?: string | null
@@ -292,6 +294,7 @@ export type Database = {
           is_active?: boolean | null
           title?: string
           updated_at?: string | null
+          url?: string | null
         }
         Relationships: []
       }

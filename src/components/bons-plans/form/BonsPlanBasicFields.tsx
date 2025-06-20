@@ -8,6 +8,7 @@ interface BonsPlanBasicFieldsProps {
     title: string
     description: string
     badge: string
+    url: string
   }
   setFormData: (updater: (prev: any) => any) => void
 }
@@ -43,6 +44,20 @@ export function BonsPlanBasicFields({ formData, setFormData }: BonsPlanBasicFiel
           onChange={(e) => setFormData(prev => ({ ...prev, badge: e.target.value }))}
           placeholder="ex: NOUVEAU, -50%, EXCLUSIF"
         />
+      </div>
+
+      <div>
+        <Label htmlFor="url">URL de redirection</Label>
+        <Input
+          id="url"
+          type="url"
+          value={formData.url}
+          onChange={(e) => setFormData(prev => ({ ...prev, url: e.target.value }))}
+          placeholder="https://example.com ou /page-interne"
+        />
+        <p className="text-sm text-muted-foreground mt-1">
+          URL vers laquelle rediriger l'utilisateur (interne ou externe)
+        </p>
       </div>
     </>
   )
