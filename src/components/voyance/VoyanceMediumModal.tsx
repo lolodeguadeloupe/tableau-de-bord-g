@@ -15,6 +15,7 @@ import { TagManager } from "./components/TagManager"
 import { BasicInfoFields } from "./components/BasicInfoFields"
 import { ImageUploadSection } from "./components/ImageUploadSection"
 import { ContactPricingFields } from "./components/ContactPricingFields"
+import { AdvantageManager } from "./components/AdvantageManager"
 
 interface VoyanceMediumModalProps {
   open: boolean
@@ -78,6 +79,12 @@ export function VoyanceMediumModal({
           <ContactPricingFields 
             formData={formData} 
             onUpdate={updateFormData} 
+          />
+
+          <AdvantageManager
+            mediumId={medium?.id}
+            advantages={formData.advantages}
+            onAdvantagesChange={(advantages) => updateFormData({ advantages })}
           />
 
           <div className="flex items-center space-x-2">

@@ -1381,6 +1381,50 @@ export type Database = {
           },
         ]
       }
+      voyance_medium_advantages: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: number
+          is_active: boolean
+          medium_id: number
+          sort_order: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon?: string
+          id?: number
+          is_active?: boolean
+          medium_id: number
+          sort_order?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: number
+          is_active?: boolean
+          medium_id?: number
+          sort_order?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voyance_medium_advantages_medium_id_fkey"
+            columns: ["medium_id"]
+            isOneToOne: false
+            referencedRelation: "voyance_mediums"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       voyance_mediums: {
         Row: {
           availability_schedule: Json
