@@ -22,6 +22,7 @@ import LeisureActivities from "./pages/LeisureActivities";
 import LeisureActivityDetail from "./pages/LeisureActivityDetail";
 import CarRentals from "./pages/CarRentals";
 import Voyance from "./pages/Voyance";
+import BonsPlans from "./pages/BonsPlans";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -65,6 +66,7 @@ function App() {
                             <Route path="leisure-activity/:id" element={<LeisureActivityDetail />} />
                             <Route path="car-rentals" element={<CarRentals />} />
                             <Route path="voyance" element={<Voyance />} />
+                            <Route path="bons-plans" element={<BonsPlans />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>

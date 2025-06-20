@@ -16,6 +16,7 @@ import {
   Menu,
   PartyPopper,
   Sparkles,
+  Tag,
 } from "lucide-react"
 
 import {
@@ -86,6 +87,12 @@ const items = [
     url: "/voyance",
     icon: Sparkles,
     color: "text-indigo-500"
+  },
+  {
+    title: "Bons Plans",
+    url: "/bons-plans",
+    icon: Tag,
+    color: "text-amber-600"
   },
   {
     title: "Analytics", 
