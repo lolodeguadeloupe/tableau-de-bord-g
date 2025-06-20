@@ -15,7 +15,7 @@ import {
   Calendar,
   Menu,
   PartyPopper,
-  Crystal,
+  Sparkles,
 } from "lucide-react"
 
 import {
@@ -84,7 +84,7 @@ const items = [
   {
     title: "Voyance",
     url: "/voyance",
-    icon: Crystal,
+    icon: Sparkles,
     color: "text-indigo-500"
   },
   {
