@@ -20,6 +20,7 @@ import Concerts from "./pages/Concerts";
 import Nightlife from "./pages/Nightlife";
 import LeisureActivities from "./pages/LeisureActivities";
 import LeisureActivityDetail from "./pages/LeisureActivityDetail";
+import Activities from "./pages/Activities";
 import CarRentals from "./pages/CarRentals";
 import Voyance from "./pages/Voyance";
 import BonsPlans from "./pages/BonsPlans";
@@ -64,6 +65,7 @@ function App() {
                             <Route path="nightlife" element={<Nightlife />} />
                             <Route path="leisure-activities" element={<LeisureActivities />} />
                             <Route path="leisure-activity/:id" element={<LeisureActivityDetail />} />
+                            <Route path="activities" element={<Activities />} />
                             <Route path="car-rentals" element={<CarRentals />} />
                             <Route path="voyance" element={<Voyance />} />
                             <Route path="bons-plans" element={<BonsPlans />} />

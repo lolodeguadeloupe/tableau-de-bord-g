@@ -17,6 +17,7 @@ import {
   PartyPopper,
   Sparkles,
   Tag,
+  Activity,
 } from "lucide-react"
 
 import {
@@ -75,6 +76,12 @@ const items = [
     url: "/leisure-activities",
     icon: Waves,
     color: "text-cyan-600"
+  },
+  {
+    title: "Nos Activités",
+    url: "/activities",
+    icon: Activity,
+    color: "text-teal-600"
   },
   {
     title: "Locations de voitures",
