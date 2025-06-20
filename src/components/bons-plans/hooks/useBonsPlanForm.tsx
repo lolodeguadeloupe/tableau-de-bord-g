@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface FormData {
   title: string
@@ -14,6 +15,7 @@ interface FormData {
 
 export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
   const { toast } = useToast()
+  const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -59,16 +61,31 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
 
         if (error) throw error
 
+        // Mise à jour optimiste du cache
+        queryClient.setQueryData(['bons-plans'], (oldData: any) => {
+          if (!oldData) return oldData
+          return oldData.map((item: any) => 
+            item.id === bonPlan.id ? { ...item, ...formData } : item
+          )
+        })
+
         toast({
           title: "Bon plan modifié",
           description: "Le bon plan a été mis à jour avec succès."
         })
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('bons_plans')
           .insert(formData)
+          .select()
 
         if (error) throw error
+
+        // Mise à jour optimiste du cache
+        queryClient.setQueryData(['bons-plans'], (oldData: any) => {
+          if (!oldData) return [data[0]]
+          return [data[0], ...oldData]
+        })
 
         toast({
           title: "Bon plan créé",
@@ -77,8 +94,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
       }
 
       onClose()
-      // Forcer le rechargement de la page pour s'assurer que les données sont à jour
-      window.location.reload()
+      
     } catch (error) {
       console.error('Erreur:', error)
       toast({

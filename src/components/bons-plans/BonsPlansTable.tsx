@@ -24,7 +24,7 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
   const [loading, setLoading] = useState(false)
   const queryClient = useQueryClient()
 
-  const { data: bonsPlans, refetch } = useQuery({
+  const { data: bonsPlans, isLoading } = useQuery({
     queryKey: ['bons-plans'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -47,14 +47,19 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
 
       if (error) throw error
 
+      // Mise à jour optimiste du cache
+      queryClient.setQueryData(['bons-plans'], (oldData: any) => {
+        if (!oldData) return oldData
+        return oldData.map((item: any) => 
+          item.id === id ? { ...item, is_active: !currentStatus } : item
+        )
+      })
+
       toast({
         title: "Statut modifié",
         description: `Le bon plan a été ${!currentStatus ? 'activé' : 'désactivé'}.`
       })
 
-      // Force la mise à jour des données
-      await queryClient.invalidateQueries({ queryKey: ['bons-plans'] })
-      await refetch()
     } catch (error) {
       console.error('Erreur:', error)
       toast({
@@ -79,14 +84,17 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
 
       if (error) throw error
 
+      // Mise à jour optimiste du cache
+      queryClient.setQueryData(['bons-plans'], (oldData: any) => {
+        if (!oldData) return oldData
+        return oldData.filter((item: any) => item.id !== id)
+      })
+
       toast({
         title: "Bon plan supprimé",
         description: "Le bon plan a été supprimé avec succès."
       })
 
-      // Force la mise à jour des données
-      await queryClient.invalidateQueries({ queryKey: ['bons-plans'] })
-      await refetch()
     } catch (error) {
       console.error('Erreur:', error)
       toast({
@@ -99,7 +107,7 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
     }
   }
 
-  if (!bonsPlans) {
+  if (isLoading) {
     return <div>Chargement...</div>
   }
 
@@ -115,7 +123,7 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {bonsPlans.length === 0 ? (
+        {!bonsPlans || bonsPlans.length === 0 ? (
           <TableRow>
             <TableCell colSpan={5} className="text-center text-muted-foreground">
               Aucun bon plan trouvé
