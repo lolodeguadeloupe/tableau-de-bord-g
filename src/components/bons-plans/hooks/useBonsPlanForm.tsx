@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
@@ -13,19 +14,21 @@ interface FormData {
   is_active: boolean
 }
 
+const initialFormData: FormData = {
+  title: '',
+  description: '',
+  badge: '',
+  icon: 'star',
+  image: '',
+  url: '',
+  is_active: true
+}
+
 export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
   const { toast } = useToast()
   const queryClient = useQueryClient()
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState<FormData>({
-    title: '',
-    description: '',
-    badge: '',
-    icon: 'star',
-    image: '',
-    url: '',
-    is_active: true
-  })
+  const [formData, setFormData] = useState<FormData>(initialFormData)
 
   useEffect(() => {
     if (bonPlan) {
@@ -39,15 +42,7 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
         is_active: bonPlan.is_active ?? true
       })
     } else {
-      setFormData({
-        title: '',
-        description: '',
-        badge: '',
-        icon: 'star',
-        image: '',
-        url: '',
-        is_active: true
-      })
+      setFormData(initialFormData)
     }
   }, [bonPlan])
 
@@ -94,6 +89,9 @@ export function useBonsPlanForm(bonPlan: any, onClose: () => void) {
           title: "Bon plan créé",
           description: "Le nouveau bon plan a été ajouté avec succès."
         })
+
+        // Réinitialiser le formulaire après création
+        setFormData(initialFormData)
       }
 
       onClose()
