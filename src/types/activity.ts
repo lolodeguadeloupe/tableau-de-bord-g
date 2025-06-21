@@ -5,6 +5,7 @@ export interface Activity {
   icon_name: string
   path: string
   is_active: boolean
+  rating: number
   created_at: string
 }
 

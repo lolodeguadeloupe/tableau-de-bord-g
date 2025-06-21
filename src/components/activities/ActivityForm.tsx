@@ -20,13 +20,15 @@ interface FormData {
   icon_name: string
   path: string
   is_active: boolean
+  rating: number
 }
 
 const initialFormData: FormData = {
   name: '',
   icon_name: '',
   path: '',
-  is_active: true
+  is_active: true,
+  rating: 0.0
 }
 
 export function ActivityForm({ activity, onClose, onSuccess }: ActivityFormProps) {
@@ -41,7 +43,8 @@ export function ActivityForm({ activity, onClose, onSuccess }: ActivityFormProps
         name: activity.name || '',
         icon_name: activity.icon_name || '',
         path: activity.path || '',
-        is_active: activity.is_active ?? true
+        is_active: activity.is_active ?? true,
+        rating: activity.rating || 0.0
       })
     } else {
       setFormData(initialFormData)
@@ -122,6 +125,21 @@ export function ActivityForm({ activity, onClose, onSuccess }: ActivityFormProps
           value={formData.path}
           onChange={(e) => setFormData(prev => ({ ...prev, path: e.target.value }))}
           placeholder="ex: /restaurants, /loisirs"
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="rating">Note (0.0 à 5.0)</Label>
+        <Input
+          id="rating"
+          type="number"
+          min="0"
+          max="5"
+          step="0.1"
+          value={formData.rating}
+          onChange={(e) => setFormData(prev => ({ ...prev, rating: parseFloat(e.target.value) || 0 }))}
+          placeholder="ex: 4.5"
           required
         />
       </div>

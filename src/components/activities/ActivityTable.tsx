@@ -2,7 +2,7 @@
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/DataTable"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import type { Activity, ActivityTableData } from "@/types/activity"
@@ -76,6 +76,12 @@ export function ActivityTable({ activities, onEdit, onDelete, onRefresh }: Activ
           )}
         </Button>
       </div>
+    ),
+    rating: (
+      <div className="flex items-center gap-1">
+        <Star className="h-4 w-4 text-yellow-500 fill-current" />
+        <span className="font-medium">{activity.rating.toFixed(1)}</span>
+      </div>
     )
   }))
 
@@ -83,6 +89,7 @@ export function ActivityTable({ activities, onEdit, onDelete, onRefresh }: Activ
     { key: 'name', label: 'Nom' },
     { key: 'icon_name', label: 'Icône' },
     { key: 'path', label: 'Chemin' },
+    { key: 'rating', label: 'Note' },
     { key: 'status', label: 'Statut' }
   ]
 

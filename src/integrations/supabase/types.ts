@@ -74,6 +74,7 @@ export type Database = {
           is_active: boolean
           name: string
           path: string
+          rating: number | null
         }
         Insert: {
           created_at?: string
@@ -82,6 +83,7 @@ export type Database = {
           is_active?: boolean
           name: string
           path: string
+          rating?: number | null
         }
         Update: {
           created_at?: string
@@ -90,6 +92,7 @@ export type Database = {
           is_active?: boolean
           name?: string
           path?: string
+          rating?: number | null
         }
         Relationships: []
       }
