@@ -9,7 +9,8 @@ export interface Activity {
   created_at: string
 }
 
-export interface ActivityTableData extends Omit<Activity, 'id'> {
+export interface ActivityTableData extends Omit<Activity, 'id' | 'rating'> {
   id: string
   status: JSX.Element
+  rating: JSX.Element
 }
