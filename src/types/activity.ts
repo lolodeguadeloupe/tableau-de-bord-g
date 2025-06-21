@@ -13,4 +13,5 @@ export interface ActivityTableData extends Omit<Activity, 'id' | 'rating'> {
   id: string
   status: JSX.Element
   rating: JSX.Element
+  _originalRating: number
 }

@@ -45,6 +45,8 @@ export function ActivityTable({ activities, onEdit, onDelete, onRefresh }: Activ
   const tableData: ActivityTableData[] = activities.map(activity => ({
     ...activity,
     id: activity.id.toString(),
+    // Store the original numeric rating value as _originalRating
+    _originalRating: activity.rating,
     status: (
       <div className="flex items-center gap-2">
         <Badge 
@@ -94,10 +96,11 @@ export function ActivityTable({ activities, onEdit, onDelete, onRefresh }: Activ
   ]
 
   const handleEdit = (item: ActivityTableData) => {
-    // Convert back to Activity type for the callback
+    // Convert back to Activity type using the preserved original rating value
     const activity: Activity = {
       ...item,
-      id: parseInt(item.id)
+      id: parseInt(item.id),
+      rating: item._originalRating
     }
     onEdit(activity)
   }
