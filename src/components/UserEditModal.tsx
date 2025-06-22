@@ -59,6 +59,8 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
 
     setLoading(true)
     try {
+      console.log('Tentative de mise à jour de l\'utilisateur:', user.id, formData)
+      
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -69,8 +71,12 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
         })
         .eq('id', user.id)
 
-      if (error) throw error
+      if (error) {
+        console.error('Erreur Supabase:', error)
+        throw error
+      }
 
+      console.log('Mise à jour réussie')
       toast({
         title: "Utilisateur modifié",
         description: "Les informations de l'utilisateur ont été mises à jour avec succès.",
@@ -82,7 +88,7 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
       console.error('Erreur lors de la modification:', error)
       toast({
         title: "Erreur",
-        description: "Impossible de modifier l'utilisateur.",
+        description: error.message || "Impossible de modifier l'utilisateur.",
         variant: "destructive",
       })
     } finally {
