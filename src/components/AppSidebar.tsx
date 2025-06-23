@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import {
   Music,
@@ -17,7 +18,8 @@ import {
   Sparkles,
   Tag,
   Activity,
-  Plane
+  Plane,
+  Megaphone
 } from "lucide-react"
 
 import {
@@ -100,6 +102,12 @@ const items = [
     url: "/bons-plans",
     icon: Tag,
     color: "text-amber-600"
+  },
+  {
+    title: "Promotions",
+    url: "/promotions",
+    icon: Megaphone,
+    color: "text-red-600"
   },
   {
     title: "Analytics", 

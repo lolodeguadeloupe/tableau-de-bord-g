@@ -27,6 +27,7 @@ import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Travel from "./pages/Travel";
+import Promotions from "./pages/Promotions";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ function App() {
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route path="/travel" element={<Travel />} />
+              <Route path="/promotions" element={<Promotions />} />
               <Route path="/*" element={
                 <ProtectedRoute>
                   <SidebarProvider>

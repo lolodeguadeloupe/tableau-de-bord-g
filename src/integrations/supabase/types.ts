@@ -1028,6 +1028,48 @@ export type Database = {
           },
         ]
       }
+      promotions: {
+        Row: {
+          badge: string | null
+          created_at: string | null
+          cta_text: string
+          cta_url: string
+          description: string
+          id: number
+          image: string
+          is_active: boolean | null
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string | null
+          cta_text: string
+          cta_url: string
+          description: string
+          id?: number
+          image: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string | null
+          cta_text?: string
+          cta_url?: string
+          description?: string
+          id?: number
+          image?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       purchases: {
         Row: {
           amount: number
