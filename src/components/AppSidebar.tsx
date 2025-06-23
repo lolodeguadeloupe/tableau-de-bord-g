@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Music,
@@ -18,6 +17,7 @@ import {
   Sparkles,
   Tag,
   Activity,
+  Plane
 } from "lucide-react"
 
 import {
@@ -124,6 +124,12 @@ const items = [
     url: "/settings",
     icon: Settings,
     color: "text-gray-600"
+  },
+  {
+    title: "Voyages",
+    url: "/travel",
+    icon: Plane,
+    color: "text-blue-600"
   },
 ]
 
