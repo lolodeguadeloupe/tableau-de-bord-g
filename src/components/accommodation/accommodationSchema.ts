@@ -1,6 +1,12 @@
 
 import * as z from "zod"
 
+// Interface pour les équipements avec disponibilité
+export interface Amenity {
+  name: string
+  available: boolean
+}
+
 export const accommodationSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),
   type: z.string().min(1, "Le type est requis"),
@@ -13,7 +19,10 @@ export const accommodationSchema = z.object({
   max_guests: z.number().int().min(1, "Au moins 1 invité autorisé"),
   image: z.string().optional(),
   discount: z.number().int().min(0).max(100).optional(),
-  amenities: z.string().optional(),
+  amenities: z.array(z.object({
+    name: z.string(),
+    available: z.boolean()
+  })).optional(),
   features: z.string().optional(),
   rules: z.string().optional(),
   gallery_images: z.array(z.string()).optional(),

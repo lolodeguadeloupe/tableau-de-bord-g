@@ -1035,6 +1035,7 @@ export type Database = {
           cta_text: string
           cta_url: string
           description: string
+          gallery_images: Json | null
           id: number
           image: string
           is_active: boolean | null
@@ -1048,6 +1049,7 @@ export type Database = {
           cta_text: string
           cta_url: string
           description: string
+          gallery_images?: Json | null
           id?: number
           image: string
           is_active?: boolean | null
@@ -1061,6 +1063,7 @@ export type Database = {
           cta_text?: string
           cta_url?: string
           description?: string
+          gallery_images?: Json | null
           id?: number
           image?: string
           is_active?: boolean | null
