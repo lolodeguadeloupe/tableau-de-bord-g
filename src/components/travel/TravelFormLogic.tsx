@@ -6,61 +6,54 @@ import type { TravelOffer } from "@/types/travel"
 export function useTravelFormLogic(
   offer: TravelOffer | null,
   isOpen: boolean,
-  onSave: (offerData: Partial<TravelOffer>) => Promise<TravelOffer | null>
+  onSave: (offer: Partial<TravelOffer>) => Promise<TravelOffer | null>
 ) {
-  const [formData, setFormData] = useState({
-    title: "",
-    destination: "",
-    departure_location: "",
+  const { toast } = useToast()
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState<Partial<TravelOffer>>({
+    title: '',
+    destination: '',
+    departure_location: '',
     duration_days: 7,
     price: 0,
-    departure_date: "",
-    return_date: "",
-    description: "",
-    image: "",
-    gallery_images: [] as string[],
-    inclusions: [] as string[],
-    exclusions: [] as string[],
+    departure_date: '',
+    return_date: '',
+    description: '',
+    image: '',
+    gallery_images: [],
+    inclusions: [],
+    exclusions: [],
     max_participants: 20,
+    current_participants: 0,
     is_active: true
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const { toast } = useToast()
 
+  // Réinitialiser le formulaire quand la modal s'ouvre/ferme
   useEffect(() => {
     if (isOpen) {
       if (offer) {
         setFormData({
-          title: offer.title,
-          destination: offer.destination,
-          departure_location: offer.departure_location,
-          duration_days: offer.duration_days,
-          price: offer.price,
-          departure_date: offer.departure_date || "",
-          return_date: offer.return_date || "",
-          description: offer.description,
-          image: offer.image || "",
+          ...offer,
           gallery_images: offer.gallery_images || [],
           inclusions: offer.inclusions || [],
-          exclusions: offer.exclusions || [],
-          max_participants: offer.max_participants,
-          is_active: offer.is_active
+          exclusions: offer.exclusions || []
         })
       } else {
         setFormData({
-          title: "",
-          destination: "",
-          departure_location: "",
+          title: '',
+          destination: '',
+          departure_location: '',
           duration_days: 7,
           price: 0,
-          departure_date: "",
-          return_date: "",
-          description: "",
-          image: "",
+          departure_date: '',
+          return_date: '',
+          description: '',
+          image: '',
           gallery_images: [],
           inclusions: [],
           exclusions: [],
           max_participants: 20,
+          current_participants: 0,
           is_active: true
         })
       }
@@ -68,17 +61,24 @@ export function useTravelFormLogic(
   }, [offer, isOpen])
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleImagesChange = (images: string[]) => {
-    setFormData(prev => ({ ...prev, gallery_images: images }))
+    setFormData(prev => ({
+      ...prev,
+      gallery_images: images
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent, onClose: () => void) => {
     e.preventDefault()
     
-    if (!formData.title.trim() || !formData.destination.trim() || !formData.description.trim()) {
+    if (!formData.title?.trim() || !formData.destination?.trim() || 
+        !formData.departure_location?.trim() || !formData.description?.trim()) {
       toast({
         title: "Erreur",
         description: "Veuillez remplir tous les champs obligatoires.",
@@ -87,16 +87,31 @@ export function useTravelFormLogic(
       return
     }
 
-    setIsLoading(true)
-    try {
-      const offerData = {
-        ...formData,
-        departure_date: formData.departure_date || null,
-        return_date: formData.return_date || null,
-        ...(offer && { id: offer.id })
-      }
+    if (!formData.duration_days || formData.duration_days < 1) {
+      toast({
+        title: "Erreur",
+        description: "La durée doit être d'au moins 1 jour.",
+        variant: "destructive",
+      })
+      return
+    }
 
-      const result = await onSave(offerData)
+    if (!formData.price || formData.price <= 0) {
+      toast({
+        title: "Erreur",
+        description: "Le prix doit être supérieur à 0.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      console.log('💾 Sauvegarde de l\'offre:', formData)
+      
+      const result = await onSave(formData)
+      
       if (result) {
         toast({
           title: offer ? "Offre modifiée" : "Offre créée",
@@ -105,7 +120,7 @@ export function useTravelFormLogic(
         onClose()
       }
     } catch (error) {
-      console.error('Erreur:', error)
+      console.error('❌ Erreur lors de la sauvegarde:', error)
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la sauvegarde.",
