@@ -73,7 +73,12 @@ export function usePromotionActions() {
 
   const savePromotion = async (promotionData: Partial<Promotion>): Promise<Promotion | null> => {
     try {
+      console.log('💾 Tentative de sauvegarde de la promotion:', promotionData)
+      
       if (promotionData.id) {
+        // Mise à jour d'une promotion existante
+        console.log('🔄 Mise à jour de la promotion avec ID:', promotionData.id)
+        
         const { data, error } = await supabase
           .from('promotions')
           .update({
@@ -89,11 +94,20 @@ export function usePromotionActions() {
           })
           .eq('id', promotionData.id)
           .select()
-          .single()
 
-        if (error) throw error
-        return data
+        if (error) {
+          console.error('❌ Erreur lors de la mise à jour:', error)
+          throw error
+        }
+
+        console.log('✅ Promotion mise à jour avec succès:', data)
+        
+        // Retourner le premier élément du tableau ou null si vide
+        return data && data.length > 0 ? data[0] : null
       } else {
+        // Création d'une nouvelle promotion
+        console.log('➕ Création d\'une nouvelle promotion')
+        
         const { data, error } = await supabase
           .from('promotions')
           .insert({
@@ -107,13 +121,19 @@ export function usePromotionActions() {
             sort_order: promotionData.sort_order
           })
           .select()
-          .single()
 
-        if (error) throw error
-        return data
+        if (error) {
+          console.error('❌ Erreur lors de la création:', error)
+          throw error
+        }
+
+        console.log('✅ Promotion créée avec succès:', data)
+        
+        // Retourner le premier élément du tableau ou null si vide
+        return data && data.length > 0 ? data[0] : null
       }
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error)
+      console.error('❌ Erreur lors de la sauvegarde:', error)
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder la promotion.",
