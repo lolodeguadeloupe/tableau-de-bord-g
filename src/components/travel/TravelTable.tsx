@@ -96,12 +96,11 @@ export function TravelTable({ offers, onEdit, onDelete, onRefresh }: TravelTable
   ]
 
   const handleEdit = (item: TravelOfferTableData) => {
-    const offer: TravelOffer = {
-      ...item,
-      id: parseInt(item.id),
-      price: item._originalPrice
+    // Find the original offer to preserve all properties including is_active
+    const originalOffer = offers.find(offer => offer.id.toString() === item.id)
+    if (originalOffer) {
+      onEdit(originalOffer)
     }
-    onEdit(offer)
   }
 
   if (offers.length === 0) {

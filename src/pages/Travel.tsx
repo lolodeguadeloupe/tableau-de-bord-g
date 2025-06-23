@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import type { TravelOffer, TravelOfferTableData } from "@/types/travel"
+import type { TravelOffer } from "@/types/travel"
 
 export default function Travel() {
   const [offers, setOffers] = useState<TravelOffer[]>([])
@@ -25,7 +25,7 @@ export default function Travel() {
   const [editingOffer, setEditingOffer] = useState<TravelOffer | null>(null)
   const [deleteOfferId, setDeleteOfferId] = useState<number | null>(null)
 
-  const { fetchTravelOffers, handleEdit, handleDelete, saveOffer } = useTravelActions()
+  const { fetchTravelOffers, handleDelete, saveOffer } = useTravelActions()
 
   const loadOffers = async () => {
     setLoading(true)
@@ -38,8 +38,7 @@ export default function Travel() {
     loadOffers()
   }, [])
 
-  const handleEditOffer = (offerData: TravelOfferTableData) => {
-    const offer = handleEdit(offerData)
+  const handleEditOffer = (offer: TravelOffer) => {
     setEditingOffer(offer)
     setIsModalOpen(true)
   }

@@ -39,7 +39,8 @@ export function useTravelActions() {
     return {
       ...offerData,
       id: parseInt(offerData.id),
-      price: offerData._originalPrice
+      price: offerData._originalPrice,
+      is_active: true // Default value, will be overridden by actual data from the original offer
     }
   }
 
