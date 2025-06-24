@@ -371,7 +371,7 @@ export type Database = {
         Row: {
           air_con: boolean
           category: string
-          company_id: number
+          company_id: string | null
           created_at: string | null
           gallery_images: Json | null
           id: number
@@ -386,7 +386,7 @@ export type Database = {
         Insert: {
           air_con?: boolean
           category: string
-          company_id: number
+          company_id?: string | null
           created_at?: string | null
           gallery_images?: Json | null
           id?: number
@@ -401,7 +401,7 @@ export type Database = {
         Update: {
           air_con?: boolean
           category?: string
-          company_id?: number
+          company_id?: string | null
           created_at?: string | null
           gallery_images?: Json | null
           id?: number
@@ -418,82 +418,26 @@ export type Database = {
             foreignKeyName: "car_models_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "car_rental_companies"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      car_rental_companies: {
-        Row: {
-          created_at: string | null
-          description: string
-          gallery_images: Json | null
-          icon_name: string
-          id: number
-          image: string
-          location: string
-          name: string
-          offer: string
-          partner_id: string | null
-          rating: number
-          type: string
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description: string
-          gallery_images?: Json | null
-          icon_name: string
-          id?: number
-          image: string
-          location: string
-          name: string
-          offer: string
-          partner_id?: string | null
-          rating: number
-          type: string
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string
-          gallery_images?: Json | null
-          icon_name?: string
-          id?: number
-          image?: string
-          location?: string
-          name?: string
-          offer?: string
-          partner_id?: string | null
-          rating?: number
-          type?: string
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "car_rental_companies_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
       }
       car_rental_features: {
         Row: {
-          company_id: number
+          company_id: string | null
           created_at: string | null
           feature: string
           id: number
         }
         Insert: {
-          company_id: number
+          company_id?: string | null
           created_at?: string | null
           feature: string
           id?: number
         }
         Update: {
-          company_id?: number
+          company_id?: string | null
           created_at?: string | null
           feature?: string
           id?: number
@@ -503,7 +447,7 @@ export type Database = {
             foreignKeyName: "car_rental_features_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "car_rental_companies"
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
@@ -665,7 +609,7 @@ export type Database = {
       }
       fleet_managers: {
         Row: {
-          company_id: number
+          company_id: string | null
           created_at: string
           id: string
           permissions: Json | null
@@ -673,7 +617,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          company_id: number
+          company_id?: string | null
           created_at?: string
           id?: string
           permissions?: Json | null
@@ -681,7 +625,7 @@ export type Database = {
           user_id: string
         }
         Update: {
-          company_id?: number
+          company_id?: string | null
           created_at?: string
           id?: string
           permissions?: Json | null
@@ -693,7 +637,7 @@ export type Database = {
             foreignKeyName: "fleet_managers_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "car_rental_companies"
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
@@ -955,8 +899,15 @@ export type Database = {
           business_type: string
           created_at: string
           description: string | null
+          gallery_images: Json | null
+          icon_name: string | null
           id: string
+          image: string | null
+          location: string | null
+          offer: string | null
           phone: string | null
+          rating: number | null
+          type: string | null
           updated_at: string
           website: string | null
         }
@@ -966,8 +917,15 @@ export type Database = {
           business_type: string
           created_at?: string
           description?: string | null
+          gallery_images?: Json | null
+          icon_name?: string | null
           id: string
+          image?: string | null
+          location?: string | null
+          offer?: string | null
           phone?: string | null
+          rating?: number | null
+          type?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -977,8 +935,15 @@ export type Database = {
           business_type?: string
           created_at?: string
           description?: string | null
+          gallery_images?: Json | null
+          icon_name?: string | null
           id?: string
+          image?: string | null
+          location?: string | null
+          offer?: string | null
           phone?: string | null
+          rating?: number | null
+          type?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -987,7 +952,7 @@ export type Database = {
       profiles: {
         Row: {
           admin_type: Database["public"]["Enums"]["admin_type"] | null
-          company_id: number | null
+          company_id: string | null
           created_at: string
           email: string
           first_name: string | null
@@ -998,7 +963,7 @@ export type Database = {
         }
         Insert: {
           admin_type?: Database["public"]["Enums"]["admin_type"] | null
-          company_id?: number | null
+          company_id?: string | null
           created_at?: string
           email: string
           first_name?: string | null
@@ -1009,7 +974,7 @@ export type Database = {
         }
         Update: {
           admin_type?: Database["public"]["Enums"]["admin_type"] | null
-          company_id?: number | null
+          company_id?: string | null
           created_at?: string
           email?: string
           first_name?: string | null
@@ -1023,7 +988,7 @@ export type Database = {
             foreignKeyName: "profiles_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "car_rental_companies"
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]

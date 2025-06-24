@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 export interface CarRentalCompany {
-  id: number
-  name: string
+  id: string  // Changed from number to string (UUID)
+  business_name: string  // Changed from name
+  business_type: string
   type: string
   image: string
   location: string
@@ -17,11 +18,13 @@ export interface CarRentalCompany {
   gallery_images?: string[]
   created_at?: string
   updated_at?: string
+  // Legacy fields for compatibility
+  name?: string
 }
 
 export interface CarModel {
   id: number
-  company_id: number
+  company_id: string  // Changed from number to string (UUID)
   name: string
   image: string
   price_per_day: number
@@ -37,7 +40,7 @@ export interface CarModel {
 
 export interface CarRentalFeature {
   id: number
-  company_id: number
+  company_id: string  // Changed from number to string (UUID)
   feature: string
   created_at?: string
 }
@@ -50,8 +53,9 @@ export function useCarRentalActions() {
     try {
       setLoading(true)
       const { data, error } = await supabase
-        .from('car_rental_companies')
+        .from('partners')
         .select('*')
+        .eq('business_type', 'car_rental')
         .order('created_at', { ascending: false })
 
       if (error) {
@@ -64,7 +68,14 @@ export function useCarRentalActions() {
         return []
       }
 
-      return data || []
+      // Transform data to match the expected interface
+      const transformedData = (data || []).map(partner => ({
+        ...partner,
+        name: partner.business_name, // Add legacy name field for compatibility
+        id: partner.id // UUID as string
+      }))
+
+      return transformedData
     } catch (error) {
       console.error('Error:', error)
       toast({
@@ -83,7 +94,7 @@ export function useCarRentalActions() {
       setLoading(true)
       console.log('Saving company:', companyData)
       
-      if (!companyData.name || !companyData.type || !companyData.location) {
+      if (!companyData.business_name && !companyData.name || !companyData.type || !companyData.location) {
         throw new Error('Champs obligatoires manquants')
       }
       
@@ -92,12 +103,16 @@ export function useCarRentalActions() {
         ? companyData.gallery_images 
         : []
       
+      // Use business_name or name for compatibility
+      const businessName = companyData.business_name || companyData.name || ''
+      
       if (companyData.id) {
         // Update existing company
         const { data, error } = await supabase
-          .from('car_rental_companies')
+          .from('partners')
           .update({
-            name: companyData.name,
+            business_name: businessName,
+            business_type: 'car_rental',
             type: companyData.type,
             image: companyData.image || '',
             location: companyData.location,
@@ -125,13 +140,17 @@ export function useCarRentalActions() {
           description: "La compagnie a été modifiée avec succès.",
         })
 
-        return data[0]
+        return {
+          ...data[0],
+          name: data[0].business_name // Add legacy name field
+        }
       } else {
         // Create new company
         const { data, error } = await supabase
-          .from('car_rental_companies')
+          .from('partners')
           .insert({
-            name: companyData.name,
+            business_name: businessName,
+            business_type: 'car_rental',
             type: companyData.type,
             image: companyData.image || '',
             location: companyData.location,
@@ -157,7 +176,10 @@ export function useCarRentalActions() {
           description: "La compagnie a été créée avec succès.",
         })
 
-        return data[0]
+        return {
+          ...data[0],
+          name: data[0].business_name // Add legacy name field
+        }
       }
     } catch (error) {
       console.error('Error saving company:', error)
@@ -174,11 +196,11 @@ export function useCarRentalActions() {
     }
   }
 
-  const deleteCompany = async (id: number): Promise<boolean> => {
+  const deleteCompany = async (id: string): Promise<boolean> => {
     try {
       setLoading(true)
       const { error } = await supabase
-        .from('car_rental_companies')
+        .from('partners')
         .delete()
         .eq('id', id)
 
@@ -203,7 +225,7 @@ export function useCarRentalActions() {
     }
   }
 
-  const fetchCarModels = async (companyId?: number): Promise<CarModel[]> => {
+  const fetchCarModels = async (companyId?: string): Promise<CarModel[]> => {
     try {
       setLoading(true)
       let query = supabase
@@ -256,7 +278,7 @@ export function useCarRentalActions() {
           .from('car_models')
           .update({
             name: modelData.name,
-            company_id: modelData.company_id,
+            company_id: modelData.company_id, // Now UUID string
             image: modelData.image || '',
             price_per_day: Number(modelData.price_per_day) || 0,
             category: modelData.category,
@@ -287,7 +309,7 @@ export function useCarRentalActions() {
           .from('car_models')
           .insert({
             name: modelData.name,
-            company_id: modelData.company_id,
+            company_id: modelData.company_id, // Now UUID string
             image: modelData.image || '',
             price_per_day: Number(modelData.price_per_day) || 0,
             category: modelData.category,
