@@ -21,7 +21,7 @@ interface CarModelModalProps {
 export function CarModelModal({ isOpen, onClose, onSave, model, companies, loading }: CarModelModalProps) {
   const [formData, setFormData] = useState<Partial<CarModel>>({
     name: '',
-    company_id: 0,
+    company_id: '',
     image: '',
     price_per_day: 0,
     category: '',
@@ -41,7 +41,7 @@ export function CarModelModal({ isOpen, onClose, onSave, model, companies, loadi
     } else {
       setFormData({
         name: '',
-        company_id: 0,
+        company_id: '',
         image: '',
         price_per_day: 0,
         category: '',
@@ -100,7 +100,7 @@ export function CarModelModal({ isOpen, onClose, onSave, model, companies, loadi
               <Label htmlFor="company_id">Compagnie *</Label>
               <Select 
                 value={formData.company_id?.toString() || ''} 
-                onValueChange={(value) => handleChange('company_id', parseInt(value))}
+                onValueChange={(value) => handleChange('company_id', value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner la compagnie" />
@@ -108,7 +108,7 @@ export function CarModelModal({ isOpen, onClose, onSave, model, companies, loadi
                 <SelectContent>
                   {companies.map((company) => (
                     <SelectItem key={company.id} value={company.id.toString()}>
-                      {company.name}
+                      {company.name || company.business_name}
                     </SelectItem>
                   ))}
                 </SelectContent>

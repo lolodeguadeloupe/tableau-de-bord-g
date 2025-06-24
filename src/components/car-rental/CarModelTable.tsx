@@ -46,7 +46,7 @@ export function CarModelTable({
     const company = companies.find(c => c.id === model.company_id)
     return {
       ...model,
-      company_name: company?.name || 'N/A',
+      company_name: company?.business_name || company?.name || 'N/A',
       price_per_day: `${model.price_per_day}€`,
       status: (
         <Badge variant={model.is_active ? "default" : "secondary"}>
