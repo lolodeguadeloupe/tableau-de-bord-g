@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { supabase } from "@/integrations/supabase/client"
@@ -18,6 +19,8 @@ interface BonsPlansTableProps {
   onEdit: (bonPlan: any) => void
 }
 
+const BASE_URL = "https://demonstration.clubcreole.fr/"
+
 export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
@@ -35,6 +38,18 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
       return data
     }
   })
+
+  const getFullUrl = (url: string | null) => {
+    if (!url) return null
+    
+    // Si l'URL commence déjà par http/https, la retourner telle quelle
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+    
+    // Sinon, combiner avec la base URL
+    return BASE_URL + (url.startsWith('/') ? url.slice(1) : url)
+  }
 
   const handleToggleActive = async (id: number, currentStatus: boolean) => {
     setLoading(true)
@@ -130,70 +145,76 @@ export function BonsPlansTable({ onEdit }: BonsPlansTableProps) {
             </TableCell>
           </TableRow>
         ) : (
-          bonsPlans.map((bonPlan) => (
-            <TableRow key={bonPlan.id}>
-              <TableCell className="font-medium">{bonPlan.title}</TableCell>
-              <TableCell className="max-w-xs truncate">{bonPlan.description}</TableCell>
-              <TableCell>
-                {bonPlan.badge && (
-                  <Badge variant="secondary">{bonPlan.badge}</Badge>
-                )}
-              </TableCell>
-              <TableCell>
-                {bonPlan.url && (
+          bonsPlans.map((bonPlan) => {
+            const fullUrl = getFullUrl(bonPlan.url)
+            
+            return (
+              <TableRow key={bonPlan.id}>
+                <TableCell className="font-medium">{bonPlan.title}</TableCell>
+                <TableCell className="max-w-xs truncate">{bonPlan.description}</TableCell>
+                <TableCell>
+                  {bonPlan.badge && (
+                    <Badge variant="secondary">{bonPlan.badge}</Badge>
+                  )}
+                </TableCell>
+                <TableCell>
+                  {fullUrl ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                        {fullUrl}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(fullUrl, '_blank')}
+                        className="h-6 w-6 p-0"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">Aucune URL</span>
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Badge variant={bonPlan.is_active ? "default" : "secondary"}>
+                    {bonPlan.is_active ? "Actif" : "Inactif"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-muted-foreground truncate max-w-[200px]">
-                      {bonPlan.url}
-                    </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={() => window.open(bonPlan.url, '_blank')}
-                      className="h-6 w-6 p-0"
+                      onClick={() => handleToggleActive(bonPlan.id, bonPlan.is_active)}
+                      disabled={loading}
                     >
-                      <ExternalLink className="h-3 w-3" />
+                      {bonPlan.is_active ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(bonPlan)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(bonPlan.id)}
+                      disabled={loading}
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                )}
-              </TableCell>
-              <TableCell>
-                <Badge variant={bonPlan.is_active ? "default" : "secondary"}>
-                  {bonPlan.is_active ? "Actif" : "Inactif"}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleToggleActive(bonPlan.id, bonPlan.is_active)}
-                    disabled={loading}
-                  >
-                    {bonPlan.is_active ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onEdit(bonPlan)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDelete(bonPlan.id)}
-                    disabled={loading}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))
+                </TableCell>
+              </TableRow>
+            )
+          })
         )}
       </TableBody>
     </Table>
