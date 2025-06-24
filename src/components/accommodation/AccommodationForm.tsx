@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -60,18 +59,21 @@ const convertJsonToString = (value: Json | undefined | null): string => {
   return ""
 }
 
-// Fonction pour parser les amenities depuis le JSON
+// Fonction pour parser les amenities depuis le JSON avec vérifications TypeScript
 const parseAmenitiesFromJson = (value: Json | undefined | null): Amenity[] => {
   if (!value) return []
   
   if (Array.isArray(value)) {
     return value.map(item => {
-      if (typeof item === "object" && item !== null) {
+      // Vérification TypeScript pour s'assurer que item est un objet
+      if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+        const itemObj = item as { [key: string]: Json }
         return {
-          name: String(item.name || ""),
-          available: typeof item.available === "boolean" ? item.available : true
+          name: typeof itemObj.name === "string" ? itemObj.name : "",
+          available: typeof itemObj.available === "boolean" ? itemObj.available : true
         }
       }
+      // Si ce n'est pas un objet, traiter comme une chaîne
       return {
         name: String(item),
         available: true
