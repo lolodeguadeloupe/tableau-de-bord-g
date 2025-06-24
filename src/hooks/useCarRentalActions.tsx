@@ -1,12 +1,11 @@
-
 import { useState } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
 
 export interface CarRentalCompany {
-  id: string  // Changed from number to string (UUID)
-  business_name: string  // Changed from name
-  business_type: string
+  id?: string  // UUID as string
+  business_name: string
+  business_type?: string
   type: string
   image: string
   location: string
@@ -23,8 +22,8 @@ export interface CarRentalCompany {
 }
 
 export interface CarModel {
-  id: number
-  company_id: string  // Changed from number to string (UUID)
+  id?: number
+  company_id: string  // UUID as string
   name: string
   image: string
   price_per_day: number
@@ -39,8 +38,8 @@ export interface CarModel {
 }
 
 export interface CarRentalFeature {
-  id: number
-  company_id: string  // Changed from number to string (UUID)
+  id?: number
+  company_id: string  // UUID as string
   feature: string
   created_at?: string
 }
@@ -107,6 +106,25 @@ export function useCarRentalActions() {
       const businessName = companyData.business_name || companyData.name || ''
       
       if (companyData.id) {
+        console.log('Updating company with ID:', companyData.id)
+        
+        // First, check if the company exists
+        const { data: existingCompany, error: checkError } = await supabase
+          .from('partners')
+          .select('id')
+          .eq('id', companyData.id)
+          .single()
+
+        if (checkError && checkError.code !== 'PGRST116') {
+          console.error('Error checking existing company:', checkError)
+          throw new Error('Erreur lors de la vérification: ' + checkError.message)
+        }
+
+        if (!existingCompany) {
+          console.error('Company not found with ID:', companyData.id)
+          throw new Error('Compagnie non trouvée avec cet ID')
+        }
+
         // Update existing company
         const { data, error } = await supabase
           .from('partners')
@@ -132,8 +150,11 @@ export function useCarRentalActions() {
         }
 
         if (!data || data.length === 0) {
+          console.error('No rows updated for ID:', companyData.id)
           throw new Error('Aucune ligne mise à jour')
         }
+
+        console.log('Successfully updated company:', data[0])
 
         toast({
           title: "Succès",

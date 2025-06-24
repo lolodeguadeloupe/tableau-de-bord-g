@@ -454,6 +454,7 @@ export type Database = {
       }
       car_rental_reservations: {
         Row: {
+          company_id: string | null
           created_at: string
           driver_email: string
           driver_name: string
@@ -469,6 +470,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           driver_email: string
           driver_name: string
@@ -484,6 +486,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           driver_email?: string
           driver_name?: string
@@ -499,6 +502,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "car_rental_reservations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "car_rental_reservations_partner_id_fkey"
             columns: ["partner_id"]
