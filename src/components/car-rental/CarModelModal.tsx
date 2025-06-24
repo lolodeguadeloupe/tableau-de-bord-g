@@ -98,7 +98,7 @@ export function CarModelModal({ isOpen, onClose, onSave, model, companies, loadi
             <div>
               <Label htmlFor="company_id">Compagnie *</Label>
               <Select 
-                value={formData.company_id?.toString() || ''} 
+                value={formData.company_id || ''} 
                 onValueChange={(value) => handleChange('company_id', value)}
               >
                 <SelectTrigger>
@@ -106,8 +106,8 @@ export function CarModelModal({ isOpen, onClose, onSave, model, companies, loadi
                 </SelectTrigger>
                 <SelectContent>
                   {companies.map((company) => (
-                    <SelectItem key={company.id} value={company.id.toString()}>
-                      {company.name || company.business_name}
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.business_name || company.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
