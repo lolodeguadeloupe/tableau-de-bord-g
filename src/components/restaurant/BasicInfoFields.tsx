@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -81,6 +80,19 @@ export function BasicInfoFields({ formData, onFieldChange }: BasicInfoFieldsProp
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="poids">Poids *</Label>
+          <Input
+            id="poids"
+            type="number"
+            value={formData.poids ?? ''}
+            onChange={(e) => onFieldChange('poids', Number(e.target.value))}
+            placeholder="Poids (nombre)"
+            required
+            min={0}
+          />
         </div>
       </div>
 

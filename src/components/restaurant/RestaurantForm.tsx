@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
@@ -8,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { BasicInfoFields } from "./BasicInfoFields"
 import { MediaFields } from "./MediaFields"
 import { Restaurant, RestaurantFormData, restaurantSchema } from "./restaurantSchema"
+import { ZodError } from "zod"
 
 interface RestaurantFormProps {
   restaurant: Restaurant | null
@@ -26,7 +26,8 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     icon: 'utensils',
     image: '',
     gallery_images: [],
-    rating: 5
+    rating: 5,
+    poids: 0
   })
   const { toast } = useToast()
   const { user } = useAuth()
@@ -42,7 +43,8 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         icon: restaurant.icon,
         image: restaurant.image,
         gallery_images: restaurant.gallery_images || [],
-        rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5
+        rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5,
+        poids: typeof restaurant.poids === 'number' ? restaurant.poids : 0
       })
     } else {
       setFormData({
@@ -54,7 +56,8 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         icon: 'utensils',
         image: '',
         gallery_images: [],
-        rating: 5
+        rating: 5,
+        poids: 0
       })
     }
   }, [restaurant])
@@ -138,12 +141,12 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
       }
 
       onSuccess()
-    } catch (validationError: any) {
+    } catch (validationError) {
       console.error('❌ Erreur de validation:', validationError)
       
-      if (validationError.errors) {
+      if (validationError instanceof ZodError) {
         // Zod validation errors
-        const errorMessages = validationError.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ')
+        const errorMessages = validationError.errors.map((err) => `${err.path.join('.')}: ${err.message}`).join(', ')
         console.error('📝 Messages d\'erreur détaillés:', errorMessages)
         toast({
           title: "Erreur de validation",
