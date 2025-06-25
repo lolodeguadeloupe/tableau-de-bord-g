@@ -1,4 +1,3 @@
-
 import { z } from "zod"
 
 export const iconOptions = [
@@ -13,7 +12,10 @@ export const iconOptions = [
 ]
 
 export const restaurantTypes = [
+  "Créole",
+  "Haïtien",
   "Français",
+  "Antillais",
   "Italien",
   "Japonais",
   "Chinois",
@@ -32,10 +34,7 @@ export const restaurantTypes = [
   "Bistrot",
   "Gastronomique",
   "Fast-food",
-  "Créole",
-  "Haïtien",
   "Traditionnel",
-  "Antillais",
   "Autre"
 ]
 
@@ -48,7 +47,8 @@ export const restaurantSchema = z.object({
   icon: z.string().min(1, "L'icône est requise"),
   image: z.string().optional(),
   gallery_images: z.array(z.string()).optional(),
-  rating: z.number().min(1).max(5)
+  rating: z.number().min(1).max(5),
+  poids: z.number({ required_error: "Le poids est requis" })
 })
 
 export type RestaurantFormData = z.infer<typeof restaurantSchema>
@@ -64,4 +64,5 @@ export interface Restaurant {
   image: string
   gallery_images?: string[]
   rating: number
+  poids: number
 }
