@@ -67,19 +67,18 @@ export function BasicInfoFields({ formData, onFieldChange }: BasicInfoFieldsProp
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rating">Note (1-5) *</Label>
-          <Select value={formData.rating.toString()} onValueChange={handleRatingChange}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5].map((rating) => (
-                <SelectItem key={rating} value={rating.toString()}>
-                  {rating} étoile{rating > 1 ? 's' : ''}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label htmlFor="rating">Note (1-5, décimales autorisées) *</Label>
+          <Input
+            id="rating"
+            type="number"
+            value={formData.rating}
+            onChange={(e) => onFieldChange('rating', parseFloat(e.target.value))}
+            placeholder="Note sur 5"
+            required
+            min={1}
+            max={5}
+            step={0.1}
+          />
         </div>
 
         <div className="space-y-2">
