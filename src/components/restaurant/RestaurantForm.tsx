@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { BasicInfoFields } from "./BasicInfoFields"
 import { MediaFields } from "./MediaFields"
+import { MenuFields } from "./MenuFields"
 import { Restaurant, RestaurantFormData, restaurantSchema } from "./restaurantSchema"
 import { ZodError } from "zod"
 
@@ -27,42 +28,47 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     image: '',
     gallery_images: [],
     rating: 5,
-    poids: 0
+    poids: 0,
+    menus: []
   })
   const { toast } = useToast()
   const { user } = useAuth()
 
   useEffect(() => {
     if (restaurant) {
+      // Si un restaurant existe, on initialise le formulaire avec ses données
       setFormData({
-        name: restaurant.name,
-        type: restaurant.type,
-        location: restaurant.location,
-        description: restaurant.description,
-        offer: restaurant.offer,
-        icon: restaurant.icon,
-        image: restaurant.image,
-        gallery_images: restaurant.gallery_images || [],
-        rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5,
-        poids: typeof restaurant.poids === 'number' ? restaurant.poids : 0
+        name: restaurant.name, // Nom du restaurant
+        type: restaurant.type, // Type de cuisine
+        location: restaurant.location, // Adresse
+        description: restaurant.description, // Description
+        offer: restaurant.offer, // Offre spéciale
+        icon: restaurant.icon, // Icône du restaurant
+        image: restaurant.image, // Image principale
+        gallery_images: restaurant.gallery_images || [], // Galerie d'images avec valeur par défaut []
+        rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5, // Note avec valeur par défaut 5
+        poids: typeof restaurant.poids === 'number' ? restaurant.poids : 0, // Poids avec valeur par défaut 0
+        menus: restaurant.menus // Menus du restaurant
       })
     } else {
+      // Si pas de restaurant, on initialise le formulaire avec des valeurs par défaut
       setFormData({
-        name: '',
-        type: '',
-        location: '',
-        description: '',
-        offer: '',
-        icon: 'utensils',
-        image: '',
-        gallery_images: [],
-        rating: 5,
-        poids: 0
+        name: '', // Champ nom vide
+        type: '', // Type de cuisine vide  
+        location: '', // Adresse vide
+        description: '', // Description vide
+        offer: '', // Pas d'offre
+        icon: 'utensils', // Icône par défaut
+        image: '', // Pas d'image
+        gallery_images: [], // Galerie vide
+        rating: 5, // Note par défaut
+        poids: 0, // Poids par défaut
+        menus: [] // Pas de menus
       })
     }
-  }, [restaurant])
+  }, [restaurant]) // Le useEffect se déclenche quand le restaurant change
 
-  const handleFieldChange = (field: string, value: string | number | string[]) => {
+  const handleFieldChange = (field: string, value: RestaurantFormData[keyof RestaurantFormData]) => {
     console.log('🔄 Changement de champ:', field, value, typeof value)
     setFormData(prev => ({
       ...prev,
@@ -99,7 +105,9 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         icon: validatedData.icon,
         image: validatedData.image || '',
         gallery_images: validatedData.gallery_images || [],
-        rating: validatedData.rating
+        rating: validatedData.rating,
+        poids: validatedData.poids,
+        menus: validatedData.menus || []
       }
       
       setLoading(true)
@@ -187,6 +195,7 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     <form onSubmit={handleSubmit} className="space-y-4">
       <BasicInfoFields formData={formData} onFieldChange={handleFieldChange} />
       <MediaFields formData={formData} onFieldChange={handleFieldChange} />
+      <MenuFields formData={formData} onFieldChange={handleFieldChange} />
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
