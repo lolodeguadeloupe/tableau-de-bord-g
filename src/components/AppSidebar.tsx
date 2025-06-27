@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import {
   Music,
@@ -19,7 +18,8 @@ import {
   Tag,
   Activity,
   Plane,
-  Megaphone
+  Megaphone,
+  Building
 } from "lucide-react"
 
 import {
@@ -48,6 +48,12 @@ const items = [
     url: "/users", 
     icon: Users,
     color: "text-green-600"
+  },
+  {
+    title: "Partenaires",
+    url: "/partners",
+    icon: Building,
+    color: "text-slate-600"
   },
   {
     title: "Restaurants",
