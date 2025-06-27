@@ -1,16 +1,54 @@
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2 } from "lucide-react"
 import { RestaurantFormData } from "./restaurantSchema"
+import { useEffect } from "react"
 
 interface MenuFieldsProps {
   formData: RestaurantFormData
   onFieldChange: (field: string, value: RestaurantFormData[keyof RestaurantFormData]) => void
 }
 
+// Menus par défaut pour les nouveaux restaurants
+const defaultMenus = [
+  {
+    name: "Entrées",
+    items: [
+      { name: "Salade César", price: 12 },
+      { name: "Carpaccio de bœuf", price: 14 },
+      { name: "Soupe du jour", price: 9 }
+    ]
+  },
+  {
+    name: "Plats principaux", 
+    items: [
+      { name: "Filet de bœuf, sauce au poivre", price: 28 },
+      { name: "Risotto aux champignons", price: 21 },
+      { name: "Poisson du jour", price: 24 }
+    ]
+  },
+  {
+    name: "Desserts",
+    items: [
+      { name: "Tiramisu maison", price: 9 },
+      { name: "Crème brûlée", price: 8 },
+      { name: "Mousse au chocolat", price: 7 }
+    ]
+  }
+]
+
 export function MenuFields({ formData, onFieldChange }: MenuFieldsProps) {
+  // Initialiser avec des menus par défaut si aucun menu n'existe
+  useEffect(() => {
+    if (!formData.menus || formData.menus.length === 0) {
+      console.log('🍽️ Initialisation des menus par défaut')
+      onFieldChange("menus", defaultMenus)
+    }
+  }, [formData.menus, onFieldChange])
+
   const addMenuSection = () => {
     const newMenus = [...(formData.menus || []), { name: "", items: [{ name: "", price: 0 }] }]
     onFieldChange("menus", newMenus)
@@ -45,6 +83,11 @@ export function MenuFields({ formData, onFieldChange }: MenuFieldsProps) {
     onFieldChange("menus", newMenus)
   }
 
+  const resetToDefaultMenus = () => {
+    console.log('🔄 Réinitialisation aux menus par défaut')
+    onFieldChange("menus", defaultMenus)
+  }
+
   // Assurer qu'il y a toujours un tableau de menus
   const menus = formData.menus || []
 
@@ -52,10 +95,20 @@ export function MenuFields({ formData, onFieldChange }: MenuFieldsProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Label className="text-lg font-semibold">Menus</Label>
-        <Button type="button" onClick={addMenuSection} size="sm">
-          <Plus className="w-4 h-4 mr-2" />
-          Ajouter une section
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            type="button" 
+            onClick={resetToDefaultMenus} 
+            size="sm"
+            variant="outline"
+          >
+            Menus par défaut
+          </Button>
+          <Button type="button" onClick={addMenuSection} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Ajouter une section
+          </Button>
+        </div>
       </div>
 
       {menus.map((section, sectionIndex) => (

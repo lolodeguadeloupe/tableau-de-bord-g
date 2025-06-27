@@ -1,14 +1,8 @@
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { ColumnDef } from "@tanstack/react-table"
 import { Restaurant } from "./restaurantSchema"
+import { Badge } from "@/components/ui/badge"
+import { Star } from "lucide-react"
 
 export interface RestaurantTableData {
   id: string
@@ -21,10 +15,15 @@ export interface RestaurantTableData {
   image: string
   gallery_images?: string[]
   rating: number
+  poids: number
+  menus?: {
+    name: string
+    items: { name: string; price: number }[]
+  }[]
 }
 
-export function transformRestaurantsToTableData(restaurants: Restaurant[]): RestaurantTableData[] {
-  return restaurants.map((restaurant) => ({
+export const transformRestaurantsToTableData = (restaurants: Restaurant[]): RestaurantTableData[] => {
+  return restaurants.map(restaurant => ({
     id: restaurant.id.toString(),
     name: restaurant.name,
     type: restaurant.type,
@@ -33,76 +32,61 @@ export function transformRestaurantsToTableData(restaurants: Restaurant[]): Rest
     offer: restaurant.offer,
     icon: restaurant.icon,
     image: restaurant.image,
-    gallery_images: restaurant.gallery_images || [],
+    gallery_images: restaurant.gallery_images,
     rating: restaurant.rating,
+    poids: restaurant.poids,
+    menus: restaurant.menus // Inclure les menus dans les données de table
   }))
 }
 
-export const tableColumns = [
+export const formatTableData = (restaurants: Restaurant[]) => {
+  return restaurants.map(restaurant => ({
+    id: restaurant.id.toString(),
+    name: restaurant.name,
+    type: restaurant.type,
+    location: restaurant.location,
+    rating: restaurant.rating,
+    poids: restaurant.poids,
+    offer: restaurant.offer || 'Aucune offre',
+    actions: restaurant.id.toString()
+  }))
+}
+
+export const tableColumns: ColumnDef<any>[] = [
   {
-    key: "image",
-    label: "Image",
+    accessorKey: "name",
+    header: "Nom",
   },
   {
-    key: "name", 
-    label: "Nom",
+    accessorKey: "type", 
+    header: "Type",
+    cell: ({ row }) => (
+      <Badge variant="secondary">{row.getValue("type")}</Badge>
+    ),
   },
   {
-    key: "type",
-    label: "Type",
+    accessorKey: "location",
+    header: "Localisation",
   },
   {
-    key: "location",
-    label: "Emplacement",
+    accessorKey: "rating",
+    header: "Note",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-1">
+        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+        <span>{row.getValue("rating")}</span>
+      </div>
+    ),
   },
   {
-    key: "rating",
-    label: "Note",
+    accessorKey: "poids",
+    header: "Poids",
   },
   {
-    key: "offer",
-    label: "Offre",
+    accessorKey: "offer",
+    header: "Offre",
+    cell: ({ row }) => (
+      <Badge variant="outline">{row.getValue("offer")}</Badge>
+    ),
   },
 ]
-
-export function formatTableData(restaurants: Restaurant[]) {
-  return restaurants.map((restaurant) => {
-    const imageUrl = restaurant.image || "https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=center"
-    const galleryCount = restaurant.gallery_images?.length || 0
-    
-    return {
-      id: restaurant.id.toString(),
-      image: (
-        <div className="relative">
-          <img
-            src={imageUrl}
-            alt={restaurant.name}
-            className="w-12 h-12 rounded object-cover"
-          />
-          {galleryCount > 1 && (
-            <Badge 
-              variant="secondary" 
-              className="absolute -top-2 -right-2 text-xs h-5 w-5 p-0 flex items-center justify-center"
-            >
-              +{galleryCount - 1}
-            </Badge>
-          )}
-        </div>
-      ),
-      name: restaurant.name,
-      type: <Badge variant="outline">{restaurant.type}</Badge>,
-      location: restaurant.location,
-      rating: (
-        <div className="flex items-center">
-          <span className="text-yellow-500">★</span>
-          <span className="ml-1">{restaurant.rating.toFixed(1)}</span>
-        </div>
-      ),
-      offer: restaurant.offer ? (
-        <Badge className="bg-green-100 text-green-800">{restaurant.offer}</Badge>
-      ) : (
-        <span className="text-gray-400">Aucune</span>
-      ),
-    }
-  })
-}

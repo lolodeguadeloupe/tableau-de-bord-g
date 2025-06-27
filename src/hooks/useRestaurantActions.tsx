@@ -32,8 +32,11 @@ export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
       image: restaurantData.image,
       gallery_images: restaurantData.gallery_images || [],
       rating: restaurantData.rating,
+      poids: restaurantData.poids,
+      menus: restaurantData.menus || [] // S'assurer que les menus sont inclus
     }
-    console.log('✏️ Édition du restaurant:', restaurant)
+    console.log('✏️ Édition du restaurant avec menus:', restaurant)
+    console.log('🍽️ Menus récupérés:', restaurant.menus)
     setSelectedRestaurant(restaurant)
     setIsModalOpen(true)
   }
@@ -93,6 +96,8 @@ export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
       })
       return
     }
+    console.log('➕ Création d\'un nouveau restaurant')
+    setSelectedRestaurant(null) // Important: null pour un nouveau restaurant
     setIsModalOpen(true)
   }
 
