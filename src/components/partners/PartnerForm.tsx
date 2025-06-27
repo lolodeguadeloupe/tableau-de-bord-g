@@ -126,7 +126,7 @@ export function PartnerForm({ partner, onSuccess, onCancel }: PartnerFormProps) 
 
         toast({
           title: "Partenaire modifié",
-          description: "Le partenaire a été modifié avec succès.",
+          description: `${formData.business_name} a été modifié avec succès.`,
         })
       } else {
         // Création
@@ -141,7 +141,7 @@ export function PartnerForm({ partner, onSuccess, onCancel }: PartnerFormProps) 
 
         toast({
           title: "Partenaire créé",
-          description: "Le partenaire a été créé avec succès.",
+          description: `${formData.business_name} a été créé avec succès.`,
         })
       }
 
