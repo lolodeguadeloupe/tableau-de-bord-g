@@ -43,15 +43,31 @@ export const formatTableData = (restaurants: Restaurant[]) => {
   return restaurants.map(restaurant => ({
     id: restaurant.id.toString(),
     name: restaurant.name,
-    type: restaurant.type,
+    type: <Badge variant="secondary">{restaurant.type}</Badge>,
     location: restaurant.location,
-    rating: restaurant.rating,
+    rating: (
+      <div className="flex items-center gap-1">
+        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+        <span>{restaurant.rating}</span>
+      </div>
+    ),
     poids: restaurant.poids,
-    offer: restaurant.offer || 'Aucune offre',
+    offer: <Badge variant="outline">{restaurant.offer || 'Aucune offre'}</Badge>,
     actions: restaurant.id.toString()
   }))
 }
 
+// Columns for DataTable component (different format)
+export const dataTableColumns = [
+  { key: "name", label: "Nom" },
+  { key: "type", label: "Type" },
+  { key: "location", label: "Localisation" },
+  { key: "rating", label: "Note" },
+  { key: "poids", label: "Poids" },
+  { key: "offer", label: "Offre" },
+]
+
+// Columns for TanStack Table (existing format)
 export const tableColumns: ColumnDef<any>[] = [
   {
     accessorKey: "name",
