@@ -8,7 +8,14 @@ export const iconOptions = [
   { value: "pizza", label: "Pizza" },
   { value: "fish", label: "Poisson" },
   { value: "soup", label: "Soupe" },
-  { value: "cake", label: "Gâteau" }
+  { value: "cake", label: "Gâteau" },
+  { value: "burger", label: "Burger" },
+  { value: "salad", label: "Salade" },
+  { value: "sandwich", label: "Sandwich" },
+  { value: "pasta", label: "Pâtes" },
+  { value: "dessert", label: "Dessert" },
+  { value: "drink", label: "Boisson" },
+  { value: "other", label: "Autre" }
 ]
 
 export const restaurantTypes = [
@@ -37,6 +44,7 @@ export const restaurantTypes = [
   "Traditionnel",
   "Autre"
 ]
+
 
 export const restaurantSchema = z.object({
   name: z.string().min(1, "Le nom est requis"),

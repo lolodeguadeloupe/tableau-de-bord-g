@@ -27,6 +27,8 @@ import BonsPlans from "./pages/BonsPlans";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import Travel from "./pages/Travel";
+import Promotions from "./pages/Promotions";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +71,8 @@ function App() {
                             <Route path="car-rentals" element={<CarRentals />} />
                             <Route path="voyance" element={<Voyance />} />
                             <Route path="bons-plans" element={<BonsPlans />} />
+                            <Route path="travel" element={<Travel />} />
+                            <Route path="promotions" element={<Promotions />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>

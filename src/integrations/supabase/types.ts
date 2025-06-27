@@ -371,7 +371,7 @@ export type Database = {
         Row: {
           air_con: boolean
           category: string
-          company_id: number
+          company_id: number | null
           created_at: string | null
           gallery_images: Json | null
           id: number
@@ -386,7 +386,7 @@ export type Database = {
         Insert: {
           air_con?: boolean
           category: string
-          company_id: number
+          company_id?: number | null
           created_at?: string | null
           gallery_images?: Json | null
           id?: number
@@ -401,7 +401,7 @@ export type Database = {
         Update: {
           air_con?: boolean
           category?: string
-          company_id?: number
+          company_id?: number | null
           created_at?: string | null
           gallery_images?: Json | null
           id?: number
@@ -418,98 +418,104 @@ export type Database = {
             foreignKeyName: "car_models_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
-            referencedRelation: "car_rental_companies"
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
       }
-      car_rental_companies: {
+      car_models_backup: {
         Row: {
+          air_con: boolean | null
+          category: string | null
+          company_id: string | null
           created_at: string | null
-          description: string
           gallery_images: Json | null
-          icon_name: string
-          id: number
-          image: string
-          location: string
-          name: string
-          offer: string
-          partner_id: string | null
-          rating: number
-          type: string
+          id: number | null
+          image: string | null
+          is_active: boolean | null
+          name: string | null
+          price_per_day: number | null
+          seats: number | null
+          transmission: string | null
           updated_at: string | null
         }
         Insert: {
+          air_con?: boolean | null
+          category?: string | null
+          company_id?: string | null
           created_at?: string | null
-          description: string
           gallery_images?: Json | null
-          icon_name: string
-          id?: number
-          image: string
-          location: string
-          name: string
-          offer: string
-          partner_id?: string | null
-          rating: number
-          type: string
+          id?: number | null
+          image?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          price_per_day?: number | null
+          seats?: number | null
+          transmission?: string | null
           updated_at?: string | null
         }
         Update: {
+          air_con?: boolean | null
+          category?: string | null
+          company_id?: string | null
           created_at?: string | null
-          description?: string
           gallery_images?: Json | null
-          icon_name?: string
-          id?: number
-          image?: string
-          location?: string
-          name?: string
-          offer?: string
-          partner_id?: string | null
-          rating?: number
-          type?: string
+          id?: number | null
+          image?: string | null
+          is_active?: boolean | null
+          name?: string | null
+          price_per_day?: number | null
+          seats?: number | null
+          transmission?: string | null
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "car_rental_companies_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       car_rental_features: {
         Row: {
-          company_id: number
+          company_id: number | null
           created_at: string | null
           feature: string
           id: number
         }
         Insert: {
-          company_id: number
+          company_id?: number | null
           created_at?: string | null
           feature: string
           id?: number
         }
         Update: {
-          company_id?: number
+          company_id?: number | null
           created_at?: string | null
           feature?: string
           id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "car_rental_features_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "car_rental_companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      car_rental_features_backup: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          feature: string | null
+          id: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          feature?: string | null
+          id?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          feature?: string | null
+          id?: number | null
+        }
+        Relationships: []
       }
       car_rental_reservations: {
         Row: {
+          company_id: number | null
           created_at: string
           driver_email: string
           driver_name: string
@@ -525,6 +531,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          company_id?: number | null
           created_at?: string
           driver_email: string
           driver_name: string
@@ -540,6 +547,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          company_id?: number | null
           created_at?: string
           driver_email?: string
           driver_name?: string
@@ -563,6 +571,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      car_rental_reservations_backup: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          driver_email: string | null
+          driver_name: string | null
+          driver_phone: string | null
+          end_date: string | null
+          id: string | null
+          notes: string | null
+          partner_id: string | null
+          rental_company_name: string | null
+          selected_model: string | null
+          start_date: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          driver_email?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          end_date?: string | null
+          id?: string | null
+          notes?: string | null
+          partner_id?: string | null
+          rental_company_name?: string | null
+          selected_model?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          driver_email?: string | null
+          driver_name?: string | null
+          driver_phone?: string | null
+          end_date?: string | null
+          id?: string | null
+          notes?: string | null
+          partner_id?: string | null
+          rental_company_name?: string | null
+          selected_model?: string | null
+          start_date?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       concerts: {
         Row: {
@@ -665,7 +724,7 @@ export type Database = {
       }
       fleet_managers: {
         Row: {
-          company_id: number
+          company_id: number | null
           created_at: string
           id: string
           permissions: Json | null
@@ -673,7 +732,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
-          company_id: number
+          company_id?: number | null
           created_at?: string
           id?: string
           permissions?: Json | null
@@ -681,22 +740,41 @@ export type Database = {
           user_id: string
         }
         Update: {
-          company_id?: number
+          company_id?: number | null
           created_at?: string
           id?: string
           permissions?: Json | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "fleet_managers_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "car_rental_companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      fleet_managers_backup: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string | null
+          permissions: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          permissions?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          permissions?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       leisure_activities: {
         Row: {
@@ -906,7 +984,7 @@ export type Database = {
           end_date: string | null
           id: string
           is_active: boolean
-          partner_id: string
+          partner_id: number | null
           price: number | null
           start_date: string | null
           title: string
@@ -919,7 +997,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           is_active?: boolean
-          partner_id: string
+          partner_id?: number | null
           price?: number | null
           start_date?: string | null
           title: string
@@ -932,7 +1010,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           is_active?: boolean
-          partner_id?: string
+          partner_id?: number | null
           price?: number | null
           start_date?: string | null
           title?: string
@@ -948,6 +1026,48 @@ export type Database = {
           },
         ]
       }
+      offers_backup: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          discount_percentage: number | null
+          end_date: string | null
+          id: string | null
+          is_active: boolean | null
+          partner_id: string | null
+          price: number | null
+          start_date: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          partner_id?: string | null
+          price?: number | null
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          discount_percentage?: number | null
+          end_date?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          partner_id?: string | null
+          price?: number | null
+          start_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           address: string | null
@@ -955,8 +1075,16 @@ export type Database = {
           business_type: string
           created_at: string
           description: string | null
-          id: string
+          gallery_images: Json | null
+          icon_name: string | null
+          id: number
+          image: string | null
+          location: string | null
+          offer: string | null
           phone: string | null
+          rating: number | null
+          status: string
+          type: string | null
           updated_at: string
           website: string | null
         }
@@ -966,8 +1094,16 @@ export type Database = {
           business_type: string
           created_at?: string
           description?: string | null
-          id: string
+          gallery_images?: Json | null
+          icon_name?: string | null
+          id?: number
+          image?: string | null
+          location?: string | null
+          offer?: string | null
           phone?: string | null
+          rating?: number | null
+          status?: string
+          type?: string | null
           updated_at?: string
           website?: string | null
         }
@@ -977,10 +1113,99 @@ export type Database = {
           business_type?: string
           created_at?: string
           description?: string | null
-          id?: string
+          gallery_images?: Json | null
+          icon_name?: string | null
+          id?: number
+          image?: string | null
+          location?: string | null
+          offer?: string | null
           phone?: string | null
+          rating?: number | null
+          status?: string
+          type?: string | null
           updated_at?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      partners_backup: {
+        Row: {
+          address: string | null
+          business_name: string | null
+          business_type: string | null
+          created_at: string | null
+          description: string | null
+          gallery_images: Json | null
+          icon_name: string | null
+          id: string | null
+          image: string | null
+          location: string | null
+          offer: string | null
+          phone: string | null
+          rating: number | null
+          status: string | null
+          type: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          gallery_images?: Json | null
+          icon_name?: string | null
+          id?: string | null
+          image?: string | null
+          location?: string | null
+          offer?: string | null
+          phone?: string | null
+          rating?: number | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string | null
+          description?: string | null
+          gallery_images?: Json | null
+          icon_name?: string | null
+          id?: string | null
+          image?: string | null
+          location?: string | null
+          offer?: string | null
+          phone?: string | null
+          rating?: number | null
+          status?: string | null
+          type?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
+      partners_id_mapping: {
+        Row: {
+          business_name: string
+          migrated_at: string | null
+          new_id: number
+          old_uuid: string
+        }
+        Insert: {
+          business_name: string
+          migrated_at?: string | null
+          new_id: number
+          old_uuid: string
+        }
+        Update: {
+          business_name?: string
+          migrated_at?: string | null
+          new_id?: number
+          old_uuid?: string
         }
         Relationships: []
       }
@@ -1018,15 +1243,88 @@ export type Database = {
           role?: string
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_company_id_fkey"
-            columns: ["company_id"]
-            isOneToOne: false
-            referencedRelation: "car_rental_companies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      profiles_backup: {
+        Row: {
+          admin_type: Database["public"]["Enums"]["admin_type"] | null
+          company_id: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_type?: Database["public"]["Enums"]["admin_type"] | null
+          company_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_type?: Database["public"]["Enums"]["admin_type"] | null
+          company_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      promotions: {
+        Row: {
+          badge: string | null
+          created_at: string | null
+          cta_text: string
+          cta_url: string
+          description: string
+          gallery_images: Json | null
+          id: number
+          image: string
+          is_active: boolean | null
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string | null
+          cta_text: string
+          cta_url: string
+          description: string
+          gallery_images?: Json | null
+          id?: number
+          image: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string | null
+          cta_text?: string
+          cta_url?: string
+          description?: string
+          gallery_images?: Json | null
+          id?: number
+          image?: string
+          is_active?: boolean | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       purchases: {
         Row: {
@@ -1074,7 +1372,7 @@ export type Database = {
           id: string
           number_of_people: number | null
           offer_id: string | null
-          partner_id: string
+          partner_id: number | null
           reservation_date: string
           special_requests: string | null
           status: string
@@ -1086,7 +1384,7 @@ export type Database = {
           id?: string
           number_of_people?: number | null
           offer_id?: string | null
-          partner_id: string
+          partner_id?: number | null
           reservation_date: string
           special_requests?: string | null
           status: string
@@ -1098,7 +1396,7 @@ export type Database = {
           id?: string
           number_of_people?: number | null
           offer_id?: string | null
-          partner_id?: string
+          partner_id?: number | null
           reservation_date?: string
           special_requests?: string | null
           status?: string
@@ -1127,6 +1425,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reservations_backup: {
+        Row: {
+          client_id: string | null
+          created_at: string | null
+          id: string | null
+          number_of_people: number | null
+          offer_id: string | null
+          partner_id: string | null
+          reservation_date: string | null
+          special_requests: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          number_of_people?: number | null
+          offer_id?: string | null
+          partner_id?: string | null
+          reservation_date?: string | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string | null
+          created_at?: string | null
+          id?: string | null
+          number_of_people?: number | null
+          offer_id?: string | null
+          partner_id?: string | null
+          reservation_date?: string | null
+          special_requests?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       restaurant_reservations: {
         Row: {
@@ -1180,40 +1517,111 @@ export type Database = {
       }
       restaurants: {
         Row: {
+          created_at: string
           description: string
           gallery_images: Json | null
           icon: string
           id: number
           image: string
           location: string
+          menus: Json | null
           name: string
           offer: string
+          poids: number
           rating: number
           type: string
+          updated_at: string
         }
         Insert: {
+          created_at?: string
           description: string
           gallery_images?: Json | null
           icon: string
           id?: number
           image: string
           location: string
+          menus?: Json | null
           name: string
           offer: string
+          poids?: number
           rating: number
           type: string
+          updated_at?: string
         }
         Update: {
+          created_at?: string
           description?: string
           gallery_images?: Json | null
           icon?: string
           id?: number
           image?: string
           location?: string
+          menus?: Json | null
           name?: string
           offer?: string
+          poids?: number
           rating?: number
           type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      restaurants_managers: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: Json | null
+          restaurant_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          restaurant_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          restaurant_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurants_managers_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rls_policies_backup: {
+        Row: {
+          created_at: string | null
+          id: number
+          policy_definition: string | null
+          policy_name: string | null
+          table_name: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          policy_definition?: string | null
+          policy_name?: string | null
+          table_name?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          policy_definition?: string | null
+          policy_name?: string | null
+          table_name?: string | null
         }
         Relationships: []
       }
@@ -1325,7 +1733,7 @@ export type Database = {
           inclusions: Json | null
           is_active: boolean | null
           max_participants: number | null
-          partner_id: string | null
+          partner_id: number | null
           price: number
           return_date: string | null
           title: string
@@ -1346,7 +1754,7 @@ export type Database = {
           inclusions?: Json | null
           is_active?: boolean | null
           max_participants?: number | null
-          partner_id?: string | null
+          partner_id?: number | null
           price: number
           return_date?: string | null
           title: string
@@ -1367,21 +1775,79 @@ export type Database = {
           inclusions?: Json | null
           is_active?: boolean | null
           max_participants?: number | null
-          partner_id?: string | null
+          partner_id?: number | null
           price?: number
           return_date?: string | null
           title?: string
           updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "travel_offers_partner_id_fkey"
-            columns: ["partner_id"]
-            isOneToOne: false
-            referencedRelation: "partners"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      travel_offers_backup: {
+        Row: {
+          created_at: string | null
+          current_participants: number | null
+          departure_date: string | null
+          departure_location: string | null
+          description: string | null
+          destination: string | null
+          duration_days: number | null
+          exclusions: Json | null
+          gallery_images: Json | null
+          id: number | null
+          image: string | null
+          inclusions: Json | null
+          is_active: boolean | null
+          max_participants: number | null
+          partner_id: string | null
+          price: number | null
+          return_date: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_participants?: number | null
+          departure_date?: string | null
+          departure_location?: string | null
+          description?: string | null
+          destination?: string | null
+          duration_days?: number | null
+          exclusions?: Json | null
+          gallery_images?: Json | null
+          id?: number | null
+          image?: string | null
+          inclusions?: Json | null
+          is_active?: boolean | null
+          max_participants?: number | null
+          partner_id?: string | null
+          price?: number | null
+          return_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_participants?: number | null
+          departure_date?: string | null
+          departure_location?: string | null
+          description?: string | null
+          destination?: string | null
+          duration_days?: number | null
+          exclusions?: Json | null
+          gallery_images?: Json | null
+          id?: number | null
+          image?: string | null
+          inclusions?: Json | null
+          is_active?: boolean | null
+          max_participants?: number | null
+          partner_id?: string | null
+          price?: number | null
+          return_date?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       user_consumption: {
         Row: {
@@ -1641,13 +2107,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      is_restaurant_manager: {
+        Args: { restaurant_id: number }
+        Returns: boolean
+      }
       is_super_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
     }
     Enums: {
-      admin_type: "super_admin" | "partner_admin"
+      admin_type: "super_admin" | "partner_admin" | "restaurant_manager"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1763,7 +2233,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      admin_type: ["super_admin", "partner_admin"],
+      admin_type: ["super_admin", "partner_admin", "restaurant_manager"],
     },
   },
 } as const

@@ -18,6 +18,8 @@ import {
   Sparkles,
   Tag,
   Activity,
+  Plane,
+  Megaphone
 } from "lucide-react"
 
 import {
@@ -102,6 +104,12 @@ const items = [
     color: "text-amber-600"
   },
   {
+    title: "Promotions",
+    url: "/promotions",
+    icon: Megaphone,
+    color: "text-red-600"
+  },
+  {
     title: "Analytics", 
     url: "/analytics",
     icon: BarChart3,
@@ -124,6 +132,12 @@ const items = [
     url: "/settings",
     icon: Settings,
     color: "text-gray-600"
+  },
+  {
+    title: "Voyages",
+    url: "/travel",
+    icon: Plane,
+    color: "text-blue-600"
   },
 ]
 

@@ -53,8 +53,8 @@ export default function CarRentals() {
   }
 
   const handleEditCompany = (item: any) => {
-    // Find the original company object using the string ID
-    const company = companies.find(c => c.id.toString() === item.id)
+    // Find the original company object using the string ID (UUID)
+    const company = companies.find(c => c.id === item.id)
     if (company) {
       setSelectedCompany(company)
       setIsCompanyModalOpen(true)
@@ -63,7 +63,7 @@ export default function CarRentals() {
 
   const handleDeleteCompany = async (id: string) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette compagnie ?')) {
-      const success = await deleteCompany(parseInt(id))
+      const success = await deleteCompany(id)
       if (success) {
         loadCompanies()
         loadCarModels() // Reload models as they might be affected

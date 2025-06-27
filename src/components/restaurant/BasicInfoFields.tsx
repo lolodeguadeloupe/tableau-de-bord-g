@@ -116,6 +116,7 @@ export function BasicInfoFields({ formData, onFieldChange }: BasicInfoFieldsProp
           placeholder="Ex: -20% sur le menu, Menu découverte..."
         />
       </div>
+
     </>
   )
 }

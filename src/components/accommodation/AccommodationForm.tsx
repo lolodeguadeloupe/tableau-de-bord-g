@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -8,7 +7,7 @@ import { DialogFooter } from "@/components/ui/dialog"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import type { Json } from "@/integrations/supabase/types"
-import { accommodationSchema, AccommodationFormData } from "./accommodationSchema"
+import { accommodationSchema, AccommodationFormData, Amenity } from "./accommodationSchema"
 import { BasicInfoFields } from "./BasicInfoFields"
 import { PricingFields } from "./PricingFields"
 import { CapacityFields } from "./CapacityFields"
@@ -60,6 +59,31 @@ const convertJsonToString = (value: Json | undefined | null): string => {
   return ""
 }
 
+// Fonction pour parser les amenities depuis le JSON avec vérifications TypeScript
+const parseAmenitiesFromJson = (value: Json | undefined | null): Amenity[] => {
+  if (!value) return []
+  
+  if (Array.isArray(value)) {
+    return value.map(item => {
+      // Vérification TypeScript pour s'assurer que item est un objet
+      if (typeof item === "object" && item !== null && !Array.isArray(item)) {
+        const itemObj = item as { [key: string]: Json }
+        return {
+          name: typeof itemObj.name === "string" ? itemObj.name : "",
+          available: typeof itemObj.available === "boolean" ? itemObj.available : true
+        }
+      }
+      // Si ce n'est pas un objet, traiter comme une chaîne
+      return {
+        name: String(item),
+        available: true
+      }
+    }).filter(item => item.name)
+  }
+  
+  return []
+}
+
 export function AccommodationForm({ accommodation, onSuccess, onClose }: AccommodationFormProps) {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
@@ -80,7 +104,7 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
       max_guests: accommodation ? Number(accommodation.max_guests) : 1,
       image: accommodation?.image || "",
       discount: accommodation?.discount ? Number(accommodation.discount) : undefined,
-      amenities: convertJsonToString(accommodation?.amenities),
+      amenities: parseAmenitiesFromJson(accommodation?.amenities),
       features: convertJsonToString(accommodation?.features),
       rules: convertJsonToString(accommodation?.rules),
       gallery_images: accommodation?.gallery_images ? 
@@ -122,9 +146,7 @@ export function AccommodationForm({ accommodation, onSuccess, onClose }: Accommo
         max_guests: data.max_guests,
         image: mainImage?.trim() || "",
         discount: data.discount || null,
-        amenities: data.amenities ? 
-          data.amenities.split(",").map(item => item.trim()).filter(Boolean) : 
-          [],
+        amenities: data.amenities || [],
         features: data.features ? 
           data.features.split(",").map(item => item.trim()).filter(Boolean) : 
           [],

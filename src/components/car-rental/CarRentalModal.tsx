@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -19,7 +18,7 @@ interface CarRentalModalProps {
 
 export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: CarRentalModalProps) {
   const [formData, setFormData] = useState<Partial<CarRentalCompany>>({
-    name: '',
+    business_name: '',
     type: '',
     image: '',
     location: '',
@@ -35,7 +34,7 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
       console.log('Setting form data with company:', company)
       setFormData({
         id: company.id,
-        name: company.name,
+        business_name: company.business_name || company.name,
         type: company.type,
         image: company.image,
         location: company.location,
@@ -47,7 +46,7 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
       })
     } else {
       setFormData({
-        name: '',
+        business_name: '',
         type: '',
         image: '',
         location: '',
@@ -93,11 +92,11 @@ export function CarRentalModal({ isOpen, onClose, onSave, company, loading }: Ca
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">Nom *</Label>
+              <Label htmlFor="business_name">Nom *</Label>
               <Input
-                id="name"
-                value={formData.name || ''}
-                onChange={(e) => handleChange('name', e.target.value)}
+                id="business_name"
+                value={formData.business_name || ''}
+                onChange={(e) => handleChange('business_name', e.target.value)}
                 placeholder="Nom de la compagnie"
                 required
               />

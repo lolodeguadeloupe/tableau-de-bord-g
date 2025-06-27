@@ -1,190 +1,201 @@
-import { useState } from "react"
+
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Trash2, Plus } from "lucide-react"
-
-interface MenuItem {
-  name: string
-  price: number
-}
-
-interface MenuSection {
-  name: string
-  items: MenuItem[]
-}
+import { Plus, Trash2 } from "lucide-react"
+import { RestaurantFormData } from "./restaurantSchema"
+import { useEffect } from "react"
 
 interface MenuFieldsProps {
-  menus: MenuSection[]
-  onMenusChange: (menus: MenuSection[]) => void
+  formData: RestaurantFormData
+  onFieldChange: (field: string, value: RestaurantFormData[keyof RestaurantFormData]) => void
 }
-// Les menus doivent être chargés depuis la base de données Supabase
-// Dans RestaurantForm.tsx, il faut modifier:
 
-// 1. Supprimer l'initialisation à vide de menus:
-// const [formData, setFormData] = useState<RestaurantFormData>({
-//   ...
-//   menus: [] // <- À SUPPRIMER
-// })
+// Menus par défaut pour les nouveaux restaurants
+const defaultMenus = [
+  {
+    name: "Entrées",
+    items: [
+      { name: "Salade César", price: 12 },
+      { name: "Carpaccio de bœuf", price: 14 },
+      { name: "Soupe du jour", price: 9 }
+    ]
+  },
+  {
+    name: "Plats principaux", 
+    items: [
+      { name: "Filet de bœuf, sauce au poivre", price: 28 },
+      { name: "Risotto aux champignons", price: 21 },
+      { name: "Poisson du jour", price: 24 }
+    ]
+  },
+  {
+    name: "Desserts",
+    items: [
+      { name: "Tiramisu maison", price: 9 },
+      { name: "Crème brûlée", price: 8 },
+      { name: "Mousse au chocolat", price: 7 }
+    ]
+  }
+]
 
-// 2. Charger les menus depuis Supabase dans le useEffect:
-// useEffect(() => {
-//   const loadRestaurant = async () => {
-//     const { data, error } = await supabase
-//       .from('restaurants')
-//       .select('*, menus')
-//       .eq('id', restaurantId)
-//       .single()
-//     
-//     if (data) {
-//       setFormData({
-//         ...data,
-//         menus: data.menus || [] // Fallback à [] uniquement si null
-//       })
-//     }
-//   }
-//   loadRestaurant()
-// }, [restaurantId])
-
-
-
-export function MenuFields({ menus, onMenusChange }: MenuFieldsProps) {
-  console.log('📋 MenuFields - menus reçus:', menus)
-  
-  const addMenuSection = () => {
-    const newSection: MenuSection = {
-      name: "",
-      items: [{ name: "", price: 0 }]
+export function MenuFields({ formData, onFieldChange }: MenuFieldsProps) {
+  // Initialiser avec des menus par défaut si aucun menu n'existe
+  useEffect(() => {
+    if (!formData.menus || formData.menus.length === 0) {
+      console.log('🍽️ Initialisation des menus par défaut')
+      onFieldChange("menus", defaultMenus)
     }
-    onMenusChange([...menus, newSection])
+  }, [formData.menus, onFieldChange])
+
+  const addMenuSection = () => {
+    const newMenus = [...(formData.menus || []), { name: "", items: [{ name: "", price: 0 }] }]
+    onFieldChange("menus", newMenus)
   }
 
   const removeMenuSection = (sectionIndex: number) => {
-    const updatedMenus = menus.filter((_, index) => index !== sectionIndex)
-    onMenusChange(updatedMenus)
+    const newMenus = formData.menus?.filter((_, index) => index !== sectionIndex) || []
+    onFieldChange("menus", newMenus)
   }
 
-  const updateSectionName = (sectionIndex: number, name: string) => {
-    const updatedMenus = menus.map((section, index) =>
-      index === sectionIndex ? { ...section, name } : section
-    )
-    onMenusChange(updatedMenus)
+  const updateMenuSection = (sectionIndex: number, field: string, value: string) => {
+    const newMenus = [...(formData.menus || [])]
+    newMenus[sectionIndex] = { ...newMenus[sectionIndex], [field]: value }
+    onFieldChange("menus", newMenus)
   }
 
   const addMenuItem = (sectionIndex: number) => {
-    const updatedMenus = menus.map((section, index) =>
-      index === sectionIndex
-        ? { ...section, items: [...section.items, { name: "", price: 0 }] }
-        : section
-    )
-    onMenusChange(updatedMenus)
+    const newMenus = [...(formData.menus || [])]
+    newMenus[sectionIndex].items.push({ name: "", price: 0 })
+    onFieldChange("menus", newMenus)
   }
 
   const removeMenuItem = (sectionIndex: number, itemIndex: number) => {
-    const updatedMenus = menus.map((section, index) =>
-      index === sectionIndex
-        ? { ...section, items: section.items.filter((_, i) => i !== itemIndex) }
-        : section
-    )
-    onMenusChange(updatedMenus)
+    const newMenus = [...(formData.menus || [])]
+    newMenus[sectionIndex].items = newMenus[sectionIndex].items.filter((_, index) => index !== itemIndex)
+    onFieldChange("menus", newMenus)
   }
 
-  const updateMenuItem = (sectionIndex: number, itemIndex: number, field: 'name' | 'price', value: string | number) => {
-    const updatedMenus = menus.map((section, index) =>
-      index === sectionIndex
-        ? {
-            ...section,
-            items: section.items.map((item, i) =>
-              i === itemIndex ? { ...item, [field]: value } : item
-            )
-          }
-        : section
-    )
-    onMenusChange(updatedMenus)
+  const updateMenuItem = (sectionIndex: number, itemIndex: number, field: string, value: string | number) => {
+    const newMenus = [...(formData.menus || [])]
+    newMenus[sectionIndex].items[itemIndex] = { ...newMenus[sectionIndex].items[itemIndex], [field]: value }
+    onFieldChange("menus", newMenus)
   }
+
+  const resetToDefaultMenus = () => {
+    console.log('🔄 Réinitialisation aux menus par défaut')
+    onFieldChange("menus", defaultMenus)
+  }
+
+  // Assurer qu'il y a toujours un tableau de menus
+  const menus = formData.menus || []
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <Label className="text-base font-medium">Menus</Label>
-        <Button type="button" onClick={addMenuSection} size="sm" variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Ajouter une section
-        </Button>
+        <Label className="text-lg font-semibold">Menus</Label>
+        <div className="flex gap-2">
+          <Button 
+            type="button" 
+            onClick={resetToDefaultMenus} 
+            size="sm"
+            variant="outline"
+          >
+            Menus par défaut
+          </Button>
+          <Button type="button" onClick={addMenuSection} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Ajouter une section
+          </Button>
+        </div>
       </div>
 
       {menus.map((section, sectionIndex) => (
-        <Card key={sectionIndex} className="relative">
+        <Card key={sectionIndex} className="border-2">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Section {sectionIndex + 1}</CardTitle>
-              <Button
-                type="button"
-                onClick={() => removeMenuSection(sectionIndex)}
-                size="sm"
-                variant="destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-            <div>
-              <Input
-                placeholder="Nom de la section (ex: Entrées, Plats principaux...)"
-                value={section.name}
-                onChange={(e) => updateSectionName(sectionIndex, e.target.value)}
-              />
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {section.items.map((item, itemIndex) => (
-              <div key={itemIndex} className="flex gap-2 items-end">
-                <div className="flex-1">
-                  <Input
-                    placeholder="Nom du plat"
-                    value={item.name}
-                    onChange={(e) => updateMenuItem(sectionIndex, itemIndex, 'name', e.target.value)}
-                  />
-                </div>
-                <div className="w-24">
-                  <Input
-                    type="number"
-                    placeholder="Prix"
-                    value={item.price || ''}
-                    onChange={(e) => updateMenuItem(sectionIndex, itemIndex, 'price', parseFloat(e.target.value) || 0)}
-                  />
-                </div>
+              <CardTitle className="text-base">Section {sectionIndex + 1}</CardTitle>
+              {formData.menus!.length > 1 && (
                 <Button
                   type="button"
-                  onClick={() => removeMenuItem(sectionIndex, itemIndex)}
-                  size="sm"
                   variant="outline"
-                  disabled={section.items.length === 1}
+                  size="sm"
+                  onClick={() => removeMenuSection(sectionIndex)}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor={`section-name-${sectionIndex}`}>Nom de la section</Label>
+              <Input
+                id={`section-name-${sectionIndex}`}
+                value={section.name}
+                onChange={(e) => updateMenuSection(sectionIndex, "name", e.target.value)}
+                placeholder="Ex: Entrées, Plats principaux, Desserts..."
+              />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">Plats</Label>
+                <Button
+                  type="button"
+                  onClick={() => addMenuItem(sectionIndex)}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Ajouter un plat
+                </Button>
               </div>
-            ))}
-            <Button
-              type="button"
-              onClick={() => addMenuItem(sectionIndex)}
-              size="sm"
-              variant="outline"
-              className="w-full"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Ajouter un plat
-            </Button>
+
+              {section.items.map((item, itemIndex) => (
+                <div key={itemIndex} className="flex gap-2 items-end">
+                  <div className="flex-1">
+                    <Label htmlFor={`item-name-${sectionIndex}-${itemIndex}`} className="text-sm">
+                      Nom du plat
+                    </Label>
+                    <Input
+                      id={`item-name-${sectionIndex}-${itemIndex}`}
+                      value={item.name}
+                      onChange={(e) => updateMenuItem(sectionIndex, itemIndex, "name", e.target.value)}
+                      placeholder="Nom du plat"
+                    />
+                  </div>
+                  <div className="w-24">
+                    <Label htmlFor={`item-price-${sectionIndex}-${itemIndex}`} className="text-sm">
+                      Prix (€)
+                    </Label>
+                    <Input
+                      id={`item-price-${sectionIndex}-${itemIndex}`}
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      value={item.price}
+                      onChange={(e) => updateMenuItem(sectionIndex, itemIndex, "price", parseFloat(e.target.value) || 0)}
+                      placeholder="0.00"
+                    />
+                  </div>
+                  {section.items.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeMenuItem(sectionIndex, itemIndex)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       ))}
-
-      {menus.length === 0 && (
-        <div className="text-center py-8 text-muted-foreground">
-          <p>Aucun menu ajouté</p>
-          <p className="text-sm">Cliquez sur "Ajouter une section" pour commencer</p>
-        </div>
-      )}
     </div>
   )
 }

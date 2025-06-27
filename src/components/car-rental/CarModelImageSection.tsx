@@ -1,20 +1,8 @@
 
+import React from "react"
 import { Label } from "@/components/ui/label"
 import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
-
-interface CarModel {
-  id?: number
-  company_id: number
-  name: string
-  image: string
-  price_per_day: number
-  category: string
-  seats: number
-  transmission: string
-  air_con: boolean
-  is_active: boolean
-  gallery_images?: string[]
-}
+import { CarModel } from "@/hooks/useCarRentalActions"
 
 interface CarModelImageSectionProps {
   formData: CarModel
@@ -22,25 +10,25 @@ interface CarModelImageSectionProps {
 }
 
 export function CarModelImageSection({ formData, onImagesChange }: CarModelImageSectionProps) {
-  // Convertir gallery_images en tableau d'URLs pour le composant MultiImageUpload
+  // Convert gallery_images to array for MultiImageUpload component
   const getImagesArray = (): string[] => {
     const galleryImages = Array.isArray(formData.gallery_images) 
       ? formData.gallery_images as string[] 
       : []
     
-    // Si on a une image principale et qu'elle n'est pas déjà dans la galerie
+    // If we have a main image and it's not already in the gallery
     if (formData.image && !galleryImages.includes(formData.image)) {
-      // Mettre l'image principale en premier
+      // Put the main image first
       return [formData.image, ...galleryImages]
     }
     
-    // Si l'image principale est déjà dans la galerie, s'assurer qu'elle soit en premier
+    // If the main image is already in the gallery, ensure it's first
     if (formData.image && galleryImages.includes(formData.image)) {
       const filteredGallery = galleryImages.filter(img => img !== formData.image)
       return [formData.image, ...filteredGallery]
     }
     
-    // Si pas d'image principale, retourner juste la galerie
+    // If no main image, return just the gallery
     return galleryImages
   }
 

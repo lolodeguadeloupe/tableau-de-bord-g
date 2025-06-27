@@ -17,7 +17,7 @@ import {
 import { RestaurantStats } from "@/components/restaurant/RestaurantStats"
 import { AuthGuard } from "@/components/restaurant/AuthGuard"
 import { EmptyState } from "@/components/restaurant/EmptyState"
-import { transformRestaurantsToTableData, tableColumns, formatTableData } from "@/components/restaurant/RestaurantTableUtils"
+import { transformRestaurantsToTableData, dataTableColumns, formatTableData } from "@/components/restaurant/RestaurantTableUtils"
 import { useRestaurants } from "@/hooks/useRestaurants"
 import { useRestaurantActions } from "@/hooks/useRestaurantActions"
 
@@ -86,7 +86,7 @@ export default function Restaurants() {
         <DataTable
           title="Liste des restaurants"
           data={formattedTableData}
-          columns={tableColumns}
+          columns={dataTableColumns}
           onEdit={handleEditWrapper}
           onDelete={(id) => setDeleteRestaurantId(parseInt(id))}
         />

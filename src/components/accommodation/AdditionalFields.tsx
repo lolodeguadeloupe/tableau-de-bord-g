@@ -4,9 +4,15 @@ import { Input } from "@/components/ui/input"
 import { Control, useFormContext } from "react-hook-form"
 import { AccommodationFormData } from "./accommodationSchema"
 import { MultiImageUpload } from "@/components/ui/MultiImageUpload"
+import { AmenitiesManager } from "./AmenitiesManager"
 
 interface AdditionalFieldsProps {
   control: Control<AccommodationFormData>
+}
+
+interface Amenity {
+  name: string
+  available: boolean
 }
 
 export function AdditionalFields({ control }: AdditionalFieldsProps) {
@@ -15,6 +21,7 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
   // Surveiller les changements dans les champs image et gallery_images
   const currentImage = watch("image")
   const currentGalleryImages = watch("gallery_images")
+  const currentAmenities = watch("amenities")
 
   const handleGalleryImagesChange = (images: string[]) => {
     // Mettre à jour les images de la galerie
@@ -38,13 +45,65 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
     }
   }
 
-  // Fonction pour convertir les données JSON en chaîne de caractères
- const convertJsonToString = (value: any): string => {
-  console.log("🔄 Conversion des données JSON en chaîne:", value) ;
+  const handleAmenitiesChange = (amenities: Amenity[]) => {
+    setValue("amenities", amenities)
+  }
+
+  // Fonction pour convertir les données JSON en tableau d'objets Amenity
+  const parseAmenities = (value: any): Amenity[] => {
+    console.log("🔄 Parsing des amenities:", value)
+    
+    if (!value) return []
+    
     if (typeof value === "string") {
-      return value;
+      try {
+        // Si c'est une chaîne JSON, essayer de la parser
+        const parsed = JSON.parse(value)
+        if (Array.isArray(parsed)) {
+          return parsed.map(item => ({
+            name: typeof item === "object" && item.name ? String(item.name) : String(item),
+            available: typeof item === "object" && typeof item.available === "boolean" ? item.available : true
+          }))
+        }
+        // Si ce n'est pas un tableau après parsing, traiter comme une chaîne simple
+        return value.split(",").map((item: string) => ({
+          name: item.trim(),
+          available: true
+        })).filter((item: Amenity) => item.name)
+      } catch {
+        // Si le parsing JSON échoue, traiter comme une chaîne séparée par des virgules
+        return value.split(",").map((item: string) => ({
+          name: item.trim(),
+          available: true
+        })).filter((item: Amenity) => item.name)
+      }
     }
-    if (!value) return "";
+    
+    if (Array.isArray(value)) {
+      return value.map(item => {
+        if (typeof item === "object" && item !== null) {
+          return {
+            name: String(item.name || ""),
+            available: typeof item.available === "boolean" ? item.available : true
+          }
+        }
+        return {
+          name: String(item),
+          available: true
+        }
+      }).filter(item => item.name)
+    }
+    
+    return []
+  }
+
+  // Fonction pour convertir les données JSON en chaîne de caractères (pour les autres champs)
+  const convertJsonToString = (value: any): string => {
+    console.log("🔄 Conversion des données JSON en chaîne:", value)
+    if (typeof value === "string") {
+      return value
+    }
+    if (!value) return ""
    
     if (Array.isArray(value)) {
       // Si c'est un tableau, mapper chaque élément en chaîne de caractères
@@ -66,14 +125,14 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
         })
         .join(", ")
     }
-     if (typeof value === "object") {
+    if (typeof value === "object") {
       if ("name" in value) {
         return String(value.name)
       }
       return Object.values(value).join(", ")
     }
-    return "";
-  };
+    return ""
+  }
 
   return (
     <>
@@ -115,13 +174,10 @@ export function AdditionalFields({ control }: AdditionalFieldsProps) {
         name="amenities"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Équipements (séparés par des virgules)</FormLabel>
             <FormControl>
-              <Input 
-                placeholder="WiFi, Climatisation, Piscine..." 
-                {...field}
-                value={convertJsonToString(field.value)}
-                onChange={(e) => field.onChange(e.target.value)}
+              <AmenitiesManager
+                amenities={parseAmenities(field.value)}
+                onAmenitiesChange={handleAmenitiesChange}
               />
             </FormControl>
             <FormMessage />
