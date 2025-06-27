@@ -1,4 +1,3 @@
-
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/DataTable"
@@ -61,7 +60,7 @@ export default function Restaurants() {
     console.log('📋 Menus du restaurant original:', originalRestaurant?.menus)
     
     if (originalRestaurant) {
-      handleEdit(originalRestaurant)
+      handleEdit({ ...originalRestaurant, id: originalRestaurant.id.toString() })
     }
   }
 
