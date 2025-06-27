@@ -24,7 +24,12 @@ export interface RestaurantTableData {
 }
 
 export function transformRestaurantsToTableData(restaurants: Restaurant[]): RestaurantTableData[] {
-  return restaurants.map((restaurant) => ({
+  console.log('🔄 RestaurantTableUtils - restaurants avant transformation:', restaurants)
+  if (restaurants.length > 0) {
+    console.log('📋 Menus du premier restaurant avant transformation:', restaurants[0].menus)
+  }
+  
+  const transformed = restaurants.map((restaurant) => ({
     id: restaurant.id.toString(),
     name: restaurant.name,
     type: restaurant.type,
@@ -36,6 +41,11 @@ export function transformRestaurantsToTableData(restaurants: Restaurant[]): Rest
     gallery_images: restaurant.gallery_images || [],
     rating: restaurant.rating,
   }))
+  
+  console.log('🔄 RestaurantTableUtils - données après transformation:', transformed)
+  console.log('⚠️ ATTENTION: Les menus ont été supprimés dans la transformation!')
+  
+  return transformed
 }
 
 export const tableColumns = [

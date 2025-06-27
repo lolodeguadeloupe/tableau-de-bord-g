@@ -53,9 +53,15 @@ export default function Restaurants() {
   const formattedTableData = formatTableData(restaurants)
 
   const handleEditWrapper = (item: any) => {
-    const restaurant = tableData.find(r => r.id === item.id)
-    if (restaurant) {
-      handleEdit(restaurant)
+    console.log('🎯 handleEditWrapper - item reçu:', item)
+    
+    // CORRECTION: Utiliser restaurants (complet) au lieu de tableData (transformé sans menus)
+    const originalRestaurant = restaurants.find(r => r.id.toString() === item.id)
+    console.log('🎯 handleEditWrapper - restaurant original avec menus:', originalRestaurant)
+    console.log('📋 Menus du restaurant original:', originalRestaurant?.menus)
+    
+    if (originalRestaurant) {
+      handleEdit(originalRestaurant)
     }
   }
 

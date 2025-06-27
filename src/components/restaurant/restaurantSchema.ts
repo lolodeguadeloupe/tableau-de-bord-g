@@ -48,7 +48,14 @@ export const restaurantSchema = z.object({
   image: z.string().optional(),
   gallery_images: z.array(z.string()).optional(),
   rating: z.number().min(1).max(5),
-  poids: z.number({ required_error: "Le poids est requis" })
+  poids: z.number({ required_error: "Le poids est requis" }),
+  menus: z.array(z.object({
+    name: z.string().min(1, "Le nom de la section est requis"),
+    items: z.array(z.object({
+      name: z.string().min(1, "Le nom du plat est requis"),
+      price: z.number({ required_error: "Le prix est requis" })
+    }))
+  })).optional()
 })
 
 export type RestaurantFormData = z.infer<typeof restaurantSchema>
@@ -65,4 +72,8 @@ export interface Restaurant {
   gallery_images?: string[]
   rating: number
   poids: number
+  menus?: {
+    name: string
+    items: { name: string; price: number }[]
+  }[]
 }

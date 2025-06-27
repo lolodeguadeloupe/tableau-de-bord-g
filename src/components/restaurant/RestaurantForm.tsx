@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client"
 import { useAuth } from "@/hooks/useAuth"
 import { BasicInfoFields } from "./BasicInfoFields"
 import { MediaFields } from "./MediaFields"
+import { MenuFields } from "./MenuFields"
 import { Restaurant, RestaurantFormData, restaurantSchema } from "./restaurantSchema"
 import { ZodError } from "zod"
 
@@ -27,13 +28,17 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     image: '',
     gallery_images: [],
     rating: 5,
-    poids: 0
+    poids: 0,
+    menus: []
   })
   const { toast } = useToast()
   const { user } = useAuth()
 
   useEffect(() => {
     if (restaurant) {
+      console.log('🏪 Restaurant reçu:', restaurant)
+      console.log('📋 Menus du restaurant:', restaurant.menus)
+      
       setFormData({
         name: restaurant.name,
         type: restaurant.type,
@@ -44,7 +49,8 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         image: restaurant.image,
         gallery_images: restaurant.gallery_images || [],
         rating: typeof restaurant.rating === 'number' ? restaurant.rating : 5,
-        poids: typeof restaurant.poids === 'number' ? restaurant.poids : 0
+        poids: typeof restaurant.poids === 'number' ? restaurant.poids : 0,
+        menus: restaurant.menus
       })
     } else {
       setFormData({
@@ -57,7 +63,8 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         image: '',
         gallery_images: [],
         rating: 5,
-        poids: 0
+        poids: 0,
+        menus: []
       })
     }
   }, [restaurant])
@@ -67,6 +74,13 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }))
+  }
+
+  const handleMenusChange = (menus: { name: string; items: { name: string; price: number }[] }[]) => {
+    setFormData(prev => ({
+      ...prev,
+      menus
     }))
   }
 
@@ -99,7 +113,9 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
         icon: validatedData.icon,
         image: validatedData.image || '',
         gallery_images: validatedData.gallery_images || [],
-        rating: validatedData.rating
+        rating: validatedData.rating,
+        poids: validatedData.poids,
+        menus: validatedData.menus || []
       }
       
       setLoading(true)
@@ -187,6 +203,10 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     <form onSubmit={handleSubmit} className="space-y-4">
       <BasicInfoFields formData={formData} onFieldChange={handleFieldChange} />
       <MediaFields formData={formData} onFieldChange={handleFieldChange} />
+      <MenuFields 
+        menus={(formData.menus || []) as { name: string; items: { name: string; price: number }[] }[]} 
+        onMenusChange={handleMenusChange} 
+      />
 
       <div className="flex justify-end gap-2 pt-4">
         <Button type="button" variant="outline" onClick={onCancel}>
