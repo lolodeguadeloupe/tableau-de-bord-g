@@ -19,7 +19,7 @@ import {
   Activity,
   Plane,
   Megaphone,
-  Building
+  Handshake
 } from "lucide-react"
 
 import {
@@ -144,6 +144,12 @@ const items = [
     url: "/travel",
     icon: Plane,
     color: "text-blue-600"
+  },
+  {
+    title: "Partenaires",
+    url: "/partners",
+    icon: Handshake,
+    color: "text-lime-600"
   },
 ]
 

@@ -76,6 +76,13 @@ export function RestaurantForm({ restaurant, onSuccess, onCancel }: RestaurantFo
     }))
   }
 
+  const handleMenusChange = (menus: { name: string; items: { name: string; price: number }[] }[]) => {
+    setFormData(prev => ({
+      ...prev,
+      menus
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     

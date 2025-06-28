@@ -1,116 +1,52 @@
+import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { usePartners } from '../hooks/usePartners';
+import PartnerTable from '../components/PartnerTable';
+import PartnerModal from '../components/PartnerModal';
+import { Partner } from '../types/partner';
 
-import { Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DataTable } from "@/components/DataTable"
-import { PartnerModal } from "@/components/partners/PartnerModal"
-import { useAuth } from "@/hooks/useAuth"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import { PartnerStats } from "@/components/partners/PartnerStats"
-import { AuthGuard } from "@/components/restaurant/AuthGuard"
-import { EmptyState } from "@/components/partners/EmptyState"
-import { formatPartnersForTable, partnerTableColumns } from "@/components/partners/PartnerTableUtils"
-import { usePartners } from "@/hooks/usePartners"
-import { usePartnerActions } from "@/hooks/usePartnerActions"
+const Partners = () => {
+  const { partners, loading, addPartner, updatePartner, deletePartner } = usePartners();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
 
-export default function Partners() {
-  const { user, loading: authLoading } = useAuth()
-  const { partners, loading, fetchPartners } = usePartners(authLoading)
-  const {
-    isModalOpen,
-    selectedPartner,
-    deletePartnerId,
-    setDeletePartnerId,
-    handleEdit,
-    handleDelete,
-    handleModalClose,
-    handleCreateNew
-  } = usePartnerActions(user, fetchPartners)
+  const handleAdd = () => {
+    setSelectedPartner(null);
+    setIsModalOpen(true);
+  };
 
-  console.log('🏢 État actuel:', { loading, partners: partners.length, isModalOpen, user: user?.id })
+  const handleEdit = (partner: Partner) => {
+    setSelectedPartner(partner);
+    setIsModalOpen(true);
+  };
 
-  if (authLoading || loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-lg">Chargement des partenaires...</div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return <AuthGuard />
-  }
-
-  const formattedTableData = formatPartnersForTable(partners)
-
-  const handleEditWrapper = (item: any) => {
-    const partner = partners.find(p => p.id.toString() === item.id)
-    if (partner) {
-      handleEdit(partner)
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this partner?')) {
+      deletePartner(id);
     }
-  }
+  };
+
+  const handleSave = async (partner: Partner, mainImageFile: File | null, galleryImageFiles: File[]) => {
+    if (partner.id) {
+      await updatePartner(partner.id, partner, mainImageFile, galleryImageFiles);
+    } else {
+      await addPartner(partner, mainImageFile, galleryImageFiles);
+    }
+    setIsModalOpen(false);
+  };
+
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Partenaires</h1>
-          <p className="text-muted-foreground">Gérez vos partenaires commerciaux</p>
-        </div>
-        <Button onClick={handleCreateNew} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Nouveau partenaire
-        </Button>
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl">Partners</h1>
+        <Button onClick={handleAdd}>Add Partner</Button>
       </div>
-
-      {partners.length === 0 && !loading && <EmptyState />}
-
-      <PartnerStats partners={partners} />
-
-      {partners.length > 0 && (
-        <DataTable
-          title="Liste des partenaires"
-          data={formattedTableData}
-          columns={partnerTableColumns}
-          onEdit={handleEditWrapper}
-          onDelete={(id) => setDeletePartnerId(parseInt(id))}
-        />
-      )}
-
-      <PartnerModal
-        partner={selectedPartner}
-        isOpen={isModalOpen}
-        onClose={handleModalClose}
-        onSuccess={fetchPartners}
-      />
-
-      <AlertDialog open={deletePartnerId !== null} onOpenChange={() => setDeletePartnerId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-            <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer ce partenaire ? Cette action est irréversible.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => deletePartnerId && handleDelete(deletePartnerId.toString())}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Supprimer
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <PartnerTable partners={partners} onEdit={handleEdit} onDelete={handleDelete} />
+      <PartnerModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} partner={selectedPartner} />
     </div>
-  )
-}
+  );
+};
+
+export default Partners;

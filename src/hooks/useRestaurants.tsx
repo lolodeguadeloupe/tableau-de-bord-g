@@ -19,6 +19,14 @@ export function useRestaurants(authLoading: boolean) {
 
       console.log('📊 Données récupérées:', data)
       console.log('❌ Erreur éventuelle:', error)
+      
+      // Log détaillé des menus
+      if (data && data.length > 0) {
+        console.log('🔍 Premier restaurant - données complètes:', data[0])
+        console.log('📋 Menus du premier restaurant:', data[0].menus)
+        console.log('📋 Type des menus:', typeof data[0].menus)
+        console.log('📋 Menus est un array?', Array.isArray(data[0].menus))
+      }
 
       if (error) {
         console.error('❌ Erreur Supabase:', error)
@@ -42,6 +50,11 @@ export function useRestaurants(authLoading: boolean) {
         ...restaurant,
         gallery_images: restaurant.gallery_images || [restaurant.image].filter(Boolean)
       })) || []
+      
+      console.log('🔄 Données après transformation:', transformedData)
+      if (transformedData.length > 0) {
+        console.log('📋 Menus après transformation:', transformedData[0].menus)
+      }
       
       setRestaurants(transformedData)
     } catch (error: unknown) {
