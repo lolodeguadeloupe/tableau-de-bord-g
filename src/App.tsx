@@ -29,6 +29,7 @@ import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import Travel from "./pages/Travel";
 import Promotions from "./pages/Promotions";
+import Partners from "./pages/Partners";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ function App() {
                             <Route path="bons-plans" element={<BonsPlans />} />
                             <Route path="travel" element={<Travel />} />
                             <Route path="promotions" element={<Promotions />} />
+                            <Route path="partners" element={<Partners />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </main>
