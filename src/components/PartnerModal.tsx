@@ -51,6 +51,46 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
     onSave(formData as Partner, mainImageFile, galleryImageFiles);
   };
 
+  const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setFormData({ ...formData, image: url });
+      setMainImageFile(file);
+    }
+  };
+
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    const urls = files.map(file => URL.createObjectURL(file));
+    const currentGallery = formData.gallery_images || [];
+    // Limite à 6 images
+    const newGallery = currentGallery.concat(urls).slice(0, 6);
+    setFormData({ ...formData, gallery_images: newGallery });
+    setGalleryImageFiles(galleryImageFiles.concat(files).slice(0, 6));
+  };
+
+  const handleRemoveMainImage = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    // Si la galerie a des images, la première devient la principale
+    if (formData.gallery_images && formData.gallery_images.length > 0) {
+      const [first, ...rest] = formData.gallery_images;
+      setFormData({ ...formData, image: first, gallery_images: rest });
+      setMainImageFile(null);
+      setGalleryImageFiles(galleryImageFiles.slice(1));
+    } else {
+      setFormData({ ...formData, image: '' });
+      setMainImageFile(null);
+    }
+  };
+
+  const handleRemoveGalleryImage = (index: number) => {
+    if (!formData.gallery_images) return;
+    const newGallery = formData.gallery_images.filter((_, i) => i !== index);
+    setFormData({ ...formData, gallery_images: newGallery });
+    setGalleryImageFiles(galleryImageFiles.filter((_, i) => i !== index));
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -96,28 +136,38 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
             </Label>
             <Input id="website" name="website" value={formData.website || ''} onChange={handleChange} className="col-span-3" />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="image" className="text-right">
-              Current Image URL
-            </Label>
-            <Input id="image" name="image" value={formData.image || ''} onChange={handleChange} className="col-span-3" placeholder="Existing image URL" />
-            {formData.image && <img src={formData.image} alt="Current" className="mt-2 h-20 w-20 object-cover col-start-2 col-span-3" />}
+          <div className="mb-4">
+            <Label>Photo principale</Label>
+            {formData.image ? (
+              <div className="relative inline-block mr-4">
+                <img src={formData.image} alt="Photo principale" className="h-24 w-24 object-cover rounded" />
+                <button type="button" onClick={handleRemoveMainImage} className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1">✕</button>
+              </div>
+            ) : (
+              <div className="h-24 w-24 bg-gray-200 flex items-center justify-center rounded">Aucune image</div>
+            )}
+            <Input type="file" accept="image/*" onChange={handleMainImageUpload} className="mt-2" />
           </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="imageFile" className="text-right">
-              Upload New Image
-            </Label>
-            <Input id="imageFile" name="imageFile" type="file" onChange={handleChange} className="col-span-3" accept="image/*" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="gallery_images" className="text-right">
-              Current Gallery Images (comma-separated URLs)
-            </Label>
-            <Textarea id="gallery_images" name="gallery_images" value={formData.gallery_images?.join(',') || ''} onChange={handleChange} className="col-span-3" placeholder="Existing gallery image URLs"></Textarea>
-            <div className="col-start-2 col-span-3 flex flex-wrap mt-2">
-              {formData.gallery_images?.map((url, index) => (
-                <img key={index} src={url} alt={`Gallery ${index}`} className="h-16 w-16 object-cover mr-2 mb-2" />
+          <div className="mb-4">
+            <Label>Galerie d'images</Label>
+            <div className="flex flex-wrap gap-4">
+              {formData.gallery_images && formData.gallery_images.map((url, idx) => (
+                <div key={url} className="relative">
+                  <img src={url} alt={`Galerie ${idx}`} className="h-24 w-24 object-cover rounded" />
+                  {idx === 0 && <span className="absolute top-0 left-0 bg-blue-500 text-white text-xs px-2 py-1 rounded-br">Photo principale</span>}
+                  <button type="button" onClick={() => handleRemoveGalleryImage(idx)} className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1">✕</button>
+                </div>
               ))}
+              {(!formData.gallery_images || formData.gallery_images.length < 6) && (
+                <label className="h-24 w-24 flex items-center justify-center border-2 border-dashed rounded cursor-pointer">
+                  <span className="text-2xl">+</span>
+                  <Input type="file" accept="image/*" multiple onChange={handleGalleryUpload} className="hidden" />
+                </label>
+              )}
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              • La première image sera utilisée comme photo principale<br />
+              • Vous pouvez ajouter jusqu'à 6 images
             </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

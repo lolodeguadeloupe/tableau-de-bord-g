@@ -24,7 +24,6 @@ import Activities from "./pages/Activities";
 import CarRentals from "./pages/CarRentals";
 import Voyance from "./pages/Voyance";
 import BonsPlans from "./pages/BonsPlans";
-import Partners from "./pages/Partners";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { ProtectedRoute } from "./components/ProtectedRoute";

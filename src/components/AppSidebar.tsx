@@ -19,7 +19,8 @@ import {
   Activity,
   Plane,
   Megaphone,
-  Handshake
+  Handshake,
+  Building
 } from "lucide-react"
 
 import {
