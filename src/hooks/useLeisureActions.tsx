@@ -2,18 +2,43 @@
 import { useCallback } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/hooks/useAuth"
+import { usePartnerActivities } from "@/hooks/usePartnerActivities"
 import type { Loisir, LoisirTableData } from "@/types/leisure"
 
 export function useLeisureActions() {
   const { toast } = useToast()
+  const { canAccessAllData } = useAuth()
+  const { getPartnerIds, loading: partnerLoading } = usePartnerActivities()
 
   const fetchLoisirs = useCallback(async () => {
     console.log('🔄 Début de la récupération des loisirs...')
+    
+    // Attendre que les partenaires soient chargés
+    if (partnerLoading) {
+      console.log('⏳ En attente du chargement des partenaires...')
+      return []
+    }
+    
     try {
-      const { data, error } = await supabase
-        .from('loisirs')
-        .select('*')
-        .order('title')
+      const accessiblePartnerIds = getPartnerIds()
+      console.log('🎯 IDs partenaires accessibles:', accessiblePartnerIds)
+
+      let query = supabase.from('loisirs').select('*').order('title')
+
+      // Si l'utilisateur n'a pas accès à tout, filtrer par les partenaires accessibles
+      if (!canAccessAllData) {
+        if (accessiblePartnerIds.length > 0) {
+          console.log('🎯 IDs partenaires accessibles:', accessiblePartnerIds)  
+          query = query.in('partner_id', accessiblePartnerIds)
+        } else {
+          // Si aucun partenaire accessible, retourner une liste vide
+          console.log('🚫 Aucun partenaire accessible pour cet utilisateur')
+          return []
+        }
+      }
+
+      const { data, error } = await query
 
       console.log('📊 Données récupérées:', data)
       console.log('❌ Erreur éventuelle:', error)
@@ -34,7 +59,7 @@ export function useLeisureActions() {
       })
       return []
     }
-  }, [toast])
+  }, [toast, canAccessAllData, getPartnerIds, partnerLoading])
 
   const handleEdit = useCallback((loisirData: LoisirTableData): Loisir => {
     const loisir: Loisir = {

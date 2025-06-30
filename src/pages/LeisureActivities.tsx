@@ -4,6 +4,7 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { LoisirsModal } from "@/components/LoisirsModal"
 import { useLeisureActions } from "@/hooks/useLeisureActions"
+import { usePartnerActivities } from "@/hooks/usePartnerActivities"
 import { LeisureActivityStats } from "@/components/leisure/LeisureActivityStats"
 import { LeisureActivityTable } from "@/components/leisure/LeisureActivityTable"
 import {
@@ -26,6 +27,7 @@ export default function LeisureActivities() {
   const [deleteLoisirId, setDeleteLoisirId] = useState<number | null>(null)
 
   const { fetchLoisirs, handleEdit, handleDelete, handleImageClick } = useLeisureActions()
+  const { loading: partnerLoading } = usePartnerActivities()
 
   const loadLoisirs = async () => {
     setLoading(true)
@@ -35,8 +37,10 @@ export default function LeisureActivities() {
   }
 
   useEffect(() => {
-    loadLoisirs()
-  }, [])
+    if (!partnerLoading) {
+      loadLoisirs()
+    }
+  }, [partnerLoading])
 
   const onEdit = (loisirData: any) => {
     const loisir = handleEdit(loisirData)
@@ -58,9 +62,9 @@ export default function LeisureActivities() {
     setSelectedLoisir(null)
   }
 
-  console.log('🎯 État actuel:', { loading, loisirs: loisirs.length, isModalOpen })
+  console.log('🎯 État actuel:', { loading, loisirs: loisirs.length, isModalOpen, partnerLoading })
 
-  if (loading) {
+  if (loading || partnerLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-lg">Chargement des loisirs...</div>

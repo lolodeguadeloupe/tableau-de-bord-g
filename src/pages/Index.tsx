@@ -2,19 +2,20 @@
 import { useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { BarChart3, Users, Calendar, Settings, Utensils } from "lucide-react"
+import { BarChart3, Users, Calendar, Settings, Utensils, Music, PartyPopper, MapPin } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "@/hooks/useAuth"
+import { usePartnerActivities } from "@/hooks/usePartnerActivities"
 
 const Index = () => {
   const navigate = useNavigate()
-  const { user, profile, loading } = useAuth()
+  const { user, profile, loading, isSuperAdmin } = useAuth()
+  const { hasAccessToActivityType, loading: activitiesLoading } = usePartnerActivities()
 
   useEffect(() => {
   }, [user, profile, loading])
 
-  if (loading) {
-
+  if (loading || activitiesLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -105,73 +106,119 @@ const Index = () => {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Gestion des Loisirs</CardTitle>
-            <CardDescription>
-              Créer et gérer vos activités de loisirs
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => navigate('/leisure-activities')}
-              className="w-full"
-            >
-              Accéder aux Loisirs
-            </Button>
-          </CardContent>
-        </Card>
+        {hasAccessToActivityType('leisure_activity') && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion des Loisirs</CardTitle>
+              <CardDescription>
+                Créer et gérer vos activités de loisirs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/leisure-activities')}
+                className="w-full"
+              >
+                Accéder aux Loisirs
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Hébergements</CardTitle>
-            <CardDescription>
-              Gérer les hébergements disponibles
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => navigate('/accommodations')}
-              className="w-full"
-            >
-              Gérer les Hébergements
-            </Button>
-          </CardContent>
-        </Card>
+        {hasAccessToActivityType('accommodation') && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Hébergements</CardTitle>
+              <CardDescription>
+                Gérer les hébergements disponibles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/accommodations')}
+                className="w-full"
+              >
+                Gérer les Hébergements
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Restaurants</CardTitle>
-            <CardDescription>
-              Gérer vos restaurants partenaires
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => navigate('/restaurants')}
-              className="w-full"
-            >
-              Gérer les Restaurants
-            </Button>
-          </CardContent>
-        </Card>
+        {hasAccessToActivityType('restaurant') && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Restaurants</CardTitle>
+              <CardDescription>
+                Gérer vos restaurants partenaires
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/restaurants')}
+                className="w-full"
+              >
+                Gérer les Restaurants
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Utilisateurs</CardTitle>
-            <CardDescription>
-              Voir et gérer les utilisateurs
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button 
-              onClick={() => navigate('/users')}
-              className="w-full"
-            >
-              Gérer les Utilisateurs
-            </Button>
-          </CardContent>
-        </Card>
+        {hasAccessToActivityType('concert') && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Concerts</CardTitle>
+              <CardDescription>
+                Gérer les événements musicaux
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/concerts')}
+                className="w-full"
+              >
+                Gérer les Concerts
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {hasAccessToActivityType('nightlife') && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Soirées</CardTitle>
+              <CardDescription>
+                Gérer les événements nocturnes
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/nightlife')}
+                className="w-full"
+              >
+                Gérer les Soirées
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {isSuperAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Utilisateurs</CardTitle>
+              <CardDescription>
+                Voir et gérer les utilisateurs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => navigate('/users')}
+                className="w-full"
+              >
+                Gérer les Utilisateurs
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Debug Info (only in development) */}

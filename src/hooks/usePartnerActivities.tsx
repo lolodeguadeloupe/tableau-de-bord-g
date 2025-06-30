@@ -61,6 +61,7 @@ export const usePartnerActivities = () => {
             { type: 'accommodation' as ActivityType, table: 'accommodations' },
             { type: 'concert' as ActivityType, table: 'concerts' },
             { type: 'nightlife' as ActivityType, table: 'nightlife_events' },
+            { type: 'leisure_activity' as ActivityType, table: 'loisirs' },
             // Les autres types peuvent être ajoutés ici quand les tables existent
           ];
 
