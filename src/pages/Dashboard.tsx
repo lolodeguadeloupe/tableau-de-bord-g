@@ -3,6 +3,8 @@ import { Users, FileText, Eye, TrendingUp, Activity, Clock } from "lucide-react"
 import { StatCard } from "@/components/StatCard"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts"
+import { PermissionsTest } from "@/components/PermissionsTest"
+import { useAuth } from "@/hooks/useAuth"
 
 const statsData = [
   {
@@ -59,6 +61,8 @@ const recentActivity = [
 ]
 
 export default function Dashboard() {
+  const { profile } = useAuth();
+  
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -70,6 +74,9 @@ export default function Dashboard() {
           Dernière mise à jour: {new Date().toLocaleString('fr-FR')}
         </div>
       </div>
+
+      {/* Composant de test des permissions - à supprimer en production */}
+      {profile && <PermissionsTest />}
 
       {/* Statistiques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

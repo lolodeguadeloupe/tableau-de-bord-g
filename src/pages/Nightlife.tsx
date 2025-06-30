@@ -6,26 +6,18 @@ import { NightlifeStats } from "@/components/nightlife/NightlifeStats"
 import { NightlifeTable } from "@/components/nightlife/NightlifeTable"
 import { NightlifeModal } from "@/components/nightlife/NightlifeModal"
 import { useNightlifeActions } from "@/hooks/useNightlifeActions"
+import { useNightlife } from "@/hooks/useNightlife"
+import { useAuth } from "@/hooks/useAuth"
 import type { NightlifeEvent, NightlifeEventTableData } from "@/types/nightlife"
 
 export default function Nightlife() {
-  const [events, setEvents] = useState<NightlifeEvent[]>([])
-  const [loading, setLoading] = useState(true)
+  const { loading: authLoading } = useAuth()
+  const { nightlife: events, loading, fetchNightlife } = useNightlife(authLoading)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingEvent, setEditingEvent] = useState<NightlifeEvent | null>(null)
 
   const { fetchEvents, handleEdit, handleDelete, saveEvent } = useNightlifeActions()
 
-  const loadEvents = async () => {
-    setLoading(true)
-    const data = await fetchEvents()
-    setEvents(data)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    loadEvents()
-  }, [])
 
   const handleEditEvent = (eventData: NightlifeEventTableData) => {
     const event = handleEdit(eventData)
@@ -36,14 +28,14 @@ export default function Nightlife() {
   const handleDeleteEvent = async (id: string) => {
     const success = await handleDelete(id)
     if (success) {
-      await loadEvents()
+      await fetchNightlife()
     }
   }
 
   const handleSaveEvent = async (eventData: Partial<NightlifeEvent>) => {
     const result = await saveEvent(eventData)
     if (result) {
-      await loadEvents()
+      await fetchNightlife()
       return result
     }
     return null

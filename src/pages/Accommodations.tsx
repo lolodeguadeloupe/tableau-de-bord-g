@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { DataTable } from "@/components/DataTable"
 import { AccommodationModal } from "@/components/AccommodationModal"
 import { useToast } from "@/hooks/use-toast"
+import { useAccommodations } from "@/hooks/useAccommodations"
+import { useAuth } from "@/hooks/useAuth"
 import { supabase } from "@/integrations/supabase/client"
 import {
   AlertDialog,
@@ -50,48 +52,14 @@ interface AccommodationTableData extends Omit<Accommodation, 'id'> {
 }
 
 export default function Accommodations() {
-  const [accommodations, setAccommodations] = useState<Accommodation[]>([])
-  const [loading, setLoading] = useState(true)
+  const { loading: authLoading } = useAuth()
+  const { accommodations, loading, fetchAccommodations } = useAccommodations(authLoading)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedAccommodation, setSelectedAccommodation] = useState<Accommodation | null>(null)
   const [deleteAccommodationId, setDeleteAccommodationId] = useState<number | null>(null)
   const [globalSearchTerm, setGlobalSearchTerm] = useState("")
   const { toast } = useToast()
 
-  const fetchAccommodations = async () => {
-    console.log('🔄 Début de la récupération des hébergements...')
-    try {
-      const { data, error } = await supabase
-        .from('accommodations')
-        .select('*')
-        .order('name')
-
-      console.log('📊 Données récupérées:', data)
-      console.log('❌ Erreur éventuelle:', error)
-
-      if (error) {
-        console.error('❌ Erreur Supabase:', error)
-        throw error
-      }
-      
-      console.log('✅ Nombre d\'hébergements récupérés:', data?.length || 0)
-      setAccommodations(data || [])
-    } catch (error: unknown) {
-      console.error('💥 Erreur lors du chargement des hébergements:', error)
-      toast({
-        title: "Erreur",
-        description: "Impossible de charger les hébergements.",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-      console.log('🏁 Fin de la récupération des hébergements')
-    }
-  }
-
-  useEffect(() => {
-    fetchAccommodations()
-  }, [])
 
   const handleEdit = (accommodationData: AccommodationTableData) => {
     // Convert back to original Accommodation type

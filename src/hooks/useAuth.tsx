@@ -25,6 +25,7 @@ interface AuthContextType {
   isEditor: boolean
   isSuperAdmin: boolean
   isPartnerAdmin: boolean
+  canAccessAllData: boolean
   refreshProfile: () => Promise<void>
 }
 
@@ -79,6 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role = 'admin'
             adminType = 'super_admin'
             console.log('🎯 Email super admin détecté, attribution du rôle super_admin')
+          } else if (userEmail === 'client@clubcreole.com') {
+            role = 'admin'
+            adminType = 'partner_admin'
+            console.log('🎯 Email partner admin détecté, attribution du rôle partner_admin')
           }
           
           const insertData: any = {
@@ -104,12 +109,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return
           }
           
-          // Vérifier si le nouvel utilisateur est admin
-          if (newProfile.role !== 'admin') {
-            console.log('🚫 Utilisateur non-admin détecté, déconnexion...')
+          // Vérifier si le nouvel utilisateur a les bons droits d'accès
+          const hasAccess = newProfile.role === 'admin' && 
+            (newProfile.admin_type === 'super_admin' || newProfile.admin_type === 'partner_admin')
+          
+          if (!hasAccess) {
+            console.log('🚫 Utilisateur sans droits d\'accès détecté, déconnexion...')
             toast({
               title: "Accès refusé",
-              description: "Seuls les administrateurs peuvent accéder à cette application.",
+              description: "Seuls les Super Admin et Admin Partenaire peuvent accéder à cette application.",
               variant: "destructive",
             })
             await signOut()
@@ -124,12 +132,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       console.log('✅ Profil récupéré:', data)
       
-      // Vérifier si l'utilisateur est admin
-      if (data.role !== 'admin') {
-        console.log('🚫 Utilisateur non-admin détecté, déconnexion...')
+      // Vérifier si l'utilisateur a les bons droits d'accès
+      const hasAccess = data.role === 'admin' && 
+        (data.admin_type === 'super_admin' || data.admin_type === 'partner_admin')
+      
+      if (!hasAccess) {
+        console.log('🚫 Utilisateur sans droits d\'accès détecté, déconnexion...')
         toast({
           title: "Accès refusé",
-          description: "Seuls les administrateurs peuvent accéder à cette application.",
+          description: "Seuls les Super Admin et Admin Partenaire peuvent accéder à cette application.",
           variant: "destructive",
         })
         await signOut()
@@ -177,7 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = profile?.role === 'admin'
   const isEditor = profile?.role === 'editor' || isAdmin
   const isSuperAdmin = profile?.role === 'admin' && profile?.admin_type === 'super_admin'
-  const isPartnerAdmin = profile?.role === 'admin' && (profile?.admin_type === 'partner_admin' || !profile?.admin_type)
+  const isPartnerAdmin = profile?.role === 'admin' && profile?.admin_type === 'partner_admin'
+  const canAccessAllData = isSuperAdmin
 
   return (
     <AuthContext.Provider value={{
@@ -190,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isEditor,
       isSuperAdmin,
       isPartnerAdmin,
+      canAccessAllData,
       refreshProfile
     }}>
       {children}

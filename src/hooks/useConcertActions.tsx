@@ -1,29 +1,42 @@
+/**
+ * Hook personnalisé pour gérer les actions CRUD sur les concerts
+ * 
+ * Ce fichier est importé pour :
+ * - Centraliser la logique métier des concerts (création, modification, suppression)
+ * - Gérer les permissions d'accès aux concerts via usePartnerActivities
+ * - Fournir des fonctions réutilisables pour les opérations sur les concerts
+ * - Gérer les interactions avec Supabase de manière cohérente
+ * - Afficher des notifications toast pour le feedback utilisateur
+ * 
+ * Utilisé principalement dans les composants de gestion des concerts
+ * et les formulaires d'édition/création de concerts.
+ */
 
 import { useCallback } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { usePartnerActivities } from "./usePartnerActivities"
 import type { Concert, ConcertTableData } from "@/types/concert"
 
 export function useConcertActions() {
   const { toast } = useToast()
+  const { canAccessActivity } = usePartnerActivities()
 
+  // Note: Le fetchConcerts est maintenant géré par useConcerts hook
+  // Cette fonction est conservée pour la compatibilité mais délègue au hook
   const fetchConcerts = useCallback(async () => {
-    console.log('🔄 Début de la récupération des concerts...')
+    console.log('⚠️  fetchConcerts appelé depuis useConcertActions - utiliser useConcerts hook à la place')
     try {
       const { data, error } = await supabase
         .from('concerts')
         .select('*')
         .order('date')
 
-      console.log('📊 Données récupérées:', data)
-      console.log('❌ Erreur éventuelle:', error)
-
       if (error) {
         console.error('❌ Erreur Supabase:', error)
         throw error
       }
       
-      console.log('✅ Nombre de concerts récupérés:', data?.length || 0)
       return data || []
     } catch (error: unknown) {
       console.error('💥 Erreur lors du chargement des concerts:', error)
@@ -36,9 +49,21 @@ export function useConcertActions() {
     }
   }, [toast])
 
-  const handleEdit = useCallback((concertData: ConcertTableData): Concert => {
+  const handleEdit = useCallback((concertData: ConcertTableData): Concert | null => {
+    const concertId = parseInt(concertData.id);
+    
+    // Vérifier les permissions d'accès à ce concert
+    if (!canAccessActivity('concert', concertId)) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas l'autorisation de modifier ce concert.",
+        variant: "destructive",
+      })
+      return null;
+    }
+
     const concert: Concert = {
-      id: parseInt(concertData.id),
+      id: concertId,
       name: concertData.name,
       artist: concertData.artist,
       genre: concertData.genre,
@@ -55,11 +80,21 @@ export function useConcertActions() {
     }
     console.log('✏️ Édition du concert:', concert)
     return concert
-  }, [])
+  }, [canAccessActivity, toast])
 
   const handleDelete = useCallback(async (id: string) => {
     const concertId = parseInt(id)
     console.log('🗑️ Suppression du concert ID:', concertId)
+    
+    // Vérifier les permissions d'accès à ce concert
+    if (!canAccessActivity('concert', concertId)) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas l'autorisation de supprimer ce concert.",
+        variant: "destructive",
+      })
+      return false;
+    }
     
     try {
       const { error } = await supabase
@@ -84,7 +119,7 @@ export function useConcertActions() {
       })
       return false
     }
-  }, [toast])
+  }, [canAccessActivity, toast])
 
   const saveConcert = useCallback(async (concert: Partial<Concert>) => {
     console.log('💾 Sauvegarde du concert:', concert)

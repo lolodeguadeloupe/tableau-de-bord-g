@@ -3,19 +3,38 @@ import { useState, useEffect } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { Restaurant } from "@/components/restaurant/restaurantSchema"
+import { usePartnerActivities } from "./usePartnerActivities"
+import { useAuth } from "./useAuth"
 
 export function useRestaurants(authLoading: boolean) {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const { canAccessAllData } = useAuth()
+  const { getPartnerIds, loading: activitiesLoading } = usePartnerActivities()
 
   const fetchRestaurants = async () => {
     console.log('🔄 Début de la récupération des restaurants...')
     try {
-      const { data, error } = await supabase
-        .from('restaurants')
-        .select('*')
-        .order('name')
+      // Obtenir les IDs des partenaires accessibles à l'utilisateur
+      const accessiblePartnerIds = getPartnerIds();
+      console.log('🏪 IDs partenaires accessibles:', accessiblePartnerIds);
+
+      let query = supabase.from('restaurants').select('*').order('name');
+
+      // Si l'utilisateur n'a pas accès à tout, filtrer par les partenaires accessibles
+      if (!canAccessAllData) {
+        if (accessiblePartnerIds.length > 0) {
+          query = query.in('partner_id', accessiblePartnerIds);
+        } else {
+          // Si aucun partenaire accessible, retourner une liste vide
+          console.log('🚫 Aucun partenaire accessible pour cet utilisateur');
+          setRestaurants([]);
+          return;
+        }
+      }
+
+      const { data, error } = await query;
 
       console.log('📊 Données récupérées:', data)
       console.log('❌ Erreur éventuelle:', error)
@@ -71,10 +90,10 @@ export function useRestaurants(authLoading: boolean) {
   }
 
   useEffect(() => {
-    if (!authLoading) {
+    if (!authLoading && !activitiesLoading) {
       fetchRestaurants()
     }
-  }, [authLoading])
+  }, [authLoading, activitiesLoading])
 
   return {
     restaurants,

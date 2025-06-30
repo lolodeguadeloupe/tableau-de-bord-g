@@ -2,11 +2,13 @@
 import { useState } from "react"
 import { supabase } from "@/integrations/supabase/client"
 import { useToast } from "@/hooks/use-toast"
+import { usePartnerActivities } from "./usePartnerActivities"
 import type { NightlifeEvent, NightlifeEventTableData } from "@/types/nightlife"
 
 export function useNightlifeActions() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
+  const { canAccessActivity } = usePartnerActivities()
 
   const fetchEvents = async (): Promise<NightlifeEvent[]> => {
     try {
@@ -55,6 +57,16 @@ export function useNightlifeActions() {
       if (eventData.id) {
         // Update existing event
         const eventId = typeof eventData.id === 'string' ? parseInt(eventData.id) : eventData.id
+        
+        // Vérifier les permissions d'accès à cet événement
+        if (!canAccessActivity('nightlife', eventId)) {
+          toast({
+            title: "Accès refusé",
+            description: "Vous n'avez pas l'autorisation de modifier cet événement.",
+            variant: "destructive",
+          })
+          return null;
+        }
         console.log('Updating event with ID:', eventId, 'type:', typeof eventId)
         
         // Prepare update data
@@ -186,12 +198,24 @@ export function useNightlifeActions() {
     }
   }
 
-  const handleEdit = (eventData: NightlifeEventTableData): NightlifeEvent => {
+  const handleEdit = (eventData: NightlifeEventTableData): NightlifeEvent | null => {
     console.log('Converting table data to event data:', eventData)
+    
+    const eventId = parseInt(eventData.id);
+    
+    // Vérifier les permissions d'accès à cet événement
+    if (!canAccessActivity('nightlife', eventId)) {
+      toast({
+        title: "Accès refusé",
+        description: "Vous n'avez pas l'autorisation de modifier cet événement.",
+        variant: "destructive",
+      })
+      return null;
+    }
     
     // Ensure all required fields are properly converted and present
     const convertedEvent: NightlifeEvent = {
-      id: parseInt(eventData.id),
+      id: eventId,
       name: eventData.name || '',
       type: eventData.type || '',
       venue: eventData.venue || '',
@@ -213,10 +237,22 @@ export function useNightlifeActions() {
   const handleDelete = async (id: string): Promise<boolean> => {
     try {
       setLoading(true)
+      const eventId = parseInt(id);
+      
+      // Vérifier les permissions d'accès à cet événement
+      if (!canAccessActivity('nightlife', eventId)) {
+        toast({
+          title: "Accès refusé",
+          description: "Vous n'avez pas l'autorisation de supprimer cet événement.",
+          variant: "destructive",
+        })
+        return false;
+      }
+      
       const { error } = await supabase
         .from('nightlife_events')
         .delete()
-        .eq('id', parseInt(id))
+        .eq('id', eventId)
 
       if (error) throw error
 

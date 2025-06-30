@@ -17,6 +17,14 @@ export default function Auth() {
     })
 
     // Only redirect if we have a user AND they are admin AND not loading
+    console.log('🔑 Auth page - Current state:', { 
+      hasUser: !!user, 
+      loading,
+      isAdmin,
+      userEmail: user?.email,
+      userRole: user?.user_metadata.role
+    })
+
     if (user && isAdmin && !loading) {
       console.log('✅ Admin user detected, redirecting to dashboard')
       navigate('/', { replace: true })

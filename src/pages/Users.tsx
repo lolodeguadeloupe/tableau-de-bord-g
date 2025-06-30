@@ -223,6 +223,19 @@ export default function Users() {
     { title: "Utilisateurs", value: stats.users.toString(), change: "Accès standard" }
   ]
 
+  // Seuls les Super Admin peuvent accéder à cette page
+  if (!isSuperAdmin && !loading) {
+    return (
+      <div className="flex items-center justify-center min-h-96">
+        <div className="text-center">
+          <div className="text-6xl mb-4">🚫</div>
+          <h2 className="text-2xl font-bold text-foreground mb-2">Accès refusé</h2>
+          <p className="text-muted-foreground">Seuls les Super Administrateurs peuvent accéder à la gestion des utilisateurs.</p>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-96">

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react"
 import { User } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -84,11 +83,12 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
 
       onSuccess()
       onClose()
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Impossible de modifier l'utilisateur."
       console.error('Erreur lors de la modification:', error)
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de modifier l'utilisateur.",
+        description: message,
         variant: "destructive",
       })
     } finally {
@@ -142,8 +142,8 @@ export function UserEditModal({ user, isOpen, onClose, onSuccess }: UserEditModa
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="user">Utilisateur</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                   <SelectItem value="editor">Éditeur</SelectItem>
-                  <SelectItem value="admin">Administrateur</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -6,26 +6,18 @@ import { ConcertStats } from "@/components/concert/ConcertStats"
 import { ConcertTable } from "@/components/concert/ConcertTable"
 import { ConcertModal } from "@/components/concert/ConcertModal"
 import { useConcertActions } from "@/hooks/useConcertActions"
+import { useConcerts } from "@/hooks/useConcerts"
+import { useAuth } from "@/hooks/useAuth"
 import type { Concert, ConcertTableData } from "@/types/concert"
 
 export default function Concerts() {
-  const [concerts, setConcerts] = useState<Concert[]>([])
-  const [loading, setLoading] = useState(true)
+  const { loading: authLoading } = useAuth()
+  const { concerts, loading, fetchConcerts } = useConcerts(authLoading)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingConcert, setEditingConcert] = useState<Concert | null>(null)
 
-  const { fetchConcerts, handleEdit, handleDelete, saveConcert } = useConcertActions()
+  const { handleEdit, handleDelete, saveConcert } = useConcertActions()
 
-  const loadConcerts = async () => {
-    setLoading(true)
-    const data = await fetchConcerts()
-    setConcerts(data)
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    loadConcerts()
-  }, [])
 
   const handleEditConcert = (concertData: ConcertTableData) => {
     const concert = handleEdit(concertData)
@@ -36,14 +28,14 @@ export default function Concerts() {
   const handleDeleteConcert = async (id: string) => {
     const success = await handleDelete(id)
     if (success) {
-      await loadConcerts()
+      await fetchConcerts()
     }
   }
 
   const handleSaveConcert = async (concertData: Partial<Concert>) => {
     const result = await saveConcert(concertData)
     if (result) {
-      await loadConcerts()
+      await fetchConcerts()
       return result
     }
     return null

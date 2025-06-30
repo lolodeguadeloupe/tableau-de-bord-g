@@ -247,25 +247,6 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
               )}
             </Button>
           </form>
-
-          <div className="mt-4 text-center">
-            <Button
-              variant="link"
-              onClick={() => {
-                setIsLogin(!isLogin)
-                setEmail("")
-                setPassword("")
-                setFirstName("")
-                setLastName("")
-                setShowAccessDeniedMessage(false)
-              }}
-              className="text-sm"
-            >
-              {isLogin 
-                ? "Pas de compte ? S'inscrire" 
-                : "Déjà un compte ? Se connecter"}
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>

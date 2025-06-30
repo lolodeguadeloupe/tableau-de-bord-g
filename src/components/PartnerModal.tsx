@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Partner } from '../types/partner';
+import { useUsers } from '../hooks/useUsers';
 import {
   Dialog,
   DialogContent,
@@ -11,6 +12,20 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PartnerModalProps {
   isOpen: boolean;
@@ -23,6 +38,8 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
   const [formData, setFormData] = useState<Partial<Partner>>(partner || {});
   const [mainImageFile, setMainImageFile] = useState<File | null>(null);
   const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
+  const [open, setOpen] = useState(false);
+  const { users, loading: usersLoading } = useUsers();
 
   useEffect(() => {
     setFormData(partner || {});
@@ -44,6 +61,20 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  const handleUserChange = (value: string) => {
+    setFormData({ ...formData, user_id: value });
+    setOpen(false);
+  };
+
+  const getSelectedUserLabel = () => {
+    if (!formData.user_id) return "Sélectionner un utilisateur";
+    const selectedUser = users.find(user => user.id === formData.user_id);
+    if (!selectedUser) return "Utilisateur introuvable";
+    return selectedUser.first_name && selectedUser.last_name 
+      ? `${selectedUser.first_name} ${selectedUser.last_name} (${selectedUser.email})`
+      : selectedUser.email;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -111,6 +142,51 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
               Business Type
             </Label>
             <Input id="business_type" name="business_type" value={formData.business_type || ''} onChange={handleChange} className="col-span-3" />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="user_id" className="text-right">
+              Utilisateur
+            </Label>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={open}
+                  className="col-span-3 justify-between"
+                  disabled={usersLoading}
+                >
+                  {usersLoading ? "Chargement..." : getSelectedUserLabel()}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="col-span-3 p-0">
+                <Command>
+                  <CommandInput placeholder="Rechercher un utilisateur..." />
+                  <CommandEmpty>Aucun utilisateur trouvé.</CommandEmpty>
+                  <CommandGroup>
+                    {users.map((user) => (
+                      <CommandItem
+                        key={user.id}
+                        value={`${user.first_name || ''} ${user.last_name || ''} ${user.email}`.toLowerCase()}
+                        onSelect={() => handleUserChange(user.id)}
+                      >
+                        <Check
+                          className={cn(
+                            "mr-2 h-4 w-4",
+                            formData.user_id === user.id ? "opacity-100" : "opacity-0"
+                          )}
+                        />
+                        {user.first_name && user.last_name 
+                          ? `${user.first_name} ${user.last_name} (${user.email})`
+                          : user.email
+                        }
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
