@@ -20,7 +20,7 @@ import type { Concert, ConcertTableData } from "@/types/concert"
 
 export function useConcertActions() {
   const { toast } = useToast()
-  const { canAccessActivity } = usePartnerActivities()
+  const { hasAccessToActivityType } = usePartnerActivities()
 
   // Note: Le fetchConcerts est maintenant géré par useConcerts hook
   // Cette fonction est conservée pour la compatibilité mais délègue au hook
@@ -53,7 +53,7 @@ export function useConcertActions() {
     const concertId = parseInt(concertData.id);
     
     // Vérifier les permissions d'accès à ce concert
-    if (!canAccessActivity('concert', concertId)) {
+    if (!hasAccessToActivityType('concert')) {
       toast({
         title: "Accès refusé",
         description: "Vous n'avez pas l'autorisation de modifier ce concert.",
@@ -80,14 +80,14 @@ export function useConcertActions() {
     }
     console.log('✏️ Édition du concert:', concert)
     return concert
-  }, [canAccessActivity, toast])
+  }, [hasAccessToActivityType, toast])
 
   const handleDelete = useCallback(async (id: string) => {
     const concertId = parseInt(id)
     console.log('🗑️ Suppression du concert ID:', concertId)
     
     // Vérifier les permissions d'accès à ce concert
-    if (!canAccessActivity('concert', concertId)) {
+    if (!hasAccessToActivityType('concert')) {
       toast({
         title: "Accès refusé",
         description: "Vous n'avez pas l'autorisation de supprimer ce concert.",
@@ -119,7 +119,7 @@ export function useConcertActions() {
       })
       return false
     }
-  }, [canAccessActivity, toast])
+  }, [hasAccessToActivityType, toast])
 
   const saveConcert = useCallback(async (concert: Partial<Concert>) => {
     console.log('💾 Sauvegarde du concert:', concert)

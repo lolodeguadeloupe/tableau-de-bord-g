@@ -150,7 +150,7 @@ export const usePartners = () => {
         return;
       }
 
-      let query = supabase.from('partners').delete().eq('id', id);
+      const query = supabase.from('partners').delete().eq('id', id);
 
       const { error } = await query;
       if (error) throw error;
