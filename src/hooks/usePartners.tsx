@@ -127,7 +127,7 @@ export const usePartners = () => {
         gallery_images: galleryUrls,
       };
 
-      let query = supabase
+      const query = supabase
         .from('partners')
         .update(partnerToUpdate)
         .eq('id', id);
