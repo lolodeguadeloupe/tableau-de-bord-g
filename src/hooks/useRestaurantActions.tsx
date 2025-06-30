@@ -1,17 +1,17 @@
-
 import { useState } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { supabase } from "@/integrations/supabase/client"
 import { Restaurant } from "@/components/restaurant/restaurantSchema"
 import { RestaurantTableData } from "@/components/restaurant/RestaurantTableUtils"
 import { usePartnerActivities } from "./usePartnerActivities"
+import { User } from "@supabase/supabase-js"
 
-export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
+export function useRestaurantActions(user: User | null, fetchRestaurants: () => void) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null)
   const [deleteRestaurantId, setDeleteRestaurantId] = useState<number | null>(null)
   const { toast } = useToast()
-  const { canAccessActivity } = usePartnerActivities()
+  const { canAccessPartner } = usePartnerActivities()
 
   const handleEdit = (restaurantData: RestaurantTableData) => {
     if (!user) {
@@ -25,7 +25,7 @@ export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
 
     // Vérifier les permissions d'accès à ce restaurant
     const restaurantId = parseInt(restaurantData.id);
-    if (!canAccessActivity('restaurant', restaurantId)) {
+    if (!canAccessPartner(restaurantId)) {
       toast({
         title: "Accès refusé",
         description: "Vous n'avez pas l'autorisation de modifier ce restaurant.",
@@ -68,7 +68,7 @@ export function useRestaurantActions(user: any, fetchRestaurants: () => void) {
     console.log('🗑️ Suppression du restaurant ID:', restaurantId)
     
     // Vérifier les permissions d'accès à ce restaurant
-    if (!canAccessActivity('restaurant', restaurantId)) {
+    if (!canAccessPartner(restaurantId)) {
       toast({
         title: "Accès refusé",
         description: "Vous n'avez pas l'autorisation de supprimer ce restaurant.",

@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,7 @@ import { Loader2 } from "lucide-react"
 import { useAuth } from "@/hooks/useAuth"
 import { RestaurantForm } from "./restaurant/RestaurantForm"
 import { Restaurant } from "./restaurant/restaurantSchema"
+import { usePartnerActivities } from "@/hooks/usePartnerActivities"
 
 interface RestaurantModalProps {
   restaurant: Restaurant | null
@@ -20,6 +20,7 @@ interface RestaurantModalProps {
 
 export function RestaurantModal({ restaurant, isOpen, onClose, onSuccess }: RestaurantModalProps) {
   const { user, loading: authLoading } = useAuth()
+  const { canAccessPartner } = usePartnerActivities()
 
   const handleSuccess = () => {
     onSuccess()
