@@ -1,0 +1,11 @@
+id,email,first_name,last_name,role,created_at,updated_at,admin_type,company_id
+13015987-1982-446b-b6e5-acba7b7da5f5,meryl@gmail.com,Meryl,LUCE,admin,2025-05-20 13:25:00.028185+00,2025-06-29 11:00:04.598+00,partner_admin,
+1e202ce4-24f9-4fad-9e67-7d31fa1ce5ea,cmoinster123@gmail.com,,,client,2025-05-20 07:48:04.772484+00,2025-05-20 07:48:04.772484+00,partner_admin,
+214053ff-c37e-48df-9c14-ba2792e190d2,partner@clubcreole.com,,,admin,2025-05-20 08:12:16.741603+00,2025-05-20 08:12:16.741603+00,partner_admin,
+21c105df-4d51-4fdd-a1f9-fe90de69b31c,test@gmail.com,,,client,2025-06-29 15:38:47.114936+00,2025-06-29 15:38:47.114936+00,restaurant_manager,
+474e3a74-5d59-4c89-b12e-ffa6198515ea,admin@clubcreole.com,Admin,System,admin,2025-06-17 07:16:06.667+00,2025-06-17 07:16:06.667+00,super_admin,
+753650a1-ba44-4f55-828e-41b500eb8cb3,cmoinster@gmail.com,,,admin,2025-05-18 18:52:46.379514+00,2025-06-30 20:06:21.193+00,partner_admin,
+75427f52-12f0-4aaa-b713-486a7f1b5d34,laurent.luce@hotmail.com,Laurent,Luce,admin,2025-05-20 14:21:40.901087+00,2025-06-22 07:16:22.001+00,partner_admin,
+905e739f-0b5a-41d1-bb86-380fa16846f9,client@clubcreole.com,,,admin,2025-05-20 08:12:17.005903+00,2025-06-29 08:47:53.488+00,partner_admin,
+9acfe1f5-e3f6-4e21-9aa5-ea2abf5846dd,laurent@gmail.com,,,client,2025-06-29 15:43:53.281346+00,2025-06-29 15:43:53.281346+00,partner_admin,
+d874f500-90d0-40dc-a157-d3b6d3b023f4,user@demo.com,,,client,2025-07-01 06:41:07.689821+00,2025-07-01 06:41:07.689821+00,partner_admin,

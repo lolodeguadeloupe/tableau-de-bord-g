@@ -21,6 +21,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import type { Json } from "@/integrations/supabase/types"
+import { useDebounce } from "@/hooks/useDebounce"
 
 interface Accommodation {
   id: number
@@ -58,8 +59,8 @@ export default function Accommodations() {
   const [selectedAccommodation, setSelectedAccommodation] = useState<Accommodation | null>(null)
   const [deleteAccommodationId, setDeleteAccommodationId] = useState<number | null>(null)
   const [globalSearchTerm, setGlobalSearchTerm] = useState("")
+  const debouncedSearchTerm = useDebounce(globalSearchTerm, 400)
   const { toast } = useToast()
-
 
   const handleEdit = (accommodationData: AccommodationTableData) => {
     // Convert back to original Accommodation type
@@ -140,11 +141,11 @@ export default function Accommodations() {
 
   // Filtrer les données selon le terme de recherche global
   const filteredAccommodations = accommodations.filter(accommodation =>
-    globalSearchTerm === "" || 
-    accommodation.name.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-    accommodation.type.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-    accommodation.location.toLowerCase().includes(globalSearchTerm.toLowerCase()) ||
-    accommodation.description.toLowerCase().includes(globalSearchTerm.toLowerCase())
+    debouncedSearchTerm === "" || 
+    accommodation.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    accommodation.type.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    accommodation.location.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+    accommodation.description.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
   )
 
   const tableData: AccommodationTableData[] = filteredAccommodations.map(accommodation => ({

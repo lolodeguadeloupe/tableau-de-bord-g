@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { usePartnerActivities } from "./usePartnerActivities";
@@ -31,7 +31,7 @@ export function useAccommodations(authLoading: boolean) {
   const { canAccessAllData } = useAuth();
   const { getPartnerIds, loading: activitiesLoading } = usePartnerActivities();
 
-  const fetchAccommodations = async () => {
+  const fetchAccommodations = useCallback(async () => {
     console.log('🔄 Début de la récupération des hébergements...');
     try {
       // Obtenir les IDs des partenaires accessibles à l'utilisateur
@@ -85,13 +85,13 @@ export function useAccommodations(authLoading: boolean) {
       setLoading(false);
       console.log('🏁 Fin de la récupération des hébergements');
     }
-  };
+  }, [getPartnerIds, canAccessAllData, toast]);
 
   useEffect(() => {
     if (!authLoading && !activitiesLoading) {
       fetchAccommodations();
     }
-  }, [authLoading, activitiesLoading]);
+  }, [authLoading, activitiesLoading, fetchAccommodations]);
 
   return {
     accommodations,
