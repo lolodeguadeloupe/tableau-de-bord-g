@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Partner } from '../types/partner';
 import { useAuth } from './useAuth';
@@ -8,6 +8,9 @@ import { v4 as uuidv4 } from 'uuid';
 export const usePartners = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 20;
   const { canAccessAllData, profile } = useAuth();
   const { getPartnerIds, canAccessPartner, loading: activitiesLoading } = usePartnerActivities();
 
@@ -32,10 +35,9 @@ export const usePartners = () => {
     return data?.publicUrl || null;
   };
 
-  useEffect(() => {
-    const fetchPartners = async () => {
-      try {
-        let query = supabase.from('partners').select('*');
+  const fetchPartners = useCallback(async (pageNumber: number) => {
+    try {
+      let query = supabase.from('partners').select('*').order('created_at', { ascending: false });
         
         if (canAccessAllData) {
           // Super Admin : tous les partenaires
@@ -55,21 +57,27 @@ export const usePartners = () => {
           }
         }
         
-        const { data, error } = await query;
-        if (error) throw error;
-        setPartners(data || []);
-      } catch (error) {
-        console.error('Error fetching partners:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      const from = pageNumber * pageSize;
+      const to = from + pageSize - 1;
+      const { data, error } = await query.range(from, to);
+      if (error) throw error;
 
-    // Attendre que le profil et les activités soient chargés
-    if (profile !== null && !activitiesLoading) {
-      fetchPartners();
+      setPartners(prev => pageNumber === 0 ? (data || []) : [...prev, ...(data || [])]);
+      setHasMore((data?.length || 0) === pageSize);
+      setPage(pageNumber);
+    } catch (error) {
+      console.error('Error fetching partners:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [canAccessAllData, profile, activitiesLoading, getPartnerIds]);
+  }, [canAccessAllData, getPartnerIds, pageSize]);
+
+  useEffect(() => {
+    if (profile !== null && !activitiesLoading) {
+      setPartners([]);
+      fetchPartners(0);
+    }
+  }, [profile, activitiesLoading, canAccessAllData, fetchPartners]);
 
   const addPartner = async (partner: Omit<Partner, 'id' | 'created_at' | 'updated_at'>, mainImageFile: File | null, galleryImageFiles: File[]) => {
     try {
@@ -160,5 +168,13 @@ export const usePartners = () => {
     }
   };
 
-  return { partners, loading, addPartner, updatePartner, deletePartner };
+  const loadMore = () => {
+    if (!loading && hasMore) {
+      fetchPartners(page + 1);
+    }
+  };
+
+  return { partners, loading, hasMore, loadMore, addPartner, updatePartner, deletePartner };
 };
+
+export type { Partner } from '../types/partner';

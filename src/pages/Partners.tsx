@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { usePartners } from '../hooks/usePartners';
 import PartnerTable from '../components/PartnerTable';
 import PartnerModal from '../components/PartnerModal';
@@ -7,10 +7,23 @@ import { Partner } from '../types/partner';
 import { useAuth } from '../hooks/useAuth';
 
 const Partners = () => {
-  const { partners, loading, addPartner, updatePartner, deletePartner } = usePartners();
+  const { partners, loading, hasMore, loadMore, addPartner, updatePartner, deletePartner } = usePartners();
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const { isSuperAdmin, loading: authLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        loadMore();
+      }
+    }, { rootMargin: '100px' });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [loadMore]);
 
   // Seuls les Super Admin peuvent accéder à cette page
   if (!isSuperAdmin && !authLoading) {
@@ -50,7 +63,7 @@ const Partners = () => {
     setIsModalOpen(false);
   };
 
-  if (loading) return <div>Loading...</div>;
+  if (loading && partners.length === 0) return <div>Loading...</div>;
 
   return (
     <div>
@@ -59,6 +72,11 @@ const Partners = () => {
         <Button onClick={handleAdd}>Add Partner</Button>
       </div>
       <PartnerTable partners={partners} onEdit={handleEdit} onDelete={handleDelete} />
+      <div ref={loadMoreRef} className="h-4" />
+      {loading && <p className="text-center py-2">Chargement...</p>}
+      {!hasMore && partners.length > 0 && (
+        <p className="text-center py-2 text-muted-foreground">Tous les partenaires sont chargés.</p>
+      )}
       <PartnerModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} partner={selectedPartner} />
     </div>
   );
