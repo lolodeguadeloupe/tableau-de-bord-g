@@ -20,7 +20,8 @@ import {
   Plane,
   Megaphone,
   Handshake,
-  Building
+  Building,
+  Mail
 } from "lucide-react"
 
 import {
@@ -139,6 +140,13 @@ const items = [
     color: "text-red-600",
     requiresSuperAdmin: false,
     activityType: "promotion"
+  },
+  {
+    title: "Newsletter",
+    url: "/newsletter",
+    icon: Mail,
+    color: "text-blue-600",
+    requiresSuperAdmin: false
   },
   {
     title: "Analytics", 

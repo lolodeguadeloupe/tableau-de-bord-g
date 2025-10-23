@@ -10,6 +10,15 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     allowedHosts: ['localhost', '127.0.0.1', '0.0.0.0', 'host.docker.internal','administration.clubcreole.fr'],
+    hmr: {
+      port: 8080,
+      host: 'localhost',
+      protocol: 'ws',
+    },
+    watch: {
+      usePolling: false,
+      interval: 100,
+    },
   },
   plugins: [
     react(),
