@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { usePartners } from '../hooks/usePartners';
 import PartnerTable from '../components/PartnerTable';
 import PartnerModal from '../components/PartnerModal';
@@ -7,10 +7,33 @@ import { Partner } from '../types/partner';
 import { useAuth } from '../hooks/useAuth';
 
 const Partners = () => {
-  const { partners, loading, addPartner, updatePartner, deletePartner } = usePartners();
+  const { partners, loading, loadingMore, hasMore, loadMore, addPartner, updatePartner, deletePartner } = usePartners();
   const { isSuperAdmin, loading: authLoading } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
+  const observerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    const currentRef = observerRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasMore, loadingMore, loadMore]);
 
   // Seuls les Super Admin peuvent accéder à cette page
   if (!isSuperAdmin && !authLoading) {
@@ -59,6 +82,19 @@ const Partners = () => {
         <Button onClick={handleAdd}>Add Partner</Button>
       </div>
       <PartnerTable partners={partners} onEdit={handleEdit} onDelete={handleDelete} />
+      
+      {/* Infinite scroll observer */}
+      {hasMore && (
+        <div ref={observerRef} className="flex justify-center py-4">
+          {loadingMore && (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+              <span className="text-sm text-muted-foreground">Chargement...</span>
+            </div>
+          )}
+        </div>
+      )}
+      
       <PartnerModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} partner={selectedPartner} />
     </div>
   );

@@ -8,8 +8,13 @@ import { v4 as uuidv4 } from 'uuid';
 export const usePartners = () => {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
   const { canAccessAllData, profile } = useAuth();
   const { getPartnerIds, canAccessPartner, loading: activitiesLoading } = usePartnerActivities();
+
+  const ITEMS_PER_PAGE = 10;
 
   // Helper function to upload an image to Supabase storage
   const uploadImage = async (file: File): Promise<string | null> => {
@@ -32,44 +37,80 @@ export const usePartners = () => {
     return data?.publicUrl || null;
   };
 
-  useEffect(() => {
-    const fetchPartners = async () => {
-      try {
-        let query = supabase.from('partners').select('*');
+  const fetchPartners = async (pageNum: number = 0, append: boolean = false) => {
+    try {
+      if (pageNum === 0 && !append) {
+        setLoading(true);
+      } else {
+        setLoadingMore(true);
+      }
+
+      let query = supabase
+        .from('partners')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(pageNum * ITEMS_PER_PAGE, (pageNum + 1) * ITEMS_PER_PAGE - 1);
+      
+      if (canAccessAllData) {
+        // Super Admin : tous les partenaires
+        console.log('🔓 Super Admin: accès à tous les partenaires');
+      } else {
+        // Admin Partenaire : seulement les partenaires accessibles
+        const accessiblePartnerIds = getPartnerIds();
+        console.log('🏢 IDs partenaires accessibles:', accessiblePartnerIds);
         
-        if (canAccessAllData) {
-          // Super Admin : tous les partenaires
-          console.log('🔓 Super Admin: accès à tous les partenaires');
+        if (accessiblePartnerIds.length > 0) {
+          query = query.in('id', accessiblePartnerIds);
         } else {
-          // Admin Partenaire : seulement les partenaires accessibles
-          const accessiblePartnerIds = getPartnerIds();
-          console.log('🏢 IDs partenaires accessibles:', accessiblePartnerIds);
-          
-          if (accessiblePartnerIds.length > 0) {
-            query = query.in('id', accessiblePartnerIds);
-          } else {
-            // Si aucun partenaire accessible, retourner une liste vide
-            console.log('🚫 Aucun partenaire accessible pour cet utilisateur');
-            setPartners([]);
-            return;
-          }
+          // Si aucun partenaire accessible, retourner une liste vide
+          console.log('🚫 Aucun partenaire accessible pour cet utilisateur');
+          setPartners([]);
+          setHasMore(false);
+          setLoading(false);
+          setLoadingMore(false);
+          return;
         }
-        
-        const { data, error } = await query;
-        if (error) throw error;
-        setPartners(data || []);
-      } catch (error) {
-        console.error('Error fetching partners:', error);
-      } finally {
-        setLoading(false);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      
+      const newPartners = data || [];
+      
+      if (append) {
+        setPartners(prev => [...prev, ...newPartners]);
+      } else {
+        setPartners(newPartners);
+      }
+      
+      setHasMore(newPartners.length === ITEMS_PER_PAGE);
+      
+    } catch (error) {
+      console.error('Error fetching partners:', error);
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  };
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchPartners(nextPage, true);
+    }
+  };
+
+  useEffect(() => {
+    const loadInitialData = async () => {
+      if (profile !== null && !activitiesLoading) {
+        setPage(0);
+        await fetchPartners(0, false);
       }
     };
-
-    // Attendre que le profil et les activités soient chargés
-    if (profile !== null && !activitiesLoading) {
-      fetchPartners();
-    }
-  }, [canAccessAllData, profile, activitiesLoading, getPartnerIds]);
+    
+    loadInitialData();
+  }, [canAccessAllData, profile, activitiesLoading]);
 
   const addPartner = async (partner: Omit<Partner, 'id' | 'created_at' | 'updated_at'>, mainImageFile: File | null, galleryImageFiles: File[]) => {
     try {
@@ -160,5 +201,5 @@ export const usePartners = () => {
     }
   };
 
-  return { partners, loading, addPartner, updatePartner, deletePartner };
+  return { partners, loading, loadingMore, hasMore, loadMore, addPartner, updatePartner, deletePartner };
 };
