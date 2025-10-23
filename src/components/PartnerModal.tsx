@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/popover";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from '@tanstack/react-query';
 
 interface PartnerModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
   const [galleryImageFiles, setGalleryImageFiles] = useState<File[]>([]);
   const [open, setOpen] = useState(false);
   const { users, loading: usersLoading } = useUsers();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     setFormData(partner || {});
@@ -80,6 +82,7 @@ const PartnerModal: React.FC<PartnerModalProps> = ({ isOpen, onClose, onSave, pa
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData as Partner, mainImageFile, galleryImageFiles);
+    queryClient.invalidateQueries({ queryKey: ['partenaires'] });
   };
 
   const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {

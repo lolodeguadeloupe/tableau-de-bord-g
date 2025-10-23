@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from '@tanstack/react-query';
 
 interface PartnerTableProps {
   partners: Partner[];
@@ -16,6 +17,8 @@ interface PartnerTableProps {
 }
 
 const PartnerTable: React.FC<PartnerTableProps> = ({ partners, onEdit, onDelete }) => {
+  const queryClient = useQueryClient();
+
   return (
     <div className="rounded-md border">
       <Table>
@@ -39,7 +42,10 @@ const PartnerTable: React.FC<PartnerTableProps> = ({ partners, onEdit, onDelete 
               <TableCell><a href={partner.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{partner.website}</a></TableCell>
               <TableCell>
                 <Button variant="outline" size="sm" onClick={() => onEdit(partner)} className="mr-2">Edit</Button>
-                <Button variant="destructive" size="sm" onClick={() => onDelete(partner.id)}>Delete</Button>
+                <Button variant="destructive" size="sm" onClick={() => {
+                  onDelete(partner.id.toString());
+                  queryClient.invalidateQueries({ queryKey: ['partenaires'] });
+                }}>Delete</Button>
               </TableCell>
             </TableRow>
           ))}
