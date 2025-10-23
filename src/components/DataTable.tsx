@@ -34,8 +34,18 @@ export function DataTable<T extends TableData>({
   const itemsPerPage = 10
 
   const filteredData = data.filter(item =>
-    Object.values(item).some(value => {
-      if (React.isValidElement(value)) return false
+    Object.entries(item).some(([key, value]) => {
+      if (React.isValidElement(value)) {
+        // Pour les éléments React (comme les emails avec icônes), 
+        // on cherche dans les props children ou on les convertit en texte
+        if (key === 'email' && value.props && value.props.children) {
+          const textContent = Array.isArray(value.props.children) 
+            ? value.props.children.join('')
+            : value.props.children.toString()
+          return textContent.toLowerCase().includes(searchTerm.toLowerCase())
+        }
+        return false
+      }
       return value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
     })
   )
